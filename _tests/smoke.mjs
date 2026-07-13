@@ -55,9 +55,10 @@ for (let s = 0; s < SUBJECTS.length; s++) {
   if (!q.hasPrompt) throw new Error(`${SUBJECTS[s]}: no prompt rendered`);
 
   // ordering: Math ascending numeric, Words/Animals alphabetical
+  const val = (x) => (x.includes('/') ? Number(x.split('/')[0]) / Number(x.split('/')[1]) : Number(x));
   const ordered =
     s === 0
-      ? [...q.choices].sort((a, b) => Number(a) - Number(b))
+      ? [...q.choices].sort((a, b) => val(a) - val(b))
       : s === 3
         ? q.choices // patterns: canonical shape order (not asserted here)
         : [...q.choices].sort((a, b) => a.localeCompare(b));
@@ -67,9 +68,18 @@ for (let s = 0; s < SUBJECTS.length; s++) {
   if (s === 0) await shot('game-math');
   if (s === 3) await shot('game-patterns');
 
-  // play all 10 questions (click first live choice each time)
+  // play all 10 questions (click first live choice each time), validating each
   for (let i = 0; i < 10; i++) {
     await page.waitForSelector('.game .choice:not([disabled])', { timeout: 3000 });
+    const check = await page.evaluate(() => {
+      const cs = [...document.querySelectorAll('.choice')].map((c) => c.dataset.choice);
+      const prompt = document.querySelector('.game-prompt')?.textContent?.trim() || '';
+      return { cs, prompt, bad: cs.some((c) => c == null || c === '' || c.includes('NaN') || c.includes('undefined')) };
+    });
+    if (check.cs.length !== 4) throw new Error(`${SUBJECTS[s]} q${i}: ${check.cs.length} choices`);
+    if (new Set(check.cs).size !== 4) throw new Error(`${SUBJECTS[s]} q${i}: dup choices ${JSON.stringify(check.cs)}`);
+    if (check.bad) throw new Error(`${SUBJECTS[s]} q${i}: bad choice ${JSON.stringify(check.cs)} (prompt "${check.prompt}")`);
+    if (s === 0) console.log(`    math q${i}: "${check.prompt}" → ${JSON.stringify(check.cs)}`);
     const btn = await page.$('.game .choice:not([disabled])');
     await btn.click();
     await new Promise((r) => setTimeout(r, i === 9 ? 1800 : 1300));

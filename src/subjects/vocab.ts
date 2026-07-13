@@ -25,10 +25,10 @@ const BANK: BankItem[] = [
   { emoji: '🌈', label: 'Rainbow', group: 'weather' },
 ];
 
-const COLORS = ['#a78bfa', '#c084fc', '#f0abfc'];
+const COLORS = ['#14b8a6', '#2dd4bf', '#5eead4'];
 
 export const vocabPack: SubjectPack = {
-  meta: { id: 'vocab', emoji: '🖼️', name: 'Words', blurb: 'Name the picture', accent: '#a78bfa' },
+  meta: { id: 'vocab', emoji: '🖼️', name: 'Words', blurb: 'Name the picture', accent: '#14b8a6' },
   session: (rng) => {
     const nextItem = bankSequence(BANK, rng);
     return (index): Question => {

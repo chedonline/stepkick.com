@@ -1,15 +1,16 @@
 /* ============ Stepkick — bright, tappable, kid-friendly ============ */
 
 :root {
-  --bg: #0f1226;
-  --panel: #191d3a;
-  --panel-2: #232a52;
-  --ink: #f4f6ff;
-  --ink-dim: #9aa4cc;
-  --accent: #38bdf8; /* overridden per subject */
+  --bg: #0b1a1e;
+  --panel: #10262b;
+  --panel-2: #163238;
+  --ink: #ecfeff;
+  --ink-dim: #8bb3b8;
+  --accent: #2dd4bf; /* light teal — brand; overridden per subject */
   --good: #4ade80;
   --bad: #fb7185;
   --gold: #fbbf24;
+  --line: #1f4750;
   --radius: 22px;
   --pad: clamp(16px, 3.2cqh, 26px);
 }
@@ -58,7 +59,7 @@ button {
   height: 100dvh;
   container-type: size;
   background:
-    radial-gradient(120% 60% at 50% -10%, #26305e 0%, transparent 60%),
+    radial-gradient(120% 60% at 50% -10%, #123b40 0%, transparent 60%),
     var(--bg);
   display: flex;
   flex-direction: column;
@@ -69,15 +70,15 @@ button {
 
 body.framed {
   background:
-    radial-gradient(80% 80% at 20% 0%, #1a2145 0%, transparent 60%),
-    radial-gradient(80% 80% at 100% 100%, #1a2145 0%, transparent 55%),
-    #080b18;
+    radial-gradient(80% 80% at 20% 0%, #0f2a30 0%, transparent 60%),
+    radial-gradient(80% 80% at 100% 100%, #0f2a30 0%, transparent 55%),
+    #061214;
 }
 
 body.framed #app {
   border-radius: 38px;
-  border: 1px solid #303a68;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 8px #121835;
+  border: 1px solid var(--line);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 8px #0a2025;
 }
 
 body.framed[data-view='phone'] #app {
@@ -101,8 +102,8 @@ body.framed[data-view='ipad-l'] #app {
   right: 14px;
   display: flex;
   gap: 6px;
-  background: #121835cc;
-  border: 1px solid #303a68;
+  background: #0a2025cc;
+  border: 1px solid var(--line);
   border-radius: 999px;
   padding: 5px;
   backdrop-filter: blur(6px);
@@ -155,15 +156,15 @@ body.framed[data-view='ipad-l'] #app {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), #7dd3fc 70%);
-  color: #04121b;
-  box-shadow: 0 6px 22px rgba(56, 189, 248, 0.35);
+  background: linear-gradient(135deg, var(--accent), #99f6e4 70%);
+  color: #032420;
+  box-shadow: 0 6px 22px rgba(45, 212, 191, 0.35);
 }
 
 .btn-ghost {
   background: var(--panel);
   color: var(--ink-dim);
-  border: 1px solid #303a68;
+  border: 1px solid var(--line);
   font-weight: 700;
 }
 
@@ -172,7 +173,7 @@ body.framed[data-view='ipad-l'] #app {
   height: 42px;
   border-radius: 14px;
   background: var(--panel);
-  border: 1px solid #303a68;
+  border: 1px solid var(--line);
   color: var(--ink-dim);
   font-size: 17px;
   flex: none;
@@ -210,17 +211,18 @@ body.framed[data-view='ipad-l'] #app {
 }
 
 .logo-step {
-  background: linear-gradient(115deg, #38bdf8, #7dd3fc);
+  background: linear-gradient(115deg, #14b8a6, #2dd4bf);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .logo-kick {
-  background: linear-gradient(115deg, #fb923c, #fbbf24);
+  background: linear-gradient(115deg, #2dd4bf, #99f6e4);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  filter: drop-shadow(0 6px 22px rgba(45, 212, 191, 0.25));
 }
 
 .tagline {
@@ -238,7 +240,7 @@ body.framed[data-view='ipad-l'] #app {
 
 .subject-tile {
   background: linear-gradient(160deg, var(--panel-2), var(--panel));
-  border: 2px solid color-mix(in srgb, var(--accent) 45%, #303a68);
+  border: 2px solid color-mix(in srgb, var(--accent) 45%, var(--line));
   border-radius: var(--radius);
   padding: clamp(14px, 3cqh, 26px) 12px;
   display: flex;
@@ -291,7 +293,7 @@ body.framed[data-view='ipad-l'] #app {
   height: 44px;
   border-radius: 14px;
   background: var(--panel);
-  border: 1px solid #303a68;
+  border: 1px solid var(--line);
   font-size: 20px;
 }
 
@@ -302,7 +304,7 @@ body.framed[data-view='ipad-l'] #app {
 .credit {
   font-size: 11px;
   letter-spacing: 0.24em;
-  color: #5a6699;
+  color: #4a6b70;
   font-weight: 700;
 }
 
@@ -465,7 +467,7 @@ body.framed[data-view='ipad-l'] #app {
 
 .choice {
   border-radius: var(--radius);
-  border: 2px solid #303a68;
+  border: 2px solid var(--line);
   background: linear-gradient(160deg, var(--panel-2), var(--panel));
   transition: transform 0.07s ease, border-color 0.12s ease, background 0.12s ease, opacity 0.2s ease;
 }
@@ -561,7 +563,7 @@ body.framed[data-view='ipad-l'] #app {
   letter-spacing: 0.02em;
   white-space: nowrap;
   color: #fff;
-  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35), 0 0 28px rgba(56, 189, 248, 0.65);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35), 0 0 28px rgba(45, 212, 191, 0.7);
   pointer-events: none;
   z-index: 41;
   animation: flash-pop 0.75s cubic-bezier(0.2, 1.6, 0.4, 1) forwards;
@@ -668,7 +670,7 @@ body.framed[data-view='ipad-l'] #app {
 .stat {
   flex: 1;
   background: var(--panel);
-  border: 1px solid #303a68;
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 14px 8px;
   display: flex;

@@ -2,7 +2,7 @@ import type { Question, SubjectPack } from '../engine/types';
 import { type Rng, randInt, shuffle } from '../engine/rng';
 
 const SHAPES = ['🔴', '🔵', '🟡', '🟢', '🟣', '🟠', '🔺', '⭐', '❤️', '🟦'];
-const COLORS = ['#fbbf24', '#fb923c', '#f97316'];
+const COLORS = ['#22d3ee', '#2dd4bf', '#5eead4'];
 
 /** Pick `n` distinct shapes. */
 function pickShapes(rng: Rng, n: number): string[] {
@@ -49,7 +49,7 @@ export const patternsPack: SubjectPack = {
     emoji: '🔷',
     name: 'Patterns',
     blurb: 'What comes next?',
-    accent: '#fb923c',
+    accent: '#22d3ee',
   },
   session: (rng) => (_index, difficulty) => build(rng, difficulty),
 };
