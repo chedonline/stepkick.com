@@ -2,10 +2,11 @@ import './styles.css';
 import { registerSW } from 'virtual:pwa-register';
 import type { RunResult, SubjectId } from './engine/types';
 import { SUBJECT_BY_ID } from './subjects';
-import { recordRun, setView, view, type ViewId } from './storage';
+import { addStars, recordRun, setView, view, type ViewId } from './storage';
 import { mountGame } from './ui/game';
 import { mountHome } from './ui/home';
 import { mountResults } from './ui/results';
+import { mountStickers } from './ui/stickers';
 import { h } from './ui/dom';
 
 registerSW({ immediate: true });
@@ -50,11 +51,15 @@ if (!isStandalone && !isTouchDevice && !isSmallScreen) {
 
 // --- screen routing -----------------------------------------------------
 function goHome(): void {
-  mountHome(app, startGame);
+  mountHome(app, startGame, showStickers);
 }
 
 function startGame(subject: SubjectId): void {
   mountGame(app, SUBJECT_BY_ID[subject], finishGame, goHome);
+}
+
+function showStickers(): void {
+  mountStickers(app, goHome);
 }
 
 function finishGame(result: RunResult): void {
@@ -63,7 +68,9 @@ function finishGame(result: RunResult): void {
     return;
   }
   const { newBest } = recordRun(result);
-  mountResults(app, result, newBest, startGame, goHome);
+  // one star per correct answer, forever — may unlock new stickers
+  const { newStickers } = addStars(result.correct);
+  mountResults(app, result, newBest, newStickers, startGame, goHome);
 }
 
 goHome();

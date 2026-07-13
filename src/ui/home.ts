@@ -1,10 +1,15 @@
 import type { SubjectId } from '../engine/types';
 import { SUBJECTS } from '../subjects';
-import { best } from '../storage';
+import { best, stickersUnlocked, totalStars } from '../storage';
+import { ALL_STICKERS, STARS_PER_STICKER } from '../stickers';
 import { isSoundOn, sfx, toggleSound } from '../sound';
 import { h } from './dom';
 
-export function mountHome(app: HTMLElement, onPlay: (subject: SubjectId) => void): void {
+export function mountHome(
+  app: HTMLElement,
+  onPlay: (subject: SubjectId) => void,
+  onOpenBook: () => void,
+): void {
   const tiles = SUBJECTS.map((pack) => {
     const b = best(pack.meta.id);
     const tile = h(
@@ -29,6 +34,31 @@ export function mountHome(app: HTMLElement, onPlay: (subject: SubjectId) => void
     soundBtn.textContent = toggleSound() ? '🔊' : '🔇';
   };
 
+  // Sticker-book progress bar: forever star total, progress to the next sticker.
+  const unlocked = stickersUnlocked();
+  const stars = totalStars();
+  const toNext = unlocked >= ALL_STICKERS.length ? 1 : (stars % STARS_PER_STICKER) / STARS_PER_STICKER;
+  const bookBtn = h(
+    'button',
+    'book-bar',
+    h('span', 'book-bar-icon', '📖'),
+    h(
+      'span',
+      'book-bar-text',
+      h('span', 'book-bar-title', 'Sticker Book'),
+      h('span', 'book-bar-sub', `${unlocked}/${ALL_STICKERS.length} · ${stars} ⭐`),
+    ),
+    h('span', 'book-bar-bar', (() => {
+      const fill = h('span', 'book-bar-fill');
+      fill.style.width = `${Math.round(toNext * 100)}%`;
+      return fill;
+    })()),
+  );
+  bookBtn.onclick = () => {
+    sfx.tap();
+    onOpenBook();
+  };
+
   app.replaceChildren(
     h(
       'div',
@@ -41,6 +71,7 @@ export function mountHome(app: HTMLElement, onPlay: (subject: SubjectId) => void
         h('p', 'tagline', 'Pick one. Learn by playing!'),
       ),
       h('div', 'subject-grid', ...tiles),
+      bookBtn,
       h(
         'footer',
         'home-footer',

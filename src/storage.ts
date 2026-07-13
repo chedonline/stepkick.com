@@ -1,4 +1,5 @@
 import type { RunResult, SubjectId } from './engine/types';
+import { unlockedFor } from './stickers';
 
 const KEY = 'stepkick.v1';
 
@@ -8,6 +9,8 @@ interface Save {
   v: 1;
   bests: Partial<Record<SubjectId, number>>;
   games: number;
+  /** forever-climbing star total — one star per correct answer, ever */
+  stars: number;
   settings: { sound: boolean; view: ViewId };
 }
 
@@ -15,6 +18,7 @@ const DEFAULTS: Save = {
   v: 1,
   bests: {},
   games: 0,
+  stars: 0,
   settings: { sound: true, view: 'phone' },
 };
 
@@ -56,6 +60,29 @@ export function recordRun(r: RunResult): { newBest: boolean } {
 
 export function best(subject: SubjectId): number {
   return load().bests[subject] ?? 0;
+}
+
+export function totalStars(): number {
+  return load().stars;
+}
+
+export function stickersUnlocked(): number {
+  return unlockedFor(load().stars);
+}
+
+/**
+ * Add `n` stars (correct answers). Returns the sticker indices newly unlocked
+ * by crossing thresholds, so the results screen can celebrate them.
+ */
+export function addStars(n: number): { stars: number; newStickers: number[] } {
+  const s = load();
+  const before = unlockedFor(s.stars);
+  s.stars += n;
+  const after = unlockedFor(s.stars);
+  persist();
+  const newStickers: number[] = [];
+  for (let i = before; i < after; i++) newStickers.push(i);
+  return { stars: s.stars, newStickers };
 }
 
 export function gamesPlayed(): number {

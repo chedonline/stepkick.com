@@ -1,5 +1,6 @@
 import type { RunResult, SubjectId } from '../engine/types';
 import { SUBJECT_BY_ID } from '../subjects';
+import { ALL_STICKERS } from '../stickers';
 import { sfx } from '../sound';
 import { h } from './dom';
 import { confettiBurst } from './juice';
@@ -21,11 +22,27 @@ export function mountResults(
   app: HTMLElement,
   result: RunResult,
   newBest: boolean,
+  newStickers: number[],
   onPlayAgain: (subject: SubjectId) => void,
   onHome: () => void,
 ): void {
   const pack = SUBJECT_BY_ID[result.subject];
   const badge = badgeFor(result.accuracy);
+
+  // celebrate any stickers earned this run
+  const unlockedRow =
+    newStickers.length > 0
+      ? h(
+          'div',
+          'sticker-unlock',
+          h('span', 'sticker-unlock-label', newStickers.length === 1 ? '🎉 New sticker!' : `🎉 ${newStickers.length} new stickers!`),
+          h(
+            'div',
+            'sticker-unlock-row',
+            ...newStickers.map((i) => h('span', 'sticker-unlock-emoji', ALL_STICKERS[i]?.emoji ?? '⭐')),
+          ),
+        )
+      : null;
 
   const againBtn = h('button', 'btn btn-primary', `${pack.meta.emoji} Play again`);
   againBtn.onclick = () => {
@@ -55,6 +72,7 @@ export function mountResults(
           h('div', 'stat', h('span', 'stat-value', `${result.accuracy}%`), h('span', 'stat-label', 'Accuracy')),
           h('div', 'stat', h('span', 'stat-value', `🔥${result.bestStreak}`), h('span', 'stat-label', 'Streak')),
         ),
+        unlockedRow,
       ),
       h('div', 'results-actions', againBtn, homeBtn),
     ),

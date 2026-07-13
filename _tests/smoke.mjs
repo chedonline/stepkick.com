@@ -98,6 +98,23 @@ for (let s = 0; s < SUBJECTS.length; s++) {
   await page.waitForSelector('.subject-grid', { timeout: 3000 });
 }
 
+// sticker book: after playing 4 subjects we've earned stars -> open the book
+console.log('▶ Sticker Book');
+await page.waitForSelector('.book-bar', { timeout: 3000 });
+await shot('home-progress');
+await page.click('.book-bar');
+await page.waitForSelector('.book', { timeout: 3000 });
+const book = await page.evaluate(() => ({
+  cells: document.querySelectorAll('.sticker').length,
+  earned: document.querySelectorAll('.sticker.earned').length,
+  sub: document.querySelector('.book-title-sub')?.textContent || '',
+}));
+if (book.cells !== 48) throw new Error(`sticker book: expected 48 cells, got ${book.cells}`);
+console.log(`  ✓ book renders ${book.cells} stickers, ${book.earned} earned — "${book.sub}"`);
+await shot('sticker-book');
+await page.click('.book .icon-btn'); // back
+await page.waitForSelector('.subject-grid', { timeout: 3000 });
+
 await browser.close();
 await server.close();
 
