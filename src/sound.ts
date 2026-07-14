@@ -75,4 +75,19 @@ export const sfx = {
     if (!ensureOn()) return;
     note(440, 0, 0.05, 'sine', 0.06);
   },
+  /**
+   * A cute chime for tapping a sticker. Pitch comes from the sticker's index
+   * on a 2-octave pentatonic scale, so every sticker sounds distinct AND
+   * always pleasant. A fifth + octave sparkle on top gives it a "shiny" feel.
+   */
+  sticker(index = 0): void {
+    if (!ensureOn()) return;
+    const scale = [0, 2, 4, 7, 9]; // major pentatonic (never sounds wrong)
+    const octave = Math.min(2, Math.floor(index / scale.length)); // climbs, then caps
+    const semis = scale[index % scale.length] + 12 * octave;
+    const base = 523.25 * Math.pow(2, semis / 12); // from C5
+    note(base, 0, 0.16, 'triangle', 0.12);
+    note(base * 1.5, 0.035, 0.16, 'sine', 0.07); // a fifth above
+    note(base * 2, 0.09, 0.2, 'sine', 0.045); // octave sparkle tail
+  },
 };

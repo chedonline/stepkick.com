@@ -715,6 +715,78 @@ body.framed[data-view='ipad-l'] #app {
   font-weight: 700;
 }
 
+/* Collected / All toggle */
+.seg-toggle {
+  display: flex;
+  gap: 4px;
+  flex: none;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.seg-btn {
+  flex: 1;
+  padding: 9px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 13.5px;
+  color: var(--ink-dim);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.seg-btn.is-active {
+  background: var(--accent);
+  color: #032420;
+}
+
+/* empty state (no stickers yet) */
+.sticker-empty {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 20px;
+}
+
+.sticker-empty-emoji {
+  font-size: 60px;
+  animation: bounce 1.8s ease-in-out infinite;
+}
+
+.sticker-empty-title {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.sticker-empty-sub {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-dim);
+  max-width: 30ch;
+  text-wrap: balance;
+}
+
+/* named sticker (Collected view) */
+.sticker.show-name {
+  aspect-ratio: auto;
+  padding: 12px 6px 10px;
+  gap: 5px;
+}
+
+.sticker-name {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--ink-dim);
+  line-height: 1.1;
+  text-align: center;
+}
+
 .book-body {
   flex: 1;
   min-height: 0;
@@ -770,6 +842,19 @@ body.framed[data-view='ipad-l'] #app {
   background: linear-gradient(160deg, var(--panel-2), var(--panel));
   border: 2px solid color-mix(in srgb, var(--accent) 50%, var(--line));
   box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+button.sticker.earned {
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.15s ease;
+}
+
+button.sticker.earned:hover {
+  box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+button.sticker.earned:active {
+  transform: scale(0.92);
 }
 
 .sticker.locked {

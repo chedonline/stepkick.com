@@ -104,13 +104,31 @@ await page.waitForSelector('.book-bar', { timeout: 3000 });
 await shot('home-progress');
 await page.click('.book-bar');
 await page.waitForSelector('.book', { timeout: 3000 });
-const book = await page.evaluate(() => ({
-  cells: document.querySelectorAll('.sticker').length,
+// defaults to Collected view: only earned stickers, all named
+const collected = await page.evaluate(() => ({
+  shown: document.querySelectorAll('.sticker').length,
   earned: document.querySelectorAll('.sticker.earned').length,
+  named: document.querySelectorAll('.sticker .sticker-name').length,
+  activeTab: document.querySelector('.seg-btn.is-active')?.textContent || '',
   sub: document.querySelector('.book-title-sub')?.textContent || '',
 }));
-if (book.cells !== 48) throw new Error(`sticker book: expected 48 cells, got ${book.cells}`);
-console.log(`  ✓ book renders ${book.cells} stickers, ${book.earned} earned — "${book.sub}"`);
+if (!collected.activeTab.includes('Collected')) throw new Error(`book: expected Collected tab active, got "${collected.activeTab}"`);
+if (collected.shown !== collected.earned) throw new Error(`book Collected: showing ${collected.shown} but ${collected.earned} earned`);
+if (collected.named !== collected.shown) throw new Error(`book Collected: ${collected.shown} shown but ${collected.named} named`);
+console.log(`  ✓ Collected view: ${collected.shown} attained stickers, all named — "${collected.sub}"`);
+// tap an earned sticker (plays its chime + pop) — must not error
+const tappable = await page.$('button.sticker.earned');
+if (!tappable) throw new Error('book: earned stickers are not tappable buttons');
+await tappable.click();
+await new Promise((r) => setTimeout(r, 150));
+console.log('  ✓ tapped a sticker (chime + pop), no error');
+await shot('sticker-collected');
+// switch to All -> full 48-slot book
+await page.evaluate(() => [...document.querySelectorAll('.seg-btn')].find((b) => b.textContent.includes('All'))?.click());
+await new Promise((r) => setTimeout(r, 200));
+const all = await page.evaluate(() => document.querySelectorAll('.sticker').length);
+if (all !== 48) throw new Error(`book All: expected 48 cells, got ${all}`);
+console.log(`  ✓ All view: ${all} slots`);
 await shot('sticker-book');
 await page.click('.book .icon-btn'); // back
 await page.waitForSelector('.subject-grid', { timeout: 3000 });
