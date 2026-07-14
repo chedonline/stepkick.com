@@ -7,9 +7,10 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
   base: './',
   build: {
-    // Build OUTSIDE the Dropbox tree: Dropbox watchers hold Windows file locks
-    // on dist/ and randomly break `vite build` with EBUSY.
-    outDir: join(tmpdir(), 'stepkick-build'),
+    // CI (GitHub Actions) builds to ./dist for the deploy step.
+    // Locally, build OUTSIDE the Dropbox tree: Dropbox watchers hold Windows
+    // file locks on dist/ and randomly break `vite build` with EBUSY.
+    outDir: process.env.GITHUB_ACTIONS ? 'dist' : join(tmpdir(), 'stepkick-build'),
     emptyOutDir: true,
   },
   plugins: [
