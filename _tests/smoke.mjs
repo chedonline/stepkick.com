@@ -149,6 +149,24 @@ await shot('sticker-book');
 await page.click('.book .icon-btn'); // back
 await page.waitForSelector('.subject-grid', { timeout: 3000 });
 
+// circuits mode: open, solve puzzle 1 (OR, both off, goal ON -> flip one switch)
+console.log('▶ Circuits');
+await page.waitForSelector('.circ-launch', { timeout: 3000 });
+await page.click('.circ-launch');
+await page.waitForSelector('.circuits .circ-switch', { timeout: 3000 });
+const preSolve = await page.evaluate(() => !!document.querySelector('.circ-bulb.lit'));
+if (preSolve) throw new Error('circuits: puzzle 1 started already solved');
+await page.click('.circ-switch');
+await new Promise((r) => setTimeout(r, 200));
+const circ = await page.evaluate(() => ({
+  lit: !!document.querySelector('.circ-bulb.lit'),
+  nextShown: !!document.querySelector('.circ-next.show'),
+}));
+if (!circ.lit) throw new Error('circuits: bulb did not light after solving');
+if (!circ.nextShown) throw new Error('circuits: Next button did not appear');
+console.log('  ✓ solved puzzle 1 (bulb lit + Next shown)');
+await shot('circuits');
+
 await browser.close();
 await server.close();
 

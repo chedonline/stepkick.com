@@ -9,6 +9,7 @@ export function mountHome(
   app: HTMLElement,
   onPlay: (subject: SubjectId) => void,
   onOpenBook: () => void,
+  onCircuits: () => void,
 ): void {
   const tiles = SUBJECTS.map((pack) => {
     const b = best(pack.meta.id);
@@ -61,6 +62,24 @@ export function mountHome(
     onOpenBook();
   };
 
+  // Circuits — the logic-gates mode (a different kind of play than the quiz)
+  const circuitsBtn = h(
+    'button',
+    'circ-launch',
+    h('span', 'circ-launch-icon', '🔌'),
+    h(
+      'span',
+      'circ-launch-text',
+      h('span', 'circ-launch-title', 'Circuits'),
+      h('span', 'circ-launch-sub', 'Tap switches, light the bulb!'),
+    ),
+    h('span', 'circ-launch-badge', 'NEW'),
+  );
+  circuitsBtn.onclick = () => {
+    sfx.tap();
+    onCircuits();
+  };
+
   app.replaceChildren(
     h(
       'div',
@@ -73,6 +92,7 @@ export function mountHome(
         h('p', 'tagline', 'Pick one. Learn by playing!'),
       ),
       h('div', 'subject-grid', ...tiles),
+      circuitsBtn,
       bookBtn,
       h(
         'footer',
