@@ -10,6 +10,7 @@ export type Prompt =
   | { kind: 'expr'; text: string } // "3 + 4 = ?"
   | { kind: 'count'; emoji: string; n: number } // count the objects
   | { kind: 'emoji'; emoji: string; caption?: string } // a picture to name
+  | { kind: 'word'; text: string } // a name or question to answer with pictures
   | { kind: 'sequence'; emojis: string[] }; // a pattern; pick what comes next
 
 /** One question, fully resolved by its SubjectPack. `choices` includes `answer`. */

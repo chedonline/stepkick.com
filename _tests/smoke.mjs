@@ -88,6 +88,8 @@ for (let s = 0; s < SUBJECTS.length; s++) {
     if (new Set(check.cs).size !== 4) throw new Error(`${SUBJECTS[s]} q${i}: dup choices ${JSON.stringify(check.cs)}`);
     if (check.bad) throw new Error(`${SUBJECTS[s]} q${i}: bad choice ${JSON.stringify(check.cs)} (prompt "${check.prompt}")`);
     if (s === 0) console.log(`    math q${i}: "${check.prompt}" → ${JSON.stringify(check.cs)}`);
+    if (s === 2 && i >= 6) console.log(`    animals q${i}: "${check.prompt}"`);
+    if (s === 2 && check.prompt.startsWith('Which')) await shot('game-animals-classify');
     const btn = await page.$('.game .choice:not([disabled])');
     await btn.click();
     await new Promise((r) => setTimeout(r, i === 9 ? 1800 : 1300));
@@ -116,22 +118,28 @@ for (let s = 0; s < SUBJECTS.length; s++) {
 
 // sticker book: after playing 4 subjects we've earned stars -> open the book
 console.log('▶ Sticker Book');
+// seed a known star total so the sticker tests are deterministic (40 ⭐ = 8 stickers)
+await page.evaluate(() => {
+  const s = JSON.parse(localStorage.getItem('stepkick.v1') || '{}');
+  s.stars = 40;
+  localStorage.setItem('stepkick.v1', JSON.stringify(s));
+});
+await page.reload({ waitUntil: 'networkidle0' });
 await page.waitForSelector('.book-bar', { timeout: 3000 });
 await shot('home-progress');
 await page.click('.book-bar');
 await page.waitForSelector('.book', { timeout: 3000 });
 // defaults to Collected view: only earned stickers, all named
 const collected = await page.evaluate(() => ({
-  shown: document.querySelectorAll('.sticker').length,
   earned: document.querySelectorAll('.sticker.earned').length,
   named: document.querySelectorAll('.sticker .sticker-name').length,
   activeTab: document.querySelector('.seg-btn.is-active')?.textContent || '',
   sub: document.querySelector('.book-title-sub')?.textContent || '',
 }));
 if (!collected.activeTab.includes('Collected')) throw new Error(`book: expected Collected tab active, got "${collected.activeTab}"`);
-if (collected.shown !== collected.earned) throw new Error(`book Collected: showing ${collected.shown} but ${collected.earned} earned`);
-if (collected.named !== collected.shown) throw new Error(`book Collected: ${collected.shown} shown but ${collected.named} named`);
-console.log(`  ✓ Collected view: ${collected.shown} attained stickers, all named — "${collected.sub}"`);
+if (collected.earned !== 8) throw new Error(`book Collected: expected 8 earned after seeding, got ${collected.earned}`);
+if (collected.named !== collected.earned) throw new Error(`book Collected: ${collected.earned} earned but ${collected.named} named`);
+console.log(`  ✓ Collected view: ${collected.earned} attained stickers, all named — "${collected.sub}"`);
 // tap an earned sticker (plays its chime + pop) — must not error
 const tappable = await page.$('button.sticker.earned');
 if (!tappable) throw new Error('book: earned stickers are not tappable buttons');

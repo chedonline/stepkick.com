@@ -21,6 +21,8 @@ function renderPrompt(p: Prompt): HTMLElement {
         h('span', 'picture-emoji', p.emoji),
         p.caption ? h('div', 'picture-caption', p.caption) : null,
       );
+    case 'word':
+      return h('div', 'prompt-word', p.text);
     case 'sequence': {
       const row = h('div', 'prompt-sequence');
       for (const e of p.emojis) row.append(h('span', 'seq-item', e));

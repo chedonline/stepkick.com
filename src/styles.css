@@ -691,6 +691,15 @@ body.framed[data-view='ipad-l'] #app {
   text-align: center;
 }
 
+.prompt-word {
+  font-size: clamp(28px, 6.5cqh, 52px);
+  font-weight: 900;
+  text-align: center;
+  text-wrap: balance;
+  padding: 0 12px;
+  line-height: 1.1;
+}
+
 .prompt-count {
   display: flex;
   flex-wrap: wrap;
