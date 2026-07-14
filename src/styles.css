@@ -741,6 +741,67 @@ body.framed[data-view='ipad-l'] #app {
   filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.45));
 }
 
+/* money — a formation of coins to count */
+.prompt-coins {
+  display: grid;
+  justify-content: center;
+  justify-items: center;
+  align-content: center;
+  gap: clamp(8px, 2cqh, 16px);
+  max-width: 94%;
+}
+
+.coin {
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: #3a2c00;
+  border: 2px solid rgba(0, 0, 0, 0.18);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.45);
+}
+
+.coin-1 {
+  width: clamp(40px, 8.5cqh, 60px);
+  aspect-ratio: 1;
+  background: radial-gradient(circle at 35% 30%, #e6ab72, #b06f37);
+  font-size: clamp(11px, 2.2cqh, 15px);
+}
+
+.coin-10 {
+  width: clamp(36px, 7.5cqh, 54px);
+  aspect-ratio: 1;
+  background: radial-gradient(circle at 35% 30%, #eef2f6, #aeb8c4);
+  font-size: clamp(10px, 2cqh, 14px);
+}
+
+.coin-5 {
+  width: clamp(50px, 10.5cqh, 74px);
+  aspect-ratio: 1;
+  background: radial-gradient(circle at 35% 30%, #eef2f6, #aeb8c4);
+  font-size: clamp(13px, 2.6cqh, 18px);
+}
+
+.coin-25 {
+  width: clamp(56px, 12cqh, 84px);
+  aspect-ratio: 1;
+  background: radial-gradient(circle at 35% 30%, #eef2f6, #aeb8c4);
+  font-size: clamp(14px, 2.8cqh, 20px);
+}
+
+/* fractions — a shaded pie */
+.prompt-fraction {
+  display: grid;
+  place-items: center;
+  width: 100%;
+}
+
+.fraction-svg {
+  width: min(66cqw, 42cqh, 300px);
+  height: auto;
+  filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.45));
+}
+
 .prompt-picture {
   display: flex;
   flex-direction: column;

@@ -33,6 +33,26 @@ function renderClock(hour: number, minute: number): HTMLElement {
   return wrap;
 }
 
+/** A pie split into `denom` equal slices, `num` of them shaded. */
+function renderFraction(num: number, denom: number): HTMLElement {
+  const cx = 50, cy = 50, r = 44;
+  const large = 360 / denom > 180 ? 1 : 0;
+  let slices = '';
+  for (let i = 0; i < denom; i++) {
+    const a0 = ((-90 + (i * 360) / denom) * Math.PI) / 180;
+    const a1 = ((-90 + ((i + 1) * 360) / denom) * Math.PI) / 180;
+    const x0 = (cx + Math.cos(a0) * r).toFixed(2);
+    const y0 = (cy + Math.sin(a0) * r).toFixed(2);
+    const x1 = (cx + Math.cos(a1) * r).toFixed(2);
+    const y1 = (cy + Math.sin(a1) * r).toFixed(2);
+    const fill = i < num ? '#2dd4bf' : '#10262b';
+    slices += `<path d="M${cx},${cy} L${x0},${y0} A${r},${r} 0 ${large} 1 ${x1},${y1} Z" fill="${fill}" stroke="#0b1a1e" stroke-width="1.4"/>`;
+  }
+  const wrap = h('div', 'prompt-fraction');
+  wrap.innerHTML = `<svg viewBox="0 0 100 100" class="fraction-svg" role="img" aria-label="fraction">${slices}<circle cx="50" cy="50" r="44" fill="none" stroke="#5eead4" stroke-width="2"/></svg>`;
+  return wrap;
+}
+
 /** Render the prompt visual for a question. */
 function renderPrompt(p: Prompt): HTMLElement {
   switch (p.kind) {
@@ -47,6 +67,14 @@ function renderPrompt(p: Prompt): HTMLElement {
     }
     case 'clock':
       return renderClock(p.hour, p.minute);
+    case 'coins': {
+      const grid = h('div', 'prompt-coins');
+      grid.style.gridTemplateColumns = `repeat(${Math.min(p.coins.length, 5)}, auto)`;
+      for (const c of p.coins) grid.append(h('div', `coin coin-${c}`, `${c}¢`));
+      return grid;
+    }
+    case 'fraction':
+      return renderFraction(p.num, p.denom);
     case 'emoji':
       return h(
         'div',
