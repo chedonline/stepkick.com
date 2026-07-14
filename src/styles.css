@@ -182,12 +182,25 @@ body.framed[data-view='ipad-l'] #app {
 /* ---------- home ---------- */
 
 .home {
-  justify-content: space-between;
   text-align: center;
+  gap: 10px;
 }
 
 .home-header {
-  padding-top: clamp(8px, 4cqh, 40px);
+  flex: none;
+  padding-top: clamp(8px, 3cqh, 32px);
+}
+
+/* scrollable tile area — overflow tiles scroll (folders come later) */
+.home-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 2px;
+  scrollbar-width: thin;
 }
 
 .logo-mark {
@@ -360,6 +373,7 @@ body.framed[data-view='ipad-l'] #app {
 }
 
 .home-footer {
+  flex: none;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -701,17 +715,30 @@ body.framed[data-view='ipad-l'] #app {
 }
 
 .prompt-count {
-  display: flex;
-  flex-wrap: wrap;
-  align-content: center;
+  display: grid;
   justify-content: center;
-  gap: clamp(6px, 1.6cqh, 14px);
-  max-width: 90%;
+  justify-items: center;
+  align-content: center;
+  gap: clamp(5px, 1.4cqh, 12px);
+  max-width: 94%;
 }
 
 .count-item {
-  font-size: clamp(30px, 7cqh, 58px);
+  font-size: clamp(26px, 6cqh, 52px);
   line-height: 1;
+}
+
+/* clock */
+.prompt-clock {
+  display: grid;
+  place-items: center;
+  width: 100%;
+}
+
+.clock-svg {
+  width: min(72cqw, 46cqh, 340px);
+  height: auto;
+  filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.45));
 }
 
 .prompt-picture {

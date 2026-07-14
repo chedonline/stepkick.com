@@ -91,9 +91,8 @@ export function mountHome(
         h('h1', 'logo', h('span', 'logo-step', 'STEP'), h('span', 'logo-kick', 'KICK')),
         h('p', 'tagline', 'Pick one. Learn by playing!'),
       ),
-      h('div', 'subject-grid', ...tiles),
-      circuitsBtn,
-      bookBtn,
+      // scrolls when there are more tiles than fit (folders come later)
+      h('div', 'home-scroll', h('div', 'subject-grid', ...tiles), circuitsBtn, bookBtn),
       h(
         'footer',
         'home-footer',

@@ -5,7 +5,7 @@ import { createServer } from 'vite';
 import puppeteer from '../../whattheflag.net/node_modules/puppeteer-core/lib/puppeteer/puppeteer-core.js';
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const SUBJECTS = ['Math', 'Words', 'Animals', 'Patterns'];
+const SUBJECTS = ['Math', 'Words', 'Animals', 'Patterns', 'Clock', 'Counting'];
 
 const server = await createServer({ root: process.cwd(), server: { port: 5199 } });
 await server.listen();
@@ -35,7 +35,7 @@ await new Promise((r) => setTimeout(r, 400));
 
 // home
 const tiles = await page.$$('.subject-tile');
-if (tiles.length !== 4) throw new Error(`expected 4 subject tiles, got ${tiles.length}`);
+if (tiles.length !== 6) throw new Error(`expected 6 subject tiles, got ${tiles.length}`);
 // Math 1.2× points badge
 const badge = await page.evaluate(() => {
   const all = document.querySelectorAll('.tile-badge');
@@ -64,15 +64,18 @@ for (let s = 0; s < SUBJECTS.length; s++) {
 
   // ordering: Math ascending numeric, Words/Animals alphabetical
   const val = (x) => (x.includes('/') ? Number(x.split('/')[0]) / Number(x.split('/')[1]) : Number(x));
-  const ordered =
-    s === 0
-      ? [...q.choices].sort((a, b) => val(a) - val(b))
-      : s === 3
-        ? q.choices // patterns: canonical shape order (not asserted here)
-        : [...q.choices].sort((a, b) => a.localeCompare(b));
+  const timeVal = (x) => { const [hh, mm] = x.split(':').map(Number); return hh * 60 + mm; };
+  let ordered;
+  if (s === 0) ordered = [...q.choices].sort((a, b) => val(a) - val(b)); // math: numeric/fractions
+  else if (s === 5) ordered = [...q.choices].sort((a, b) => Number(a) - Number(b)); // counting: numeric
+  else if (s === 4) ordered = [...q.choices].sort((a, b) => timeVal(a) - timeVal(b)); // clock: time
+  else if (s === 3) ordered = q.choices; // patterns: canonical shape order (not asserted)
+  else ordered = [...q.choices].sort((a, b) => a.localeCompare(b)); // words/animals: alpha
   if (JSON.stringify(ordered) !== JSON.stringify(q.choices))
     throw new Error(`${SUBJECTS[s]}: choices not in order → ${JSON.stringify(q.choices)}`);
   console.log(`  order ok: ${JSON.stringify(q.choices)}`);
+  if (s === 4) await shot('game-clock');
+  if (s === 5) await shot('game-counting');
   if (s === 0) await shot('game-math');
   if (s === 3) await shot('game-patterns');
 

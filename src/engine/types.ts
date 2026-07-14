@@ -1,6 +1,6 @@
 import type { Rng } from './rng';
 
-export type SubjectId = 'math' | 'vocab' | 'animals' | 'patterns';
+export type SubjectId = 'math' | 'vocab' | 'animals' | 'patterns' | 'clock' | 'counting';
 
 /**
  * What the player is shown. The engine never inspects a Prompt — the game UI
@@ -11,6 +11,7 @@ export type Prompt =
   | { kind: 'count'; emoji: string; n: number } // count the objects
   | { kind: 'emoji'; emoji: string; caption?: string } // a picture to name
   | { kind: 'word'; text: string } // a name or question to answer with pictures
+  | { kind: 'clock'; hour: number; minute: number } // read the time
   | { kind: 'sequence'; emojis: string[] }; // a pattern; pick what comes next
 
 /** One question, fully resolved by its SubjectPack. `choices` includes `answer`. */
