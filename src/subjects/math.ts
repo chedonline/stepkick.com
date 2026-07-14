@@ -145,6 +145,6 @@ function build(rng: Rng, d: number): Question {
 }
 
 export const mathPack: SubjectPack = {
-  meta: { id: 'math', emoji: '➕', name: 'Math', blurb: '×, fractions & more', accent: '#2dd4bf' },
+  meta: { id: 'math', emoji: '➕', name: 'Math', blurb: '×, fractions & more', accent: '#2dd4bf', pointsMultiplier: 1.2 },
   session: (rng) => (_index, difficulty) => build(rng, difficulty),
 };

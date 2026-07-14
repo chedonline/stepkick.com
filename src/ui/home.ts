@@ -12,9 +12,11 @@ export function mountHome(
 ): void {
   const tiles = SUBJECTS.map((pack) => {
     const b = best(pack.meta.id);
+    const mult = pack.meta.pointsMultiplier ?? 1;
     const tile = h(
       'button',
       'subject-tile',
+      mult > 1 ? h('span', 'tile-badge', `${mult}× points`) : null,
       h('span', 'tile-emoji', pack.meta.emoji),
       h('span', 'tile-name', pack.meta.name),
       h('span', 'tile-blurb', pack.meta.blurb),

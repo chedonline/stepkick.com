@@ -30,6 +30,8 @@ export interface SubjectMeta {
   blurb: string;
   /** accent color (also the confetti default) */
   accent: string;
+  /** score multiplier for this subject (default 1) */
+  pointsMultiplier?: number;
 }
 
 /** A run's question generator. `index` is 0-based; `difficulty` is 0..1. */

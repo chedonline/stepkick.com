@@ -53,7 +53,8 @@ export class Game {
       this.streak++;
       this.bestStreak = Math.max(this.bestStreak, this.streak);
       const mult = 1 + 0.1 * Math.min(streakBefore, STREAK_CAP);
-      scoreDelta = Math.round(BASE_POINTS * mult);
+      const subjectMult = this.pack.meta.pointsMultiplier ?? 1;
+      scoreDelta = Math.round(BASE_POINTS * mult * subjectMult);
     } else {
       this.streak = 0;
     }

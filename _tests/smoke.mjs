@@ -36,6 +36,14 @@ await new Promise((r) => setTimeout(r, 400));
 // home
 const tiles = await page.$$('.subject-tile');
 if (tiles.length !== 4) throw new Error(`expected 4 subject tiles, got ${tiles.length}`);
+// Math 1.2× points badge
+const badge = await page.evaluate(() => {
+  const all = document.querySelectorAll('.tile-badge');
+  return { count: all.length, text: all[0]?.textContent || '' };
+});
+if (badge.count !== 1) throw new Error(`home: expected 1 tile badge, got ${badge.count}`);
+if (!badge.text.includes('1.2')) throw new Error(`home: badge text wrong: "${badge.text}"`);
+console.log(`  ✓ home badge: "${badge.text}"`);
 await shot('home');
 
 for (let s = 0; s < SUBJECTS.length; s++) {
@@ -87,11 +95,19 @@ for (let s = 0; s < SUBJECTS.length; s++) {
 
   await page.waitForSelector('.results', { timeout: 4000 });
   const res = await page.evaluate(() => ({
-    score: document.querySelector('.final-score')?.textContent,
+    score: parseInt(document.querySelector('.final-score')?.textContent || '0', 10),
+    correctFrac: document.querySelector('.stat .stat-value')?.textContent || '0/0',
     badge: document.querySelector('.badge-label')?.textContent,
   }));
   console.log(`  ✓ finished — score ${res.score}, badge "${res.badge}"`);
-  if (s === 0) await shot('results-math');
+  if (s === 0) {
+    // Math is 1.2×: every correct answer is worth ≥120 (100 × 1.2, more with streak)
+    const correct = parseInt(res.correctFrac.split('/')[0], 10) || 0;
+    if (correct > 0 && res.score < correct * 120)
+      throw new Error(`math 1.2× not applied: score ${res.score} < ${correct}×120`);
+    console.log(`  ✓ math 1.2× applied: ${res.correctFrac} correct → ${res.score} pts (≥ ${correct * 120})`);
+    await shot('results-math');
+  }
 
   // back home
   await page.click('.results-actions .btn-ghost');
