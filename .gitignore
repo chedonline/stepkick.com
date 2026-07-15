@@ -1,4 +1,4 @@
 node_modules
 dist
-_tests/shot-*.png
+_tests/*.png
 _tests/devserver.log

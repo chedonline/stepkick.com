@@ -184,28 +184,30 @@ body.framed[data-view='ipad-l'] #app {
 .home {
   text-align: center;
   gap: 10px;
+  /* The whole home page scrolls as one column, so the footer sits at the very
+     bottom of the content and scrolls with it (not pinned to the viewport). */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
 .home-header {
   flex: none;
-  padding-top: clamp(8px, 3cqh, 32px);
+  padding-top: clamp(2px, 1.2cqh, 16px);
 }
 
-/* scrollable tile area — overflow tiles scroll (folders come later) */
+/* tile area flows in the page (the whole .home scrolls; folders come later) */
 .home-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
+  flex: none;
   display: flex;
   flex-direction: column;
   gap: 14px;
   padding: 4px 2px;
-  scrollbar-width: thin;
 }
 
 .logo-mark {
-  font-size: clamp(38px, 8cqh, 62px);
-  display: inline-block;
+  font-size: clamp(30px, 6cqh, 48px);
+  display: block;  /* keep the foot on its own line above the wordmark */
   animation: bounce 1.8s ease-in-out infinite;
 }
 
@@ -217,8 +219,12 @@ body.framed[data-view='ipad-l'] #app {
 .logo {
   display: inline-flex;
   line-height: 0.95;
-  margin-top: 6px;
-  font-size: clamp(44px, 11cqh, 84px);
+  margin-top: 2px;
+  max-width: 100%;
+  white-space: nowrap;
+  /* Sized to container WIDTH (cqw), so the wordmark can never overflow and clip
+     the way it did on iPhone — it scales down to fit narrow screens. */
+  font-size: clamp(38px, 13cqw, 66px);
   font-weight: 900;
   letter-spacing: 0.01em;
 }
@@ -241,8 +247,8 @@ body.framed[data-view='ipad-l'] #app {
 .tagline {
   color: var(--ink-dim);
   font-weight: 700;
-  margin-top: 8px;
-  font-size: 15px;
+  margin-top: 6px;
+  font-size: 14px;
 }
 
 .subject-grid {
@@ -1022,6 +1028,29 @@ body.framed[data-view='ipad-l'] #app {
 .sticker-unlock-emoji {
   font-size: 40px;
   animation: pop 0.5s cubic-bezier(0.2, 2.2, 0.4, 1);
+}
+
+/* Tappable variant — the whole unlock card opens the Sticker Book. */
+.sticker-unlock.tappable {
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.sticker-unlock.tappable:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+}
+.sticker-unlock.tappable:active {
+  transform: scale(0.98);
+}
+.sticker-unlock-hint {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  opacity: 0.85;
 }
 
 /* ---------- sticker book ---------- */

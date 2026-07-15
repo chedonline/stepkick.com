@@ -75,7 +75,7 @@ function finishGame(result: RunResult): void {
   const { newBest } = recordRun(result);
   // one star per correct answer, forever — may unlock new stickers
   const { newStickers } = addStars(result.correct);
-  mountResults(app, result, newBest, newStickers, startGame, goHome);
+  mountResults(app, result, newBest, newStickers, startGame, goHome, showStickers);
 }
 
 goHome();

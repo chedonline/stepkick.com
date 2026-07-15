@@ -12,8 +12,9 @@ export interface StickerSet {
   stickers: Sticker[];
 }
 
-/** 1 sticker unlocks every N stars (a star = a correct answer, ever). */
-export const STARS_PER_STICKER = 5;
+/** 1 sticker unlocks every N stars (a star = a correct answer, ever).
+ *  Tuned to 6 (was 5) — a 20% higher bar so stickers feel more earned. */
+export const STARS_PER_STICKER = 6;
 
 export const STICKER_SETS: StickerSet[] = [
   {
@@ -98,6 +99,48 @@ export const STICKER_SETS: StickerSet[] = [
       { emoji: '⚡', name: 'Lightning' },
       { emoji: '🍄', name: 'Mushroom' },
       { emoji: '👑', name: 'Crown' },
+    ],
+  },
+  {
+    name: 'Dinos',
+    emoji: '🦕',
+    stickers: [
+      { emoji: '🦖', name: 'T-Rex' },
+      { emoji: '🦕', name: 'Longneck' },
+      { emoji: '🐊', name: 'Crocodile' },
+      { emoji: '🐢', name: 'Turtle' },
+      { emoji: '🦎', name: 'Lizard' },
+      { emoji: '🐍', name: 'Snake' },
+      { emoji: '🦴', name: 'Bone' },
+      { emoji: '🥚', name: 'Egg' },
+    ],
+  },
+  {
+    name: 'Go!',
+    emoji: '🚗',
+    stickers: [
+      { emoji: '🚗', name: 'Car' },
+      { emoji: '🚕', name: 'Taxi' },
+      { emoji: '🚌', name: 'Bus' },
+      { emoji: '🚓', name: 'Police Car' },
+      { emoji: '🚑', name: 'Ambulance' },
+      { emoji: '🚒', name: 'Fire Truck' },
+      { emoji: '🚂', name: 'Train' },
+      { emoji: '✈️', name: 'Airplane' },
+    ],
+  },
+  {
+    name: 'Weather',
+    emoji: '🌤️',
+    stickers: [
+      { emoji: '☀️', name: 'Sun' },
+      { emoji: '⛅', name: 'Cloud' },
+      { emoji: '🌧️', name: 'Rain' },
+      { emoji: '⛈️', name: 'Storm' },
+      { emoji: '❄️', name: 'Snowflake' },
+      { emoji: '☃️', name: 'Snowman' },
+      { emoji: '🌬️', name: 'Wind' },
+      { emoji: '🌪️', name: 'Tornado' },
     ],
   },
 ];
