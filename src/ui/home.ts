@@ -17,7 +17,7 @@ export function mountHome(
     const tile = h(
       'button',
       'subject-tile',
-      mult > 1 ? h('span', 'tile-badge', `${mult}× points`) : null,
+      mult > 1 ? h('span', 'tile-badge', '⭐ BONUS') : null,
       h('span', 'tile-emoji', pack.meta.emoji),
       h('span', 'tile-name', pack.meta.name),
       h('span', 'tile-blurb', pack.meta.blurb),

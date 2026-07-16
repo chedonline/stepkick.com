@@ -8,6 +8,9 @@ import { countingPack } from './counting';
 import { moneyPack } from './money';
 import { spellingPack } from './spelling';
 import { fractionsPack } from './fractions';
+import { comparePack } from './compare';
+import { calendarPack } from './calendar';
+import { skipcountPack } from './skipcount';
 
 /** Registry — the home screen and router iterate this. Order = tile order. */
 export const SUBJECTS: SubjectPack[] = [
@@ -20,6 +23,9 @@ export const SUBJECTS: SubjectPack[] = [
   moneyPack,
   spellingPack,
   fractionsPack,
+  comparePack,
+  calendarPack,
+  skipcountPack,
 ];
 
 export const SUBJECT_BY_ID: Record<SubjectId, SubjectPack> = {
@@ -32,4 +38,7 @@ export const SUBJECT_BY_ID: Record<SubjectId, SubjectPack> = {
   money: moneyPack,
   spelling: spellingPack,
   fractions: fractionsPack,
+  compare: comparePack,
+  calendar: calendarPack,
+  skipcount: skipcountPack,
 };

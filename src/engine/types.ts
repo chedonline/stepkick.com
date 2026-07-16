@@ -9,7 +9,10 @@ export type SubjectId =
   | 'counting'
   | 'money'
   | 'spelling'
-  | 'fractions';
+  | 'fractions'
+  | 'compare'
+  | 'calendar'
+  | 'skipcount';
 
 /**
  * What the player is shown. The engine never inspects a Prompt — the game UI

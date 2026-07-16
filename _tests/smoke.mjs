@@ -5,7 +5,7 @@ import { createServer } from 'vite';
 import puppeteer from '../../whattheflag.net/node_modules/puppeteer-core/lib/puppeteer/puppeteer-core.js';
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const SUBJECTS = ['Math', 'Words', 'Animals', 'Patterns', 'Clock', 'Counting', 'Money', 'Spelling', 'Fractions'];
+const SUBJECTS = ['Math', 'Words', 'Animals', 'Patterns', 'Clock', 'Counting', 'Money', 'Spelling', 'Fractions', 'Compare', 'Calendar', 'Skip Count'];
 
 const server = await createServer({ root: process.cwd(), server: { port: 5199 } });
 await server.listen();
@@ -35,15 +35,15 @@ await new Promise((r) => setTimeout(r, 400));
 
 // home
 const tiles = await page.$$('.subject-tile');
-if (tiles.length !== 9) throw new Error(`expected 9 subject tiles, got ${tiles.length}`);
-// Math 1.2× points badge
+if (tiles.length !== 12) throw new Error(`expected 12 subject tiles, got ${tiles.length}`);
+// BONUS badges on the multiplier subjects (Math 1.2×, Skip Count 1.3×)
 const badge = await page.evaluate(() => {
   const all = document.querySelectorAll('.tile-badge');
   return { count: all.length, text: all[0]?.textContent || '' };
 });
-if (badge.count !== 1) throw new Error(`home: expected 1 tile badge, got ${badge.count}`);
-if (!badge.text.includes('1.2')) throw new Error(`home: badge text wrong: "${badge.text}"`);
-console.log(`  ✓ home badge: "${badge.text}"`);
+if (badge.count !== 2) throw new Error(`home: expected 2 tile badges, got ${badge.count}`);
+if (!badge.text.includes('BONUS')) throw new Error(`home: badge text wrong: "${badge.text}"`);
+console.log(`  ✓ home badges: ${badge.count} × "${badge.text}"`);
 await shot('home');
 
 for (let s = 0; s < SUBJECTS.length; s++) {
@@ -72,7 +72,9 @@ for (let s = 0; s < SUBJECTS.length; s++) {
   else if (s === 4) ordered = [...q.choices].sort((a, b) => timeVal(a) - timeVal(b)); // clock: time
   else if (s === 6) ordered = [...q.choices].sort((a, b) => cents(a) - cents(b)); // money: cent value
   else if (s === 3) ordered = q.choices; // patterns: canonical shape order (not asserted)
-  else ordered = [...q.choices].sort((a, b) => a.localeCompare(b)); // words/animals/spelling: alpha
+  else if (s === 9) ordered = q.choices; // compare: emoji clusters by count (not asserted)
+  else if (s === 11) ordered = [...q.choices].sort((a, b) => Number(a) - Number(b)); // skip count: numeric
+  else ordered = [...q.choices].sort((a, b) => a.localeCompare(b)); // words/animals/spelling/calendar: alpha
   if (JSON.stringify(ordered) !== JSON.stringify(q.choices))
     throw new Error(`${SUBJECTS[s]}: choices not in order → ${JSON.stringify(q.choices)}`);
   console.log(`  order ok: ${JSON.stringify(q.choices)}`);
@@ -119,17 +121,17 @@ for (let s = 0; s < SUBJECTS.length; s++) {
     await shot('results-math');
   }
 
-  // back home
-  await page.click('.results-actions .btn-ghost');
+  // back home (results now also has a "Sticker Book" ghost button, so target Home by text)
+  await page.evaluate(() => [...document.querySelectorAll('.results-actions .btn')].find((b) => b.textContent.includes('Home'))?.click());
   await page.waitForSelector('.subject-grid', { timeout: 3000 });
 }
 
 // sticker book: after playing 4 subjects we've earned stars -> open the book
 console.log('▶ Sticker Book');
-// seed a known star total so the sticker tests are deterministic (40 ⭐ = 8 stickers)
+// seed a known star total so the sticker tests are deterministic (48 ⭐ ÷ 6 = 8 stickers)
 await page.evaluate(() => {
   const s = JSON.parse(localStorage.getItem('stepkick.v1') || '{}');
-  s.stars = 40;
+  s.stars = 48;
   localStorage.setItem('stepkick.v1', JSON.stringify(s));
 });
 await page.reload({ waitUntil: 'networkidle0' });
@@ -155,11 +157,11 @@ await tappable.click();
 await new Promise((r) => setTimeout(r, 150));
 console.log('  ✓ tapped a sticker (chime + pop), no error');
 await shot('sticker-collected');
-// switch to All -> full 48-slot book
+// switch to All -> full 72-slot book
 await page.evaluate(() => [...document.querySelectorAll('.seg-btn')].find((b) => b.textContent.includes('All'))?.click());
 await new Promise((r) => setTimeout(r, 200));
 const all = await page.evaluate(() => document.querySelectorAll('.sticker').length);
-if (all !== 48) throw new Error(`book All: expected 48 cells, got ${all}`);
+if (all !== 72) throw new Error(`book All: expected 72 cells, got ${all}`);
 console.log(`  ✓ All view: ${all} slots`);
 await shot('sticker-book');
 await page.click('.book .icon-btn'); // back
