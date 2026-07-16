@@ -34,8 +34,8 @@ export interface Question {
   prompt: Prompt;
   answer: string;
   choices: string[];
-  /** how the 4 answer buttons render */
-  choiceKind: 'text' | 'emoji';
+  /** how the 4 answer buttons render. 'pile' = a formation "emoji|count|cols". */
+  choiceKind: 'text' | 'emoji' | 'pile';
   /** confetti / accent colors for this question */
   colors: string[];
 }

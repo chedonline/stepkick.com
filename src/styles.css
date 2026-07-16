@@ -970,6 +970,27 @@ body.framed[data-view='ipad-l'] #app {
   grid-template-columns: 1fr 1fr;
 }
 
+.choices-pile {
+  grid-template-columns: 1fr 1fr;
+}
+
+.choice-pile {
+  min-height: clamp(90px, 16cqh, 156px);
+  padding: 10px;
+  display: grid;
+  place-items: center;
+}
+.pile {
+  display: grid;
+  gap: 3px;
+  justify-content: center;
+  align-content: center;
+}
+.pile-item {
+  font-size: clamp(13px, 3.2cqh, 24px);
+  line-height: 1;
+}
+
 .choice {
   border-radius: var(--radius);
   border: 2px solid var(--line);

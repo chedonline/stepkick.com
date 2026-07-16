@@ -93,6 +93,17 @@ function renderPrompt(p: Prompt): HTMLElement {
   }
 }
 
+/** A pile choice: "emoji|count|cols" → a formation of `count` items in `cols`. */
+function renderPile(enc: string): HTMLElement {
+  const [emoji, countStr, colsStr] = enc.split('|');
+  const count = Number(countStr) || 0;
+  const cols = Number(colsStr) || 1;
+  const grid = h('div', 'pile');
+  grid.style.gridTemplateColumns = `repeat(${cols}, auto)`;
+  for (let i = 0; i < count; i++) grid.append(h('span', 'pile-item', emoji));
+  return grid;
+}
+
 export function mountGame(
   app: HTMLElement,
   pack: SubjectPack,
@@ -154,11 +165,13 @@ export function mountGame(
     updateHud();
     promptEl.replaceChildren(renderPrompt(q.prompt));
 
-    choicesEl.className = `game-choices ${q.choiceKind === 'emoji' ? 'choices-emoji' : 'choices-text'}`;
+    choicesEl.className = `game-choices choices-${q.choiceKind}`;
     choicesEl.replaceChildren(
       ...q.choices.map((c) => {
-        const btn = h('button', `choice choice-${q.choiceKind}`, c);
+        const btn = h('button', `choice choice-${q.choiceKind}`);
         btn.dataset.choice = c;
+        if (q.choiceKind === 'pile') btn.append(renderPile(c));
+        else btn.textContent = c;
         btn.onclick = () => choose(c, btn);
         return btn;
       }),
