@@ -1,6 +1,6 @@
 import { ALL_STICKERS, STARS_PER_STICKER, STICKER_SETS } from '../stickers';
 import { sfx } from '../sound';
-import { stickersUnlocked, totalStars } from '../storage';
+import { exportSave, importSave, stickersUnlocked, totalStars } from '../storage';
 import { h } from './dom';
 
 type Filter = 'collected' | 'all';
@@ -31,6 +31,10 @@ export function mountStickers(app: HTMLElement, onHome: () => void): void {
     onHome();
   };
 
+  const backupBtn = h('button', 'icon-btn', '💾');
+  backupBtn.setAttribute('aria-label', 'Backup progress');
+  backupBtn.onclick = openBackup;
+
   const header = h(
     'header',
     'book-header',
@@ -41,6 +45,7 @@ export function mountStickers(app: HTMLElement, onHome: () => void): void {
       h('span', 'book-title-main', '📖 Sticker Book'),
       h('span', 'book-title-sub', `${unlocked} / ${ALL_STICKERS.length} collected · ${stars} ⭐`),
     ),
+    backupBtn,
   );
 
   // Collected / All toggle
@@ -117,6 +122,42 @@ export function mountStickers(app: HTMLElement, onHome: () => void): void {
     body.replaceChildren(...pages.filter((p): p is HTMLElement => p !== null));
   }
 
+  const screen = h('div', 'screen book', header, toggle, body);
+
+  function openBackup(): void {
+    const code = exportSave();
+    const codeArea = h('textarea', 'backup-code') as HTMLTextAreaElement;
+    codeArea.value = code;
+    codeArea.readOnly = true;
+    const copyBtn = h('button', 'btn btn-primary', '📋 Copy code');
+    copyBtn.onclick = () => { void navigator.clipboard?.writeText(code); copyBtn.textContent = '✓ Copied!'; };
+    const restoreArea = h('textarea', 'backup-code') as HTMLTextAreaElement;
+    restoreArea.placeholder = 'Paste a backup code here…';
+    const msg = h('div', 'backup-msg', '');
+    const restoreBtn = h('button', 'btn btn-ghost', '♻️ Restore');
+    restoreBtn.onclick = () => {
+      if (importSave(restoreArea.value)) {
+        msg.textContent = 'Restored! Reloading…';
+        setTimeout(() => location.reload(), 700);
+      } else {
+        msg.textContent = 'That code didn’t work — check it and try again.';
+      }
+    };
+    const closeBtn = h('button', 'icon-btn', '✕');
+    const overlay = h('div', 'backup-overlay',
+      h('div', 'backup-panel',
+        h('div', 'backup-head', h('span', 'backup-title', '💾 Backup progress'), closeBtn),
+        h('p', 'backup-sub', 'Copy this code and keep it somewhere safe. Paste it on any device to restore your ⭐ and stickers.'),
+        codeArea, copyBtn,
+        h('div', 'backup-hr'),
+        restoreArea, restoreBtn, msg,
+      ),
+    );
+    closeBtn.onclick = () => overlay.remove();
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+    screen.append(overlay);
+  }
+
   render();
-  app.replaceChildren(h('div', 'screen book', header, toggle, body));
+  app.replaceChildren(screen);
 }

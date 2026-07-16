@@ -164,6 +164,14 @@ const all = await page.evaluate(() => document.querySelectorAll('.sticker').leng
 if (all !== 72) throw new Error(`book All: expected 72 cells, got ${all}`);
 console.log(`  ✓ All view: ${all} slots`);
 await shot('sticker-book');
+// backup: open the panel, confirm a code is generated, close it
+await page.evaluate(() => [...document.querySelectorAll('.book-header .icon-btn')].find((b) => b.textContent === '💾')?.click());
+await page.waitForSelector('.backup-panel .backup-code', { timeout: 2000 });
+const codeLen = await page.$eval('.backup-code', (el) => el.value.length);
+if (codeLen < 10) throw new Error(`backup: code too short (${codeLen})`);
+console.log(`  ✓ backup code generated (${codeLen} chars)`);
+await page.click('.backup-overlay .icon-btn'); // close (✕)
+await page.waitForSelector('.subject-grid, .book', { timeout: 2000 });
 await page.click('.book .icon-btn'); // back
 await page.waitForSelector('.subject-grid', { timeout: 3000 });
 

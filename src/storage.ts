@@ -89,6 +89,24 @@ export function gamesPlayed(): number {
   return load().games;
 }
 
+/** A portable backup code (base64 of the save) — parent saves it off-device. */
+export function exportSave(): string {
+  return btoa(unescape(encodeURIComponent(JSON.stringify(load()))));
+}
+
+/** Restore from a backup code. Returns false if the code is invalid. */
+export function importSave(code: string): boolean {
+  try {
+    const parsed = JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+    if (typeof parsed?.stars !== 'number') return false;
+    localStorage.setItem(KEY, JSON.stringify({ ...DEFAULTS, ...parsed }));
+    cache = null;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function soundEnabled(): boolean {
   return load().settings.sound;
 }
