@@ -20,9 +20,9 @@ const FACES = [
   '🦉', '🦜', '🐺', '🦩',
 ];
 
-// Pairs per level → 6, 12, 24, 36, 48 cards. Responsive layout keeps them on one
-// screen; the last levels get small but stay tappable.
-const LEVEL_PAIRS = [3, 6, 12, 18, 24];
+// Pairs per level → 6, 12, 20, 30, 40 cards — all counts that tile into a full
+// rectangle (no ragged last row). Responsive layout keeps them on one screen.
+const LEVEL_PAIRS = [3, 6, 10, 15, 20];
 const GAP = 8;
 
 export function mountMemory(app: HTMLElement, onHome: () => void): void {
@@ -57,7 +57,8 @@ export function mountMemory(app: HTMLElement, onHome: () => void): void {
     if (!n || W <= 0 || H <= 0) return;
     let best = { cols: 1, size: 0 };
     for (let cols = 1; cols <= n; cols++) {
-      const rows = Math.ceil(n / cols);
+      if (n % cols !== 0) continue; // only full grids → even rows & cols
+      const rows = n / cols;
       const cw = (W - GAP * (cols - 1)) / cols;
       const ch = (H - GAP * (rows - 1)) / rows;
       const size = Math.min(cw, ch);
