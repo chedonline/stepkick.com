@@ -193,7 +193,50 @@ body.framed[data-view='ipad-l'] #app {
 
 .home-header {
   flex: none;
+  position: relative; /* anchors the top-right sound switch */
   padding-top: clamp(2px, 1.2cqh, 16px);
+}
+
+/* Sound: a clear on/off toggle switch, top-right of the home screen. */
+.sound-switch {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px;
+}
+.sound-switch-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+.sound-switch-track {
+  position: relative;
+  width: 46px;
+  height: 27px;
+  border-radius: 999px;
+  background: var(--line);
+  border: 1px solid color-mix(in srgb, var(--line) 70%, #000);
+  transition: background 0.2s ease;
+}
+.sound-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: #ecfeff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: left 0.2s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+.sound-switch.is-on .sound-switch-track {
+  background: var(--accent);
+}
+.sound-switch.is-on .sound-switch-knob {
+  left: 21px;
 }
 
 /* tile area flows in the page (the whole .home scrolls; folders come later) */
@@ -382,6 +425,7 @@ body.framed[data-view='ipad-l'] #app {
   flex: none;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
 }
 

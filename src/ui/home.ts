@@ -31,10 +31,23 @@ export function mountHome(
     return tile;
   });
 
-  const soundBtn = h('button', 'sound-toggle', isSoundOn() ? '🔊' : '🔇');
-  soundBtn.setAttribute('aria-label', 'Toggle sound');
-  soundBtn.onclick = () => {
-    soundBtn.textContent = toggleSound() ? '🔊' : '🔇';
+  // A clear on/off switch (top-right of the screen), not just an icon.
+  const soundOn = isSoundOn();
+  const soundSwitch = h(
+    'button',
+    `sound-switch${soundOn ? ' is-on' : ''}`,
+    h('span', 'sound-switch-icon', soundOn ? '🔊' : '🔇'),
+    h('span', 'sound-switch-track', h('span', 'sound-switch-knob')),
+  );
+  soundSwitch.setAttribute('role', 'switch');
+  soundSwitch.setAttribute('aria-checked', String(soundOn));
+  soundSwitch.setAttribute('aria-label', 'Sound');
+  soundSwitch.onclick = () => {
+    const on = toggleSound();
+    soundSwitch.classList.toggle('is-on', on);
+    soundSwitch.setAttribute('aria-checked', String(on));
+    const icon = soundSwitch.querySelector('.sound-switch-icon');
+    if (icon) icon.textContent = on ? '🔊' : '🔇';
   };
 
   // Sticker-book progress bar: forever star total, progress to the next sticker.
@@ -87,19 +100,14 @@ export function mountHome(
       h(
         'header',
         'home-header',
+        soundSwitch,
         h('div', 'logo-mark', '🦶'),
         h('h1', 'logo', h('span', 'logo-step', 'STEP'), h('span', 'logo-kick', 'KICK')),
         h('p', 'tagline', 'Pick one. Learn by playing!'),
       ),
       // scrolls when there are more tiles than fit (folders come later)
       h('div', 'home-scroll', h('div', 'subject-grid', ...tiles), circuitsBtn, bookBtn),
-      h(
-        'footer',
-        'home-footer',
-        soundBtn,
-        h('span', 'footer-spacer'),
-        h('p', 'credit', 'CHEDONLINE'),
-      ),
+      h('footer', 'home-footer', h('p', 'credit', 'CROOKED PIXELS')),
     ),
   );
 }

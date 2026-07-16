@@ -5,7 +5,7 @@ import { createServer } from 'vite';
 import puppeteer from '../../whattheflag.net/node_modules/puppeteer-core/lib/puppeteer/puppeteer-core.js';
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const SUBJECTS = ['Math', 'Words', 'Animals', 'Patterns', 'Clock', 'Counting', 'Money', 'Spelling', 'Fractions', 'Compare', 'Calendar', 'Skip Count'];
+const SUBJECTS = ['Math', 'Words', 'Animals', 'Patterns', 'Clock', 'Counting', 'Money', 'Spelling', 'Fractions', 'Compare', 'Calendar', 'Skip Count', 'Surprise'];
 
 const server = await createServer({ root: process.cwd(), server: { port: 5199 } });
 await server.listen();
@@ -35,13 +35,13 @@ await new Promise((r) => setTimeout(r, 400));
 
 // home
 const tiles = await page.$$('.subject-tile');
-if (tiles.length !== 12) throw new Error(`expected 12 subject tiles, got ${tiles.length}`);
-// BONUS badges on the multiplier subjects (Math 1.2×, Skip Count 1.3×)
+if (tiles.length !== 13) throw new Error(`expected 13 subject tiles, got ${tiles.length}`);
+// BONUS badges on the multiplier subjects (Math 1.2×, Skip Count 1.3×, Surprise 1.2×)
 const badge = await page.evaluate(() => {
   const all = document.querySelectorAll('.tile-badge');
   return { count: all.length, text: all[0]?.textContent || '' };
 });
-if (badge.count !== 2) throw new Error(`home: expected 2 tile badges, got ${badge.count}`);
+if (badge.count !== 3) throw new Error(`home: expected 3 tile badges, got ${badge.count}`);
 if (!badge.text.includes('BONUS')) throw new Error(`home: badge text wrong: "${badge.text}"`);
 console.log(`  ✓ home badges: ${badge.count} × "${badge.text}"`);
 await shot('home');
@@ -72,7 +72,7 @@ for (let s = 0; s < SUBJECTS.length; s++) {
   else if (s === 4) ordered = [...q.choices].sort((a, b) => timeVal(a) - timeVal(b)); // clock: time
   else if (s === 6) ordered = [...q.choices].sort((a, b) => cents(a) - cents(b)); // money: cent value
   else if (s === 3) ordered = q.choices; // patterns: canonical shape order (not asserted)
-  else if (s === 9) ordered = q.choices; // compare: emoji clusters by count (not asserted)
+  else if (s === 9 || s === 12) ordered = q.choices; // compare clusters / surprise random subject (not asserted)
   else if (s === 11) ordered = [...q.choices].sort((a, b) => Number(a) - Number(b)); // skip count: numeric
   else ordered = [...q.choices].sort((a, b) => a.localeCompare(b)); // words/animals/spelling/calendar: alpha
   if (JSON.stringify(ordered) !== JSON.stringify(q.choices))

@@ -12,7 +12,8 @@ export type SubjectId =
   | 'fractions'
   | 'compare'
   | 'calendar'
-  | 'skipcount';
+  | 'skipcount'
+  | 'surprise';
 
 /**
  * What the player is shown. The engine never inspects a Prompt — the game UI
