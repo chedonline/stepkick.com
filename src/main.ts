@@ -98,7 +98,7 @@ function finishGame(result: RunResult): void {
   }
   const { newBest } = recordRun(result);
   // one star per correct answer, forever — may unlock new stickers
-  const { newStickers } = addStars(result.correct);
+  const { newStickers } = addStars(result.correct, result.subject);
   mountResults(app, result, newBest, newStickers, startGame, goHome, showStickers);
 }
 

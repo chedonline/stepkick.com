@@ -86,7 +86,7 @@ export function mountMensa(app: HTMLElement, onHome: () => void): void {
     if (setsEqual(ids, answer)) {
       sfx.correct();
       confettiFrom(app, selected[1], ['#f472b6', '#fbbf24', '#a7f3d0']);
-      addStars(1);
+      addStars(1, 'mensa');
       selected.forEach((b) => b.classList.add('correct'));
       win();
     } else {

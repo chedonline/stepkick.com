@@ -128,10 +128,11 @@ for (let s = 0; s < SUBJECTS.length; s++) {
 
 // sticker book: after playing 4 subjects we've earned stars -> open the book
 console.log('▶ Sticker Book');
-// seed a known star total so the sticker tests are deterministic (48 ⭐ ÷ 6 = 8 stickers)
+// seed one group's stars so the sticker tests are deterministic (48 ⭐ ÷ 6 = 8 Farm stickers)
 await page.evaluate(() => {
   const s = JSON.parse(localStorage.getItem('stepkick.v1') || '{}');
   s.stars = 48;
+  s.groupStars = [48, 0, 0, 0, 0, 0, 0, 0, 0];
   localStorage.setItem('stepkick.v1', JSON.stringify(s));
 });
 await page.reload({ waitUntil: 'networkidle0' });

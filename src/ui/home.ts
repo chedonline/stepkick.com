@@ -1,7 +1,7 @@
 import type { SubjectId } from '../engine/types';
 import { SUBJECTS } from '../subjects';
 import { best, stickersUnlocked, totalStars } from '../storage';
-import { ALL_STICKERS, STARS_PER_STICKER } from '../stickers';
+import { ALL_STICKERS } from '../stickers';
 import { isSoundOn, sfx, toggleSound } from '../sound';
 import { h } from './dom';
 
@@ -70,7 +70,7 @@ export function mountHome(app: HTMLElement, onPlay: (subject: SubjectId) => void
   // Sticker-book progress bar: forever star total, progress to the next sticker.
   const unlocked = stickersUnlocked();
   const stars = totalStars();
-  const toNext = unlocked >= ALL_STICKERS.length ? 1 : (stars % STARS_PER_STICKER) / STARS_PER_STICKER;
+  const toNext = unlocked / ALL_STICKERS.length; // overall collection progress
   const bookBtn = h(
     'button',
     'book-bar',

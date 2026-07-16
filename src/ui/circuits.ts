@@ -118,7 +118,7 @@ export function mountCircuits(app: HTMLElement, onHome: () => void): void {
     sfx.correct();
     flashWord(app);
     confettiFrom(app, bulbEl, ['#2dd4bf', '#fbbf24', '#5eead4']);
-    addStars(1); // circuits solves feed the same star / sticker system
+    addStars(1, 'circuits'); // feeds the Dinos sticker set
     hintEl.textContent = 'Solved! ⭐';
     nextBtn.classList.add('show');
   }

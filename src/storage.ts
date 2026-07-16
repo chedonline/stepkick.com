@@ -1,5 +1,5 @@
 import type { RunResult, SubjectId } from './engine/types';
-import { unlockedFor } from './stickers';
+import { GROUP_OF, SET_COUNT, setBaseIndex, totalUnlocked, unlockedInSet } from './stickers';
 
 const KEY = 'stepkick.v1';
 
@@ -9,8 +9,10 @@ interface Save {
   v: 1;
   bests: Partial<Record<SubjectId, number>>;
   games: number;
-  /** forever-climbing star total — one star per correct answer, ever */
+  /** forever-climbing star total — one star per correct answer, ever (display) */
   stars: number;
+  /** per-set stars — a sticker set unlocks from the games mapped to it (gating) */
+  groupStars: number[];
   settings: { sound: boolean; view: ViewId };
 }
 
@@ -19,6 +21,7 @@ const DEFAULTS: Save = {
   bests: {},
   games: 0,
   stars: 0,
+  groupStars: Array.from({ length: SET_COUNT }, () => 0),
   settings: { sound: true, view: 'phone' },
 };
 
@@ -29,11 +32,15 @@ function load(): Save {
   try {
     const raw = localStorage.getItem(KEY);
     const parsed = raw ? JSON.parse(raw) : {};
-    cache = {
+    const merged: Save = {
       ...DEFAULTS,
       ...parsed,
       settings: { ...DEFAULTS.settings, ...(parsed.settings ?? {}) },
     };
+    if (!Array.isArray(merged.groupStars) || merged.groupStars.length !== SET_COUNT) {
+      merged.groupStars = Array.from({ length: SET_COUNT }, () => 0);
+    }
+    cache = merged;
   } catch {
     cache = structuredClone(DEFAULTS);
   }
@@ -66,22 +73,30 @@ export function totalStars(): number {
   return load().stars;
 }
 
+export function groupStars(): number[] {
+  return load().groupStars;
+}
+
 export function stickersUnlocked(): number {
-  return unlockedFor(load().stars);
+  return totalUnlocked(load().groupStars);
 }
 
 /**
- * Add `n` stars (correct answers). Returns the sticker indices newly unlocked
- * by crossing thresholds, so the results screen can celebrate them.
+ * Add `n` stars earned in `source` (a subject or mode id). Stars go to that
+ * source's sticker set (gating). Returns the GLOBAL sticker indices newly
+ * unlocked in that set, so the results screen can celebrate them.
  */
-export function addStars(n: number): { stars: number; newStickers: number[] } {
+export function addStars(n: number, source: string): { stars: number; newStickers: number[] } {
   const s = load();
-  const before = unlockedFor(s.stars);
+  const g = GROUP_OF[source] ?? 0;
+  const before = unlockedInSet(g, s.groupStars);
   s.stars += n;
-  const after = unlockedFor(s.stars);
+  s.groupStars[g] = (s.groupStars[g] ?? 0) + n;
+  const after = unlockedInSet(g, s.groupStars);
   persist();
+  const base = setBaseIndex(g);
   const newStickers: number[] = [];
-  for (let i = before; i < after; i++) newStickers.push(i);
+  for (let i = before; i < after; i++) newStickers.push(base + i);
   return { stars: s.stars, newStickers };
 }
 

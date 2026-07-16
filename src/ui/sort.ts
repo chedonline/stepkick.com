@@ -52,7 +52,7 @@ export function mountSort(app: HTMLElement, onHome: () => void): void {
     if (correct) {
       sfx.correct();
       confettiFrom(app, selectedBtn, ['#34d399', '#fbbf24', '#a7f3d0']);
-      addStars(1);
+      addStars(1, 'sort');
       selectedBtn.remove();
       selectedBtn = null;
       remaining--;

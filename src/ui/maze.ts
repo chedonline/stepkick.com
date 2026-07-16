@@ -115,7 +115,7 @@ export function mountMaze(app: HTMLElement, onHome: () => void): void {
     flashWord(app);
     const goalEl = cellEls[size - 1][size - 1];
     confettiFrom(app, goalEl, ['#facc15', '#fbbf24', '#a7f3d0']);
-    addStars(2);
+    addStars(2, 'maze');
     hintEl.textContent = 'You made it! ⭐';
     nextBtn.classList.add('show');
   }

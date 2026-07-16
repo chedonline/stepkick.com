@@ -59,7 +59,7 @@ export function mountTapAll(app: HTMLElement, onHome: () => void): void {
             btn.classList.add('got');
             sfx.correct();
             confettiFrom(app, btn, ['#fb923c', '#fbbf24']);
-            addStars(1);
+            addStars(1, 'tapall');
             remaining--;
             foundEl.textContent = `${k - remaining}/${k}`;
             if (remaining === 0) win();

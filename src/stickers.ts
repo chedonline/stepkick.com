@@ -147,8 +147,52 @@ export const STICKER_SETS: StickerSet[] = [
 
 /** Flattened unlock order — stickers unlock set by set, in this order. */
 export const ALL_STICKERS: Sticker[] = STICKER_SETS.flatMap((s) => s.stickers);
+export const SET_COUNT = STICKER_SETS.length;
 
-/** How many stickers a given star total has unlocked. */
-export function unlockedFor(stars: number): number {
-  return Math.min(ALL_STICKERS.length, Math.floor(stars / STARS_PER_STICKER));
+// Sticker gating: each subject / mode fills ONE set. Play those to earn that set.
+// Index = position in STICKER_SETS (Farm, Ocean, Space, Treats, Bugs, Magic,
+// Dinos, Go!, Weather).
+export const GROUP_OF: Record<string, number> = {
+  animals: 0, compare: 0,
+  counting: 1, skipcount: 1,
+  math: 2, fractions: 2,
+  vocab: 3, spelling: 3,
+  patterns: 4, prints: 4,
+  calendar: 5, clock: 5, money: 5,
+  circuits: 6, maze: 6,
+  sort: 7, tapall: 7, order: 7,
+  memory: 8, mensa: 8, surprise: 8,
+};
+
+/** Pretty source names per set (aligned to STICKER_SETS order) — for book labels. */
+export const GROUP_SOURCES: string[][] = [
+  ['Animals', 'Compare'],
+  ['Counting', 'Skip Count'],
+  ['Math', 'Fractions'],
+  ['Words', 'Spelling'],
+  ['Patterns', 'Prints'],
+  ['Calendar', 'Clock', 'Money'],
+  ['Circuits', 'Maze'],
+  ['Sort', 'Find', 'Order'],
+  ['Memory', 'Shapes', 'Surprise'],
+];
+
+/** Global index where a set's stickers begin in ALL_STICKERS. */
+export function setBaseIndex(setIndex: number): number {
+  let base = 0;
+  for (let i = 0; i < setIndex; i++) base += STICKER_SETS[i].stickers.length;
+  return base;
+}
+
+/** How many stickers in a set the group's stars have unlocked. */
+export function unlockedInSet(setIndex: number, groupStars: number[]): number {
+  const n = STICKER_SETS[setIndex].stickers.length;
+  return Math.min(n, Math.floor((groupStars[setIndex] ?? 0) / STARS_PER_STICKER));
+}
+
+/** Total stickers unlocked across all sets. */
+export function totalUnlocked(groupStars: number[]): number {
+  let sum = 0;
+  for (let i = 0; i < SET_COUNT; i++) sum += unlockedInSet(i, groupStars);
+  return sum;
 }

@@ -53,7 +53,7 @@ export function mountOrder(app: HTMLElement, onHome: () => void): void {
             btn.append(h('span', 'order-rank', String(nextIdx + 1)));
             sfx.correct();
             confettiFrom(app, btn, ['#38bdf8', '#fbbf24', '#a7f3d0']);
-            addStars(1);
+            addStars(1, 'order');
             nextIdx++;
             if (nextIdx === sorted.length) win();
           } else {

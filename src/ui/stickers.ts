@@ -1,6 +1,6 @@
-import { ALL_STICKERS, STARS_PER_STICKER, STICKER_SETS } from '../stickers';
+import { ALL_STICKERS, GROUP_SOURCES, STARS_PER_STICKER, STICKER_SETS, setBaseIndex, unlockedInSet } from '../stickers';
 import { sfx } from '../sound';
-import { exportSave, importSave, stickersUnlocked, totalStars } from '../storage';
+import { exportSave, groupStars, importSave, stickersUnlocked, totalStars } from '../storage';
 import { h } from './dom';
 
 type Filter = 'collected' | 'all';
@@ -23,6 +23,7 @@ function earnedSticker(emoji: string, name: string, globalIndex: number, withNam
 export function mountStickers(app: HTMLElement, onHome: () => void): void {
   const unlocked = stickersUnlocked();
   const stars = totalStars();
+  const gStars = groupStars();
 
   const backBtn = h('button', 'icon-btn', '←');
   backBtn.setAttribute('aria-label', 'Back');
@@ -82,39 +83,43 @@ export function mountStickers(app: HTMLElement, onHome: () => void): void {
           'sticker-empty',
           h('div', 'sticker-empty-emoji', '🎁'),
           h('div', 'sticker-empty-title', 'No stickers yet'),
-          h('div', 'sticker-empty-sub', `Play a round — every correct answer is a ⭐, and every ${STARS_PER_STICKER} ⭐ earns a sticker!`),
+          h('div', 'sticker-empty-sub', `Each page fills from its OWN games! Every ${STARS_PER_STICKER} ⭐ in a page's games earns one of its stickers.`),
         ),
       );
       return;
     }
 
-    let idx = 0;
-    const pages = STICKER_SETS.map((set) => {
-      const startIdx = idx;
+    const pages = STICKER_SETS.map((set, si) => {
+      const earnedCount = unlockedInSet(si, gStars);
+      const base = setBaseIndex(si);
       const cells: HTMLElement[] = [];
-      let got = 0;
-      for (const st of set.stickers) {
-        const earned = idx < unlocked;
-        if (earned) got++;
+      for (let j = 0; j < set.stickers.length; j++) {
+        const st = set.stickers[j];
+        const earned = j < earnedCount;
         if (filter === 'collected') {
-          if (earned) cells.push(earnedSticker(st.emoji, st.name, idx, true));
+          if (earned) cells.push(earnedSticker(st.emoji, st.name, base + j, true));
         } else if (earned) {
-          cells.push(earnedSticker(st.emoji, st.name, idx, false));
+          cells.push(earnedSticker(st.emoji, st.name, base + j, false));
         } else {
-          const cell = h('div', 'sticker locked');
-          cell.append(h('span', 'sticker-lock', '❓'));
-          cell.append(h('span', 'sticker-need', `${(idx + 1) * STARS_PER_STICKER}⭐`));
-          cells.push(cell);
+          cells.push(h('div', 'sticker locked', h('span', 'sticker-lock', '❓')));
         }
-        idx++;
       }
-      // In Collected mode, skip sets you haven't started.
-      if (filter === 'collected' && got === 0) return null;
-      idx = startIdx + set.stickers.length; // keep index consistent
+      // In Collected mode, skip pages you haven't started.
+      if (filter === 'collected' && earnedCount === 0) return null;
       return h(
         'section',
         'sticker-page',
-        h('div', 'page-head', h('span', 'page-name', `${set.emoji} ${set.name}`), h('span', 'page-count', `${got}/${set.stickers.length}`)),
+        h(
+          'div',
+          'page-head',
+          h(
+            'div',
+            'page-headings',
+            h('span', 'page-name', `${set.emoji} ${set.name}`),
+            h('span', 'page-source', `Play ${GROUP_SOURCES[si].join(' · ')}`),
+          ),
+          h('span', 'page-count', `${earnedCount}/${set.stickers.length}`),
+        ),
         h('div', 'sticker-grid', ...cells),
       );
     });

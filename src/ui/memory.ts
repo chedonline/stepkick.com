@@ -124,7 +124,7 @@ export function mountMemory(app: HTMLElement, onHome: () => void): void {
         b.classList.add('matched');
         sfx.correct();
         confettiFrom(app, b, ['#c084fc', '#fbbf24', '#a7f3d0']);
-        addStars(1); // each pair = a star (feeds stickers, like a correct answer)
+        addStars(1, 'memory'); // each pair = a star → Weather sticker set
         matched++;
         lock = false;
         if (matched === LEVEL_PAIRS[index]) win();
