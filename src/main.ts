@@ -13,6 +13,11 @@ import { h } from './ui/dom';
 
 registerSW({ immediate: true });
 
+// Ask the browser to keep our save (stars + stickers) durable — i.e. not evicted
+// under storage pressure. localStorage already survives app restarts; this hardens
+// it against automatic cleanup on an installed PWA.
+if (navigator.storage?.persist) void navigator.storage.persist();
+
 const app = document.getElementById('app')!;
 
 // --- desktop frame + view switcher -------------------------------------

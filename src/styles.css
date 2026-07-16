@@ -834,6 +834,16 @@ body.framed[data-view='ipad-l'] #app {
   line-height: 1;
 }
 
+/* prints — SVG pattern swatch */
+.prompt-swatch {
+  display: grid;
+  place-items: center;
+}
+.swatch-svg {
+  width: clamp(150px, 32cqh, 300px);
+  height: auto;
+}
+
 /* clock */
 .prompt-clock {
   display: grid;

@@ -90,6 +90,11 @@ function renderPrompt(p: Prompt): HTMLElement {
       row.append(h('span', 'seq-item seq-q', '?'));
       return row;
     }
+    case 'swatch': {
+      const wrap = h('div', 'prompt-swatch');
+      wrap.innerHTML = p.svg; // self-generated SVG, no user input
+      return wrap;
+    }
   }
 }
 

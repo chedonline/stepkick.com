@@ -13,7 +13,8 @@ export type SubjectId =
   | 'compare'
   | 'calendar'
   | 'skipcount'
-  | 'surprise';
+  | 'surprise'
+  | 'prints';
 
 /**
  * What the player is shown. The engine never inspects a Prompt — the game UI
@@ -27,7 +28,8 @@ export type Prompt =
   | { kind: 'clock'; hour: number; minute: number } // read the time
   | { kind: 'coins'; coins: number[] } // count the money (cent values)
   | { kind: 'fraction'; num: number; denom: number } // how much of the pie is shaded
-  | { kind: 'sequence'; emojis: string[] }; // a pattern; pick what comes next
+  | { kind: 'sequence'; emojis: string[] } // a pattern; pick what comes next
+  | { kind: 'swatch'; svg: string }; // an SVG pattern swatch to name
 
 /** One question, fully resolved by its SubjectPack. `choices` includes `answer`. */
 export interface Question {

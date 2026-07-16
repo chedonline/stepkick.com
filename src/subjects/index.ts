@@ -12,6 +12,7 @@ import { comparePack } from './compare';
 import { calendarPack } from './calendar';
 import { skipcountPack } from './skipcount';
 import { surprisePack } from './surprise';
+import { printsPack } from './prints';
 
 /** Registry — the home screen and router iterate this. Order = tile order. */
 export const SUBJECTS: SubjectPack[] = [
@@ -28,6 +29,7 @@ export const SUBJECTS: SubjectPack[] = [
   calendarPack,
   skipcountPack,
   surprisePack,
+  printsPack,
 ];
 
 export const SUBJECT_BY_ID: Record<SubjectId, SubjectPack> = {
@@ -44,4 +46,5 @@ export const SUBJECT_BY_ID: Record<SubjectId, SubjectPack> = {
   calendar: calendarPack,
   skipcount: skipcountPack,
   surprise: surprisePack,
+  prints: printsPack,
 };

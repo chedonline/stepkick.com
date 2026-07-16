@@ -5,7 +5,7 @@ import { createServer } from 'vite';
 import puppeteer from '../../whattheflag.net/node_modules/puppeteer-core/lib/puppeteer/puppeteer-core.js';
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const SUBJECTS = ['Math', 'Words', 'Animals', 'Patterns', 'Clock', 'Counting', 'Money', 'Spelling', 'Fractions', 'Compare', 'Calendar', 'Skip Count', 'Surprise'];
+const SUBJECTS = ['Math', 'Words', 'Animals', 'Patterns', 'Clock', 'Counting', 'Money', 'Spelling', 'Fractions', 'Compare', 'Calendar', 'Skip Count', 'Surprise', 'Prints'];
 
 const server = await createServer({ root: process.cwd(), server: { port: 5199 } });
 await server.listen();
@@ -35,7 +35,7 @@ await new Promise((r) => setTimeout(r, 400));
 
 // home
 const tiles = await page.$$('.subject-tile');
-if (tiles.length !== 13) throw new Error(`expected 13 subject tiles, got ${tiles.length}`);
+if (tiles.length !== 14) throw new Error(`expected 14 subject tiles, got ${tiles.length}`);
 // BONUS badges on the multiplier subjects (Math 1.2×, Skip Count 1.3×, Surprise 1.2×)
 const badge = await page.evaluate(() => {
   const all = document.querySelectorAll('.tile-badge');
