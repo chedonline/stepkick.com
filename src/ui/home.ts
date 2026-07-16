@@ -5,13 +5,29 @@ import { ALL_STICKERS, STARS_PER_STICKER } from '../stickers';
 import { isSoundOn, sfx, toggleSound } from '../sound';
 import { h } from './dom';
 
-export function mountHome(
-  app: HTMLElement,
-  onPlay: (subject: SubjectId) => void,
-  onOpenBook: () => void,
-  onCircuits: () => void,
-  onMemory: () => void,
-): void {
+export interface HomeModes {
+  book: () => void;
+  circuits: () => void;
+  memory: () => void;
+  sort: () => void;
+  tapall: () => void;
+  order: () => void;
+  maze: () => void;
+  mensa: () => void;
+}
+
+// The non-quiz play modes, rendered as launcher bars below the subject tiles.
+const LAUNCHERS: { key: keyof HomeModes; cls: string; icon: string; title: string; sub: string; badge?: string }[] = [
+  { key: 'circuits', cls: 'circ-launch', icon: '🔌', title: 'Circuits', sub: 'Tap switches, light the bulb!' },
+  { key: 'memory', cls: 'circ-launch mem-launch', icon: '🃏', title: 'Memory Match', sub: 'Find the matching pairs!', badge: 'NEW' },
+  { key: 'sort', cls: 'circ-launch sort-launch', icon: '🗂️', title: 'Sort', sub: 'Put each thing in its bin!', badge: 'NEW' },
+  { key: 'tapall', cls: 'circ-launch tap-launch', icon: '🎯', title: 'Find', sub: 'Tap all the matching ones!', badge: 'NEW' },
+  { key: 'order', cls: 'circ-launch order-launch', icon: '🔢', title: 'Put in Order', sub: 'Smallest to biggest!', badge: 'NEW' },
+  { key: 'maze', cls: 'circ-launch maze-launch', icon: '🧭', title: 'Maze', sub: 'Find your way to the star!', badge: 'NEW' },
+  { key: 'mensa', cls: 'circ-launch mensa-launch', icon: '🧩', title: 'Shape Builder', sub: 'Which two make the shape?', badge: 'NEW' },
+];
+
+export function mountHome(app: HTMLElement, onPlay: (subject: SubjectId) => void, modes: HomeModes): void {
   const tiles = SUBJECTS.map((pack) => {
     const b = best(pack.meta.id);
     const mult = pack.meta.pointsMultiplier ?? 1;
@@ -73,44 +89,23 @@ export function mountHome(
   );
   bookBtn.onclick = () => {
     sfx.tap();
-    onOpenBook();
+    modes.book();
   };
 
-  // Circuits — the logic-gates mode (a different kind of play than the quiz)
-  const circuitsBtn = h(
-    'button',
-    'circ-launch',
-    h('span', 'circ-launch-icon', '🔌'),
-    h(
-      'span',
-      'circ-launch-text',
-      h('span', 'circ-launch-title', 'Circuits'),
-      h('span', 'circ-launch-sub', 'Tap switches, light the bulb!'),
-    ),
-    h('span', 'circ-launch-badge', 'NEW'),
-  );
-  circuitsBtn.onclick = () => {
-    sfx.tap();
-    onCircuits();
-  };
-
-  // Memory Match — a second play mode (flip cards, find pairs)
-  const memoryBtn = h(
-    'button',
-    'circ-launch mem-launch',
-    h('span', 'circ-launch-icon', '🃏'),
-    h(
-      'span',
-      'circ-launch-text',
-      h('span', 'circ-launch-title', 'Memory Match'),
-      h('span', 'circ-launch-sub', 'Find the matching pairs!'),
-    ),
-    h('span', 'circ-launch-badge', 'NEW'),
-  );
-  memoryBtn.onclick = () => {
-    sfx.tap();
-    onMemory();
-  };
+  const launcherBars = LAUNCHERS.map((L) => {
+    const bar = h(
+      'button',
+      L.cls,
+      h('span', 'circ-launch-icon', L.icon),
+      h('span', 'circ-launch-text', h('span', 'circ-launch-title', L.title), h('span', 'circ-launch-sub', L.sub)),
+      L.badge ? h('span', 'circ-launch-badge', L.badge) : null,
+    );
+    bar.onclick = () => {
+      sfx.tap();
+      modes[L.key]();
+    };
+    return bar;
+  });
 
   app.replaceChildren(
     h(
@@ -125,7 +120,7 @@ export function mountHome(
         h('p', 'tagline', 'Pick one. Learn by playing!'),
       ),
       // scrolls when there are more tiles than fit (folders come later)
-      h('div', 'home-scroll', h('div', 'subject-grid', ...tiles), circuitsBtn, memoryBtn, bookBtn),
+      h('div', 'home-scroll', h('div', 'subject-grid', ...tiles), ...launcherBars, bookBtn),
       h('footer', 'home-footer', h('p', 'credit', 'CROOKED PIXELS')),
     ),
   );

@@ -9,6 +9,11 @@ import { mountResults } from './ui/results';
 import { mountStickers } from './ui/stickers';
 import { mountCircuits } from './ui/circuits';
 import { mountMemory } from './ui/memory';
+import { mountSort } from './ui/sort';
+import { mountTapAll } from './ui/tapall';
+import { mountOrder } from './ui/order';
+import { mountMaze } from './ui/maze';
+import { mountMensa } from './ui/mensa';
 import { h } from './ui/dom';
 
 registerSW({ immediate: true });
@@ -58,7 +63,16 @@ if (!isStandalone && !isTouchDevice && !isSmallScreen) {
 
 // --- screen routing -----------------------------------------------------
 function goHome(): void {
-  mountHome(app, startGame, showStickers, showCircuits, showMemory);
+  mountHome(app, startGame, {
+    book: showStickers,
+    circuits: showCircuits,
+    memory: showMemory,
+    sort: () => mountSort(app, goHome),
+    tapall: () => mountTapAll(app, goHome),
+    order: () => mountOrder(app, goHome),
+    maze: () => mountMaze(app, goHome),
+    mensa: () => mountMensa(app, goHome),
+  });
 }
 
 function startGame(subject: SubjectId): void {

@@ -202,6 +202,27 @@ if (flipped < 1) throw new Error('memory: cards did not flip');
 console.log(`  ✓ memory level 1: ${cardCount} cards, flips work`);
 await shot('memory');
 
+// the other play modes: open each from home, assert it mounts, go back home
+console.log('▶ Play modes');
+await page.click('.memory .icon-btn'); // back home from memory
+await page.waitForSelector('.subject-grid', { timeout: 3000 });
+const MODES = [
+  { launch: '.sort-launch', screen: '.sortgame', sel: '.sort-bin', min: 2 },
+  { launch: '.tap-launch', screen: '.tapgame', sel: '.tap-cell', min: 8 },
+  { launch: '.order-launch', screen: '.ordergame', sel: '.order-tile', min: 4 },
+  { launch: '.maze-launch', screen: '.mazegame', sel: '.maze-cell', min: 20 },
+  { launch: '.mensa-launch', screen: '.mensagame', sel: '.mensa-choice', min: 4 },
+];
+for (const m of MODES) {
+  await page.click(m.launch);
+  await page.waitForSelector(`${m.screen} ${m.sel}`, { timeout: 4000 });
+  const n = await page.$$eval(m.sel, (els) => els.length);
+  if (n < m.min) throw new Error(`${m.launch}: expected >= ${m.min} ${m.sel}, got ${n}`);
+  console.log(`  ✓ ${m.screen}: ${n} ${m.sel}`);
+  await page.click(`${m.screen} .icon-btn`); // back home
+  await page.waitForSelector('.subject-grid', { timeout: 3000 });
+}
+
 await browser.close();
 await server.close();
 
