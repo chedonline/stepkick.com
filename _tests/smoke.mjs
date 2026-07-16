@@ -192,7 +192,7 @@ await page.waitForSelector('.subject-grid', { timeout: 3000 });
 await page.click('.mem-launch');
 await page.waitForSelector('.memory .mem-card', { timeout: 3000 });
 const cardCount = await page.evaluate(() => document.querySelectorAll('.mem-card').length);
-if (cardCount !== 8) throw new Error(`memory: expected 8 cards on level 1, got ${cardCount}`);
+if (cardCount !== 6) throw new Error(`memory: expected 6 cards on level 1, got ${cardCount}`);
 const memCards = await page.$$('.mem-card');
 await memCards[0].click();
 await memCards[1].click();

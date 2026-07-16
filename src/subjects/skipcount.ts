@@ -1,5 +1,5 @@
 import type { Question, SubjectPack } from '../engine/types';
-import { type Rng, pick, randInt } from '../engine/rng';
+import { type Rng, pick, randInt, shuffle } from '../engine/rng';
 import { orderNumeric } from './util';
 
 // Skip counting: a run of multiples, fill the next one. 2s → then 5s / 10s / 3s.
@@ -14,13 +14,12 @@ function build(rng: Rng, d: number): Question {
   const terms = Array.from({ length: shown }, (_, i) => start + i * step);
   const answer = start + shown * step;
 
-  // distractors: off-by-a-step and off-by-one — the mistakes kids actually make
-  const seen = new Set<number>([answer]);
-  const wrong: number[] = [];
-  for (const w of [answer + step, answer - step, answer + 1, answer - 1, answer + 2 * step]) {
-    if (w > 0 && !seen.has(w)) { seen.add(w); wrong.push(w); }
-    if (wrong.length >= 3) break;
-  }
+  // distractors: off-by-a-step and off-by-one — the mistakes kids actually make.
+  // Draw from BOTH sides and shuffle, so the answer's sorted slot varies (a fixed
+  // set of "one below, two above" made the answer land top-right every time).
+  const pool = [answer + step, answer - step, answer + 2 * step, answer - 2 * step, answer + 1, answer - 1]
+    .filter((w) => w > 0 && w !== answer);
+  const wrong = shuffle([...new Set(pool)], rng).slice(0, 3);
   const choices = [answer, ...wrong].map(String).sort(orderNumeric);
   return {
     prompt: { kind: 'word', text: `${terms.join(', ')}, __` },

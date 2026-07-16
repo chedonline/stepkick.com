@@ -1,6 +1,10 @@
 // Memory Match mode — flip cards, find the matching pairs. A different kind of
-// play than the quiz (memory + attention). Kid-tuned: big cards, instant juice,
-// no timer. Matches feed the same star / sticker system.
+// play than the quiz (memory + attention). Kid-tuned: instant juice, no timer.
+// Matches feed the same star / sticker system.
+//
+// The board is fully responsive: cards are sized to fit the available area in
+// BOTH dimensions (never overflowing or hiding the score), and the count ramps
+// 6 → 12 → 24 → 36 → 48 as levels progress.
 
 import { addStars } from '../storage';
 import { sfx } from '../sound';
@@ -8,16 +12,18 @@ import { shuffle } from '../engine/rng';
 import { h } from './dom';
 import { confettiFrom, flashWord } from './juice';
 
-// Bright, visually distinct faces that read at small size.
-const FACES = ['🐶', '🐱', '🦊', '🐰', '🐼', '🐸', '🐵', '🦁', '🐯', '🐨',
-  '🐷', '🐧', '🦄', '🐙', '🦋', '🐝', '🐢', '🐳', '🐮', '🐰'];
-
-interface Level { pairs: number; cols: number; }
-const LEVELS: Level[] = [
-  { pairs: 4, cols: 4 }, //  8 cards
-  { pairs: 6, cols: 4 }, // 12 cards
-  { pairs: 8, cols: 4 }, // 16 cards
+// Bright, visually distinct faces that read even when small (need ≥ max pairs).
+const FACES = [
+  '🐶', '🐱', '🦊', '🐰', '🐼', '🐸', '🐵', '🦁', '🐯', '🐨',
+  '🐷', '🐧', '🦄', '🐙', '🦋', '🐝', '🐢', '🐳', '🐮', '🐔',
+  '🐴', '🐠', '🐬', '🦀', '🐞', '🦖', '🦕', '🐍', '🦎', '🐭',
+  '🦉', '🦜', '🐺', '🦩',
 ];
+
+// Pairs per level → 6, 12, 24, 36, 48 cards. Responsive layout keeps them on one
+// screen; the last levels get small but stay tappable.
+const LEVEL_PAIRS = [3, 6, 12, 18, 24];
+const GAP = 8;
 
 export function mountMemory(app: HTMLElement, onHome: () => void): void {
   let index = 0;
@@ -28,7 +34,6 @@ export function mountMemory(app: HTMLElement, onHome: () => void): void {
 
   const backBtn = h('button', 'icon-btn', '←');
   backBtn.setAttribute('aria-label', 'Back');
-  backBtn.onclick = onHome;
   const counter = h('span', 'mem-counter', '');
   const movesEl = h('span', 'hud-score', '');
   const header = h('header', 'game-header', backBtn, h('span', 'hud-subject', '🃏 Memory'),
@@ -43,21 +48,50 @@ export function mountMemory(app: HTMLElement, onHome: () => void): void {
   root.style.setProperty('--accent', '#c084fc');
   app.replaceChildren(root);
 
+  // Pick columns + card size that maximizes the (square) card while fitting the
+  // grid area in both dimensions. Recomputed on every resize / orientation flip.
+  function layoutGrid(): void {
+    const n = gridEl.childElementCount;
+    const W = gridEl.clientWidth;
+    const H = gridEl.clientHeight;
+    if (!n || W <= 0 || H <= 0) return;
+    let best = { cols: 1, size: 0 };
+    for (let cols = 1; cols <= n; cols++) {
+      const rows = Math.ceil(n / cols);
+      const cw = (W - GAP * (cols - 1)) / cols;
+      const ch = (H - GAP * (rows - 1)) / rows;
+      const size = Math.min(cw, ch);
+      if (size > best.size) best = { cols, size };
+    }
+    const size = Math.floor(best.size);
+    gridEl.style.gridTemplateColumns = `repeat(${best.cols}, ${size}px)`;
+    gridEl.style.gridAutoRows = `${size}px`;
+    gridEl.style.setProperty('--card', `${size}px`);
+  }
+
+  const ro = new ResizeObserver(() => layoutGrid());
+  ro.observe(gridEl);
+
+  const leave = (): void => {
+    ro.disconnect();
+    onHome();
+  };
+  backBtn.onclick = leave;
+
   function loadLevel(): void {
-    const lv = LEVELS[index];
+    const pairs = LEVEL_PAIRS[index];
     first = null;
     lock = false;
     matched = 0;
     moves = 0;
-    counter.textContent = `${index + 1}/${LEVELS.length}`;
+    counter.textContent = `${index + 1}/${LEVEL_PAIRS.length}`;
     movesEl.textContent = '';
     hintEl.textContent = '';
     nextBtn.classList.remove('show');
 
-    const faces = shuffle(FACES, Math.random).slice(0, lv.pairs);
+    const faces = shuffle(FACES, Math.random).slice(0, pairs);
     const deck = shuffle([...faces, ...faces], Math.random);
 
-    gridEl.style.gridTemplateColumns = `repeat(${lv.cols}, 1fr)`;
     gridEl.replaceChildren(
       ...deck.map((face) => {
         const card = h('button', 'mem-card', h('span', 'mem-face', face), h('span', 'mem-back', '❓'));
@@ -66,6 +100,7 @@ export function mountMemory(app: HTMLElement, onHome: () => void): void {
         return card;
       }),
     );
+    layoutGrid();
   }
 
   function flip(card: HTMLElement): void {
@@ -92,7 +127,7 @@ export function mountMemory(app: HTMLElement, onHome: () => void): void {
         addStars(1); // each pair = a star (feeds stickers, like a correct answer)
         matched++;
         lock = false;
-        if (matched === LEVELS[index].pairs) win();
+        if (matched === LEVEL_PAIRS[index]) win();
       }, 320);
     } else {
       lock = true;
@@ -114,16 +149,19 @@ export function mountMemory(app: HTMLElement, onHome: () => void): void {
   nextBtn.onclick = () => {
     sfx.tap();
     index++;
-    if (index >= LEVELS.length) showComplete();
+    if (index >= LEVEL_PAIRS.length) showComplete();
     else loadLevel();
   };
 
   function showComplete(): void {
+    ro.disconnect();
     sfx.fanfare();
     const againBtn = h('button', 'btn btn-primary', '🃏 Play again');
     againBtn.onclick = () => {
       sfx.tap();
       index = 0;
+      ro.observe(gridEl);
+      app.replaceChildren(root);
       loadLevel();
     };
     const homeBtn = h('button', 'btn btn-ghost', '🏠 Home');
@@ -136,7 +174,7 @@ export function mountMemory(app: HTMLElement, onHome: () => void): void {
           'div',
           'results-main',
           h('div', 'badge', h('span', 'badge-emoji', '🧠'), h('span', 'badge-label', 'MEMORY MASTER')),
-          h('div', 'final-score', String(LEVELS.length), h('span', 'final-caption', 'levels cleared')),
+          h('div', 'final-score', String(LEVEL_PAIRS.length), h('span', 'final-caption', 'levels cleared')),
         ),
         h('div', 'results-actions', againBtn, homeBtn),
       ),

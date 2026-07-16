@@ -454,20 +454,23 @@ body.framed[data-view='ipad-l'] #app {
   flex: 1;
   min-height: 0;
   display: grid;
-  gap: 10px;
+  gap: 8px; /* must match GAP in memory.ts */
   align-content: center;
   justify-content: center;
-  padding: 4px;
+  padding: 2px;
+  overflow: hidden;
 }
 .mem-card {
-  aspect-ratio: 1;
+  /* size comes from the JS-computed square grid cells; fill the cell */
   width: 100%;
-  border-radius: 16px;
+  height: 100%;
+  border-radius: clamp(8px, calc(var(--card, 44px) * 0.18), 16px);
   border: 1px solid var(--line);
   background: var(--panel-2);
   display: grid;
   place-items: center;
-  font-size: clamp(26px, 8cqw, 52px);
+  font-size: calc(var(--card, 44px) * 0.5);
+  line-height: 1;
   transition: transform 0.1s ease, background 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
 }
 .mem-card:active {
