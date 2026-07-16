@@ -185,6 +185,23 @@ if (!circ.nextShown) throw new Error('circuits: Next button did not appear');
 console.log('  ✓ solved puzzle 1 (bulb lit + Next shown)');
 await shot('circuits');
 
+// memory match: open from home, verify the grid + a flip works
+console.log('▶ Memory Match');
+await page.click('.circuits .icon-btn'); // back home
+await page.waitForSelector('.subject-grid', { timeout: 3000 });
+await page.click('.mem-launch');
+await page.waitForSelector('.memory .mem-card', { timeout: 3000 });
+const cardCount = await page.evaluate(() => document.querySelectorAll('.mem-card').length);
+if (cardCount !== 8) throw new Error(`memory: expected 8 cards on level 1, got ${cardCount}`);
+const memCards = await page.$$('.mem-card');
+await memCards[0].click();
+await memCards[1].click();
+await new Promise((r) => setTimeout(r, 500));
+const flipped = await page.evaluate(() => document.querySelectorAll('.mem-card.flipped, .mem-card.matched').length);
+if (flipped < 1) throw new Error('memory: cards did not flip');
+console.log(`  ✓ memory level 1: ${cardCount} cards, flips work`);
+await shot('memory');
+
 await browser.close();
 await server.close();
 

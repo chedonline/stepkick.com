@@ -8,6 +8,7 @@ import { mountHome } from './ui/home';
 import { mountResults } from './ui/results';
 import { mountStickers } from './ui/stickers';
 import { mountCircuits } from './ui/circuits';
+import { mountMemory } from './ui/memory';
 import { h } from './ui/dom';
 
 registerSW({ immediate: true });
@@ -52,7 +53,7 @@ if (!isStandalone && !isTouchDevice && !isSmallScreen) {
 
 // --- screen routing -----------------------------------------------------
 function goHome(): void {
-  mountHome(app, startGame, showStickers, showCircuits);
+  mountHome(app, startGame, showStickers, showCircuits, showMemory);
 }
 
 function startGame(subject: SubjectId): void {
@@ -65,6 +66,10 @@ function showStickers(): void {
 
 function showCircuits(): void {
   mountCircuits(app, goHome);
+}
+
+function showMemory(): void {
+  mountMemory(app, goHome);
 }
 
 function finishGame(result: RunResult): void {

@@ -449,6 +449,59 @@ body.framed[data-view='ipad-l'] #app {
   font-weight: 700;
 }
 
+/* ---------- memory match ---------- */
+.mem-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  gap: 10px;
+  align-content: center;
+  justify-content: center;
+  padding: 4px;
+}
+.mem-card {
+  aspect-ratio: 1;
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  display: grid;
+  place-items: center;
+  font-size: clamp(26px, 8cqw, 52px);
+  transition: transform 0.1s ease, background 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
+}
+.mem-card:active {
+  transform: scale(0.95);
+}
+.mem-face {
+  display: none;
+}
+.mem-back {
+  opacity: 0.4;
+}
+.mem-card.flipped {
+  background: color-mix(in srgb, var(--accent) 20%, var(--panel-2));
+  border-color: var(--accent);
+}
+.mem-card.flipped .mem-face,
+.mem-card.matched .mem-face {
+  display: block;
+  animation: pop 0.32s cubic-bezier(0.2, 2, 0.4, 1);
+}
+.mem-card.flipped .mem-back,
+.mem-card.matched .mem-back {
+  display: none;
+}
+.mem-card.matched {
+  background: color-mix(in srgb, var(--good) 22%, var(--panel));
+  border-color: var(--good);
+  opacity: 0.7;
+}
+.mem-counter {
+  color: var(--ink-dim);
+  font-weight: 800;
+}
+
 /* ---------- circuits launcher (home) ---------- */
 
 .circ-launch {

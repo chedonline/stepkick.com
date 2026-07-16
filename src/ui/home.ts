@@ -10,6 +10,7 @@ export function mountHome(
   onPlay: (subject: SubjectId) => void,
   onOpenBook: () => void,
   onCircuits: () => void,
+  onMemory: () => void,
 ): void {
   const tiles = SUBJECTS.map((pack) => {
     const b = best(pack.meta.id);
@@ -93,6 +94,24 @@ export function mountHome(
     onCircuits();
   };
 
+  // Memory Match — a second play mode (flip cards, find pairs)
+  const memoryBtn = h(
+    'button',
+    'circ-launch mem-launch',
+    h('span', 'circ-launch-icon', '🃏'),
+    h(
+      'span',
+      'circ-launch-text',
+      h('span', 'circ-launch-title', 'Memory Match'),
+      h('span', 'circ-launch-sub', 'Find the matching pairs!'),
+    ),
+    h('span', 'circ-launch-badge', 'NEW'),
+  );
+  memoryBtn.onclick = () => {
+    sfx.tap();
+    onMemory();
+  };
+
   app.replaceChildren(
     h(
       'div',
@@ -106,7 +125,7 @@ export function mountHome(
         h('p', 'tagline', 'Pick one. Learn by playing!'),
       ),
       // scrolls when there are more tiles than fit (folders come later)
-      h('div', 'home-scroll', h('div', 'subject-grid', ...tiles), circuitsBtn, bookBtn),
+      h('div', 'home-scroll', h('div', 'subject-grid', ...tiles), circuitsBtn, memoryBtn, bookBtn),
       h('footer', 'home-footer', h('p', 'credit', 'CROOKED PIXELS')),
     ),
   );
