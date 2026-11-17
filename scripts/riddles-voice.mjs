@@ -63,4 +63,5 @@ const queue = list.slice();
 await Promise.all(Array.from({ length: 3 }, async () => { while (queue.length) await record(queue.shift()); }));
 fs.writeFileSync(path.join(outDir, "manifest.json"), JSON.stringify(manifest, null, 1));
 console.log(`made ${made}, already had ${skipped}, failed ${failed}`);
+if (made) console.log("Now even out the volume: node scripts/riddles-loudness.mjs --fix");
 if (failed) process.exit(1);
