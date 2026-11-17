@@ -20,6 +20,10 @@ export default defineConfig({
       workbox: {
         // Precache everything — the whole game works offline.
         globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        // /riddles/ (Giggle Box) is a standalone page: always fetch it fresh and
+        // never let the service worker answer it with the Stepkick app shell.
+        globIgnores: ['**/riddles/**'],
+        navigateFallbackDenylist: [/^\/riddles(\/|$)/],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
       manifest: {

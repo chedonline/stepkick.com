@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2b1055">
+<title>Giggle Box</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#2b1055; --bg2:#7597de; --card:#ffffff; --ink:#1f1640; --muted:#6b6490;
+  --yellow:#ffd23f; --pink:#ff5d8f; --green:#3bd16f; --blue:#3a86ff; --orange:#ff9f1c;
+  --radius:22px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{
+  font-family:"Fredoka",system-ui,-apple-system,sans-serif;color:var(--ink);
+  background:radial-gradient(1200px 800px at 10% 0%,#5b2a9e 0%,transparent 60%),
+             radial-gradient(1000px 700px at 100% 100%,#1e6bd6 0%,transparent 55%),
+             linear-gradient(160deg,var(--bg1),#3b1c7a 55%,#1b3f8f);
+  min-height:100%;overflow-x:hidden;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+button,input,select,textarea{font-family:inherit;font-size:16px}
+button{cursor:pointer;border:0}
+.hidden{display:none!important}
+
+/* top bar */
+header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;gap:8px}
+.logo{font-weight:700;font-size:clamp(19px,5vw,24px);white-space:nowrap;color:#fff;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.logo span{display:inline-block;animation:wob 3s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+nav{display:flex;gap:6px}
+nav button{background:rgba(255,255,255,.14);color:#fff;border-radius:14px;padding:9px 13px;font-weight:600;font-size:15px}
+nav button.on{background:#fff;color:var(--bg1)}
+
+/* play view */
+#play{display:flex;flex-direction:column;align-items:center;padding:4px 16px 24px;min-height:calc(100vh - 70px)}
+.score{color:#fff;font-weight:600;font-size:18px;opacity:.9;margin:2px 0 10px}
+.stage{
+  width:100%;max-width:1100px;background:var(--card);border-radius:32px;padding:28px 24px 26px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;gap:14px;min-height:56vh;justify-content:center
+}
+.badge{display:inline-block;padding:6px 16px;border-radius:999px;font-weight:700;font-size:16px;letter-spacing:1px;text-transform:uppercase}
+.badge.joke{background:#fff1c2;color:#9a6a00}
+.badge.riddle{background:#dff0ff;color:#1e5fb3}
+.badge.knock{background:#ffe0ea;color:#b3204f}
+.setup{font-size:clamp(24px,min(5.6vw,9vh),72px);font-weight:700;line-height:1.12;max-width:20ch}
+.prompt{font-size:clamp(20px,3.2vw,38px);color:var(--muted);font-weight:600;min-height:1.3em}
+.heard{font-size:clamp(20px,3vw,34px);background:#f3f0ff;border-radius:18px;padding:10px 18px;color:#4a3d8f;max-width:90%;min-height:0}
+.heard:empty{display:none}
+.heard::before{content:"🎤 ";}
+.punch{font-size:clamp(26px,min(6vw,10vh),80px);font-weight:700;color:var(--pink);line-height:1.1;max-width:20ch;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.verdict{font-size:clamp(24px,4vw,48px);font-weight:700}
+.verdict.yes{color:var(--green)} .verdict.no{color:var(--orange)}
+
+/* countdown ring */
+.ring{position:relative;width:clamp(84px,min(16vw,24vh),190px);height:clamp(84px,min(16vw,24vh),190px)}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:12}
+.ring .track{stroke:#eee8ff}
+.ring .bar{stroke:var(--blue);stroke-linecap:round;transition:stroke .3s}
+.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(32px,min(6vw,10vh),72px);font-weight:700;color:var(--blue)}
+.ring.low .bar{stroke:var(--pink)} .ring.low .num{color:var(--pink)}
+.mic-dot{width:16px;height:16px;border-radius:50%;background:var(--pink);display:inline-block;margin-right:8px;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.5}}
+.speaking-bars{display:inline-flex;gap:5px;align-items:flex-end;height:28px}
+.speaking-bars i{width:7px;background:var(--blue);border-radius:4px;animation:eq .8s ease-in-out infinite}
+.speaking-bars i:nth-child(2){animation-delay:.15s}.speaking-bars i:nth-child(3){animation-delay:.3s}.speaking-bars i:nth-child(4){animation-delay:.45s}
+@keyframes eq{0%,100%{height:6px}50%{height:28px}}
+
+.controls{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:18px;width:100%;max-width:1100px}
+.btn{border-radius:18px;padding:14px 20px;font-weight:700;font-size:18px;color:#fff;background:rgba(255,255,255,.16)}
+.btn.big{font-size:24px;padding:18px 34px;background:var(--yellow);color:var(--ink);box-shadow:0 6px 0 #c99a00}
+.btn.big:active{transform:translateY(4px);box-shadow:0 2px 0 #c99a00}
+.btn.pink{background:var(--pink)} .btn.blue{background:var(--blue)} .btn.green{background:var(--green)}
+.btn:disabled{opacity:.4}
+
+/* start overlay */
+#startOverlay{position:absolute;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:3;padding:24px}
+#startOverlay h1{margin:0;font-size:clamp(36px,7vw,84px)}
+#startOverlay p{margin:0;color:var(--muted);font-size:clamp(18px,2.6vw,28px);max-width:30ch}
+.startbtn{font-size:clamp(28px,4.5vw,48px)!important;padding:22px 48px!important;border-radius:999px!important}
+
+/* confetti */
+.conf{position:fixed;top:-40px;font-size:34px;pointer-events:none;z-index:50;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+/* list + settings */
+.panel{max-width:900px;margin:0 auto;padding:4px 14px 60px}
+.panel h2{color:#fff;margin:6px 4px 12px;font-size:26px}
+.card{background:#fff;border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.toolbar .btn{font-size:15px;padding:10px 14px}
+.item{display:grid;grid-template-columns:1fr;gap:8px;position:relative}
+.item.off{opacity:.5}
+.item .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.item .num{font-weight:700;color:var(--muted);min-width:34px}
+.item input[type=text],.item textarea{width:100%;border:2px solid #e6e1fa;border-radius:14px;padding:10px 12px;color:var(--ink);background:#fbfaff}
+.item textarea{resize:vertical;min-height:46px}
+.item label.small{font-size:13px;color:var(--muted);font-weight:600}
+.item select,.field select,.field input{border:2px solid #e6e1fa;border-radius:12px;padding:8px 10px;background:#fbfaff;color:var(--ink)}
+.item .sec{width:76px;border:2px solid #e6e1fa;border-radius:12px;padding:8px 10px;background:#fbfaff}
+.icon{background:#f1edff;color:var(--ink);border-radius:12px;padding:8px 11px;font-size:16px;font-weight:700}
+.icon.del{background:#ffe6ee;color:#b3204f}
+.icon.play{background:#dff6e8;color:#127a3a}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field>span{font-weight:600}
+.field small{color:var(--muted)}
+.field input[type=text],.field input[type=password],.field input[type=number],.field select{width:100%;font-size:16px;padding:12px}
+.field.inline{flex-direction:row;align-items:center;justify-content:space-between;gap:12px}
+.switch{position:relative;width:54px;height:32px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.switch i{position:absolute;inset:0;background:#d9d4ee;border-radius:999px;transition:.2s}
+.switch i::after{content:"";position:absolute;left:4px;top:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.switch input:checked+i{background:var(--green)}
+.switch input:checked+i::after{left:26px}
+textarea.io{width:100%;min-height:180px;border:2px solid #e6e1fa;border-radius:14px;padding:12px;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+.help li{margin-bottom:8px;line-height:1.4}
+.filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filter button{background:rgba(255,255,255,.16);color:#fff;border-radius:12px;padding:8px 12px;font-weight:600}
+.filter button.on{background:#fff;color:var(--bg1)}
+
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#1f1640;color:#fff;padding:12px 18px;border-radius:14px;font-weight:500;max-width:92vw;z-index:99;opacity:0;transition:opacity .3s;pointer-events:none;text-align:center}
+#toast.show{opacity:1}
+
+/* landscape / TV: hide chrome while playing */
+body.playing header nav{opacity:.35}
+@media (orientation:landscape) and (max-height:520px){
+  header{padding:6px 14px} .logo{font-size:20px}
+  .stage{min-height:0;padding:12px 20px;gap:6px}
+  .score{margin:0 0 4px;font-size:15px}
+  .prompt{font-size:20px} .badge{font-size:13px;padding:4px 12px}
+  .controls{margin-top:10px}
+  .btn,.btn.big{padding:8px 16px;font-size:16px;box-shadow:none}
+  #play{min-height:0;padding-bottom:8px}
+  .ring{width:min(20vh,110px);height:min(20vh,110px)}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span>🤪</span> Giggle Box</div>
+  <nav>
+    <button data-view="play" class="on">▶ Play</button>
+    <button data-view="list">✏️ List</button>
+    <button data-view="settings">⚙️</button>
+  </nav>
+</header>
+
+<!-- PLAY -->
+<section id="play">
+  <div class="score" id="score">⭐ 0 / 0</div>
+  <div class="stage" id="stage">
+    <div id="startOverlay">
+      <h1>🤪 Giggle Box</h1>
+      <p>I tell a joke. You have a few seconds to shout the answer!</p>
+      <button class="btn big startbtn" id="startBtn">▶ Let's Go!</button>
+      <p id="startNote" style="font-size:15px"></p>
+    </div>
+    <div><span class="badge joke" id="badge">Joke</span></div>
+    <div class="setup" id="setup"></div>
+    <div class="prompt" id="prompt"></div>
+    <div class="ring hidden" id="ring">
+      <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="52"/><circle class="bar" id="ringBar" cx="60" cy="60" r="52"/></svg>
+      <div class="num" id="ringNum">10</div>
+    </div>
+    <div class="heard" id="heard"></div>
+    <div class="verdict" id="verdict"></div>
+    <div class="punch hidden" id="punch"></div>
+  </div>
+  <div class="controls">
+    <button class="btn blue" id="revealBtn" disabled>👀 Show answer</button>
+    <button class="btn" id="againBtn" disabled>🔁 Again</button>
+    <button class="btn big" id="nextBtn" disabled>Next ▶</button>
+    <button class="btn" id="stopBtn" disabled>⏸ Stop</button>
+  </div>
+</section>
+
+<!-- LIST -->
+<section id="list" class="panel hidden">
+  <h2>✏️ Joke List</h2>
+  <div class="toolbar">
+    <button class="btn green" id="addBtn">＋ Add</button>
+    <button class="btn" id="bulkBtn">📋 Paste / Copy list</button>
+    <button class="btn" id="allOnBtn">✅ All on</button>
+    <button class="btn pink" id="resetBtn">↺ Reset to 100</button>
+  </div>
+  <div class="filter" id="filter">
+    <button data-f="all" class="on">All</button>
+    <button data-f="joke">Jokes</button>
+    <button data-f="riddle">Riddles</button>
+    <button data-f="knock">Knock-knock</button>
+  </div>
+  <div class="card hidden" id="bulkCard">
+    <p style="margin:0 0 8px"><b>Paste lines</b> like:<br>
+      <code>Why did the cow cross the road? | To get to the udder side!</code><br>
+      <code>riddle: What has hands but can't clap? | A clock!</code><br>
+      <code>knock: Boo | Don't cry, it's just a joke!</code><br>
+      Add <code>| 15</code> at the end to set seconds. JSON from "Copy" also works.</p>
+    <textarea class="io" id="bulkText" placeholder="One joke per line…"></textarea>
+    <div class="toolbar" style="margin-top:10px">
+      <button class="btn green" id="appendBtn">＋ Add to list</button>
+      <button class="btn pink" id="replaceBtn">Replace whole list</button>
+      <button class="btn blue" id="copyBtn">Copy my list</button>
+    </div>
+  </div>
+  <div id="items"></div>
+</section>
+
+<!-- SETTINGS -->
+<section id="settings" class="panel hidden">
+  <h2>⚙️ Settings</h2>
+  <div class="card">
+    <h3 style="margin-top:0">🗣️ ElevenLabs voice</h3>
+    <label class="field"><span>API key</span>
+      <input type="password" id="sKey" placeholder="sk_…" autocomplete="off">
+      <small>Stays on this phone only. Best to make a key that can only do text-to-speech and read voices, with a credit limit.</small>
+    </label>
+    <div class="toolbar"><button class="btn blue" id="loadVoices">Load my voices</button><button class="btn green" id="testVoice">🔊 Test</button></div>
+    <label class="field"><span>Voice</span><select id="sVoice"></select>
+      <small>Or paste a voice ID:</small><input type="text" id="sVoiceId" placeholder="voice id"></label>
+    <label class="field"><span>Model</span>
+      <select id="sModel">
+        <option value="eleven_turbo_v2_5">Turbo v2.5 (fast, cheap)</option>
+        <option value="eleven_flash_v2_5">Flash v2.5 (fastest)</option>
+        <option value="eleven_multilingual_v2">Multilingual v2 (most expressive)</option>
+        <option value="eleven_v3">v3 (very expressive, slower)</option>
+      </select></label>
+    <label class="field"><span>Speed <b id="sSpeedV"></b></span><input type="range" id="sSpeed" min="0.7" max="1.2" step="0.05"></label>
+    <label class="field"><span>Stability <b id="sStabV"></b></span><input type="range" id="sStab" min="0" max="1" step="0.05"><small>Lower = more playful and varied.</small></label>
+    <div class="field inline"><span>Use phone voice if ElevenLabs isn't set up</span><label class="switch"><input type="checkbox" id="sFallback"><i></i></label></div>
+    <button class="btn pink" id="clearCache" style="font-size:15px;padding:10px 14px">Clear saved audio</button>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">⏱️ Timing</h3>
+    <label class="field"><span>Seconds to answer (jokes &amp; riddles)</span><input type="number" id="sThink" min="3" max="60"></label>
+    <label class="field"><span>Seconds for knock-knock replies</span><input type="number" id="sKnock" min="2" max="20"></label>
+    <label class="field"><span>Pause before punchline (seconds)</span><input type="number" id="sReveal" min="0" max="5" step="0.1"></label>
+    <div class="field inline"><span>Go to next joke by itself</span><label class="switch"><input type="checkbox" id="sAuto"><i></i></label></div>
+    <label class="field"><span>Seconds before next joke</span><input type="number" id="sNext" min="1" max="30"></label>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">🎮 Game</h3>
+    <div class="field inline"><span>Listen with microphone</span><label class="switch"><input type="checkbox" id="sMic"><i></i></label></div>
+    <div class="field inline"><span>Shuffle order</span><label class="switch"><input type="checkbox" id="sShuffle"><i></i></label></div>
+    <div class="field inline"><span>Say "You got it!" / "Good try!"</span><label class="switch"><input type="checkbox" id="sFeedback"><i></i></label></div>
+    <div class="field inline"><span>Stop when answer is heard early</span><label class="switch"><input type="checkbox" id="sEarly"><i></i></label></div>
+  </div>
+
+  <div class="card help">
+    <h3 style="margin-top:0">📺 Show it on the TV</h3>
+    <ol>
+      <li>Open this page in <b>Safari</b> on the iPhone.</li>
+      <li>Swipe down from the top-right → <b>Screen Mirroring</b> → pick the Apple TV.</li>
+      <li>Turn the phone sideways so it fills the TV.</li>
+      <li>If the mic doesn't hear anything: Settings → General → Keyboard → turn on <b>Enable Dictation</b>, and allow the mic for this site.</li>
+    </ol>
+  </div>
+</section>
+
+<div id="toast"></div>
+
+<script>
+(() => {
+"use strict";
+
+/* ---------------- default 100 ---------------- */
+const RAW = [
+["joke","What do you call a sleeping dinosaur?","A dino-snore!"],
+["joke","Why do fish live in salt water?","Because pepper makes them sneeze!"],
+["joke","What do you call a bear with no teeth?","A gummy bear!"],
+["joke","What do you call a cow with no legs?","Ground beef!"],
+["joke","What do you call a pig that does karate?","A pork chop!"],
+["joke","What kind of key opens a banana?","A monkey!"],
+["joke","Why don't elephants use computers?","They're scared of the mouse!"],
+["joke","What do you call a dog magician?","A labracadabrador!"],
+["joke","How do you count cows?","With a cow-culator!"],
+["joke","What do you call an alligator in a vest?","An in-vest-igator!"],
+["joke","What do you call a fish with no eyes?","A fsh!"],
+["joke","Where do sheep get their hair cut?","At the baa-baa shop!"],
+["joke","Why don't oysters share?","Because they're shellfish!"],
+["joke","What do you call a lazy kangaroo?","A pouch potato!"],
+["joke","What do bees chew?","Bumble gum!"],
+["joke","Why did the banana go to the doctor?","It wasn't peeling well!"],
+["joke","What do you call cheese that isn't yours?","Nacho cheese!"],
+["joke","Why did the cookie go to the hospital?","It felt crummy!"],
+["joke","Why did the tomato blush?","It saw the salad dressing!"],
+["joke","What do you call a sad strawberry?","A blueberry!"],
+["joke","What's a ghost's favourite dessert?","I scream!"],
+["joke","Why don't eggs tell jokes?","They'd crack each other up!"],
+["riddle","What kind of nut has no shell?","A doughnut!"],
+["joke","What do you call a fake noodle?","An impasta!"],
+["joke","Why do potatoes make good detectives?","They keep their eyes peeled!"],
+["joke","Why did the student eat her homework?","The teacher said it was a piece of cake!"],
+["joke","What's a math teacher's favourite dessert?","Pie!"],
+["joke","Why was the math book sad?","It had too many problems!"],
+["joke","What do elves learn in school?","The elf-abet!"],
+["joke","What's a snake's favourite school subject?","Hiss-tory!"],
+["joke","Why did the music teacher need a ladder?","To reach the high notes!"],
+["joke","What's the king of all school supplies?","The ruler!"],
+["joke","Why was the teacher wearing sunglasses?","Her students were so bright!"],
+["joke","How do bees get to school?","On the school buzz!"],
+["joke","Why don't skeletons fight each other?","They don't have the guts!"],
+["joke","What do you call a witch at the beach?","A sand-witch!"],
+["joke","What room does a ghost stay away from?","The living room!"],
+["joke","Why did the scarecrow win an award?","He was outstanding in his field!"],
+["joke","How does the moon cut its hair?","Eclipse it!"],
+["joke","What did the tree say when spring came?","What a re-leaf!"],
+["joke","What do clouds wear under their raincoats?","Thunderwear!"],
+["joke","How do you throw a party in space?","You planet!"],
+["joke","What did one volcano say to the other?","I lava you!"],
+["joke","What's a tornado's favourite game?","Twister!"],
+["joke","What did the ocean say to the beach?","Nothing, it just waved!"],
+["riddle","What has hands but can't clap?","A clock!"],
+["riddle","What has lots of keys but can't open doors?","A piano!"],
+["joke","Why can't a bicycle stand up by itself?","It's two tired!"],
+["riddle","What gets wetter the more it dries?","A towel!"],
+["riddle","What has one eye but can't see?","A needle!"],
+["riddle","What runs but never walks?","Water!"],
+["joke","What did the stamp say to the envelope?","Stick with me and we'll go places!"],
+["riddle","What has ears but can't hear?","A cornfield!"],
+["joke","Why did the teddy bear skip dessert?","It was already stuffed!"],
+["joke","What do you call a boomerang that won't come back?","A stick!"],
+["joke","Why are ghosts bad at lying?","You can see right through them!"],
+["joke","Why did the girl bring a ladder to school?","She wanted to go to high school!"],
+["joke","What do you call a dinosaur that knows lots of words?","A thesaurus!"],
+["joke","Why did the robot go on vacation?","To recharge its batteries!"],
+["riddle","What room has no doors or windows?","A mushroom!"],
+["joke","What do you call a train full of gum?","A chew-chew train!"],
+["joke","How do trees get on the internet?","They log in!"],
+["riddle","What has a neck but no head?","A bottle!"],
+["joke","What did the big flower say to the little flower?","Hi, bud!"],
+["joke","Why do birds fly south for the winter?","It's too far to walk!"],
+["joke","What's a cat's favourite colour?","Purr-ple!"],
+["joke","Where do cows go on dates?","To the moo-vies!"],
+["joke","What do you call a sleeping bull?","A bulldozer!"],
+["joke","What's a duck's favourite snack?","Cheese and quackers!"],
+["joke","Why did the chicken join a band?","It had the drumsticks!"],
+["joke","Why is the moon never hungry?","Because it's always full!"],
+["joke","What do planets like to read?","Comet books!"],
+["riddle","What's orange and sounds like a parrot?","A carrot!"],
+["joke","What did the zero say to the eight?","Nice belt!"],
+["joke","Why did the cookie cry?","Its mom was a wafer so long!"],
+["joke","What do you call a funny mountain?","Hill-arious!"],
+["joke","What do you call a pile of kittens?","A meow-ntain!"],
+["joke","What kind of shoes do frogs wear?","Open-toad sandals!"],
+["joke","What did one plate say to the other plate?","Dinner's on me!"],
+["joke","What's a frog's favourite drink?","Croak-a-cola!"],
+["joke","Why are cats so good at video games?","They have nine lives!"],
+["riddle","What falls all the time but never gets hurt?","Rain!"],
+["joke","What's an astronaut's favourite key on the keyboard?","The space bar!"],
+["joke","What do snowmen eat for breakfast?","Frosted flakes!"],
+["riddle","What do you call a snowman in the summer?","A puddle!"],
+["joke","What did one wall say to the other wall?","Meet you at the corner!"],
+["joke","What did the duck say after shopping?","Put it on my bill!"],
+["joke","What's black and white and red all over?","A sunburned zebra!"],
+["joke","Why do vampires need mouthwash?","They have bat breath!"],
+["joke","What did the paper say to the pencil?","Write on!"],
+["knock","Boo","Don't cry, it's just a joke!"],
+["knock","Lettuce","Lettuce in, it's cold out here!"],
+["knock","Cow says","No silly, a cow says moo!"],
+["knock","Olive","Olive you!"],
+["knock","Tank","You're welcome!"],
+["knock","Hawaii","I'm fine, Hawaii you?"],
+["knock","Lena","Lena little closer, I have a secret!"],
+["knock","Wooden shoe","Wooden shoe like to hear another joke?"],
+["knock","Owls say","Yes, they do!"],
+["knock","Atch","Bless you!"]
+];
+const uid = () => Math.random().toString(36).slice(2, 10);
+const fromRaw = r => ({ id: uid(), type: r[0], setup: r[1], punch: r[2], think: null, voice: "", on: true });
+const defaults = () => RAW.map(fromRaw);
+
+const DEFAULT_SETTINGS = {
+  apiKey: "", voiceId: "", model: "eleven_turbo_v2_5", speed: 1, stability: 0.4,
+  think: 10, knock: 5, reveal: 0.8, auto: true, next: 4,
+  mic: true, shuffle: true, feedback: true, early: true, fallback: true, voices: []
+};
+
+/* ---------------- storage ---------------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+let items = store.get("gb_items", null) || defaults();
+let settings = Object.assign({}, DEFAULT_SETTINGS, store.get("gb_settings", {}));
+let saveT = null;
+const saveItems = () => { clearTimeout(saveT); saveT = setTimeout(() => store.set("gb_items", items), 300); };
+const saveSettings = () => store.set("gb_settings", settings);
+
+const $ = id => document.getElementById(id);
+function toast(msg, ms = 3200) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+
+/* ---------------- audio cache (IndexedDB) ---------------- */
+const idb = (() => {
+  let p = null;
+  const open = () => p || (p = new Promise((res, rej) => {
+    try { const r = indexedDB.open("gigglebox", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("audio");
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    } catch (e) { rej(e); }
+  }));
+  return {
+    async get(k) { try { const db = await open(); return await new Promise(res => { const q = db.transaction("audio").objectStore("audio").get(k); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); }); } catch (e) { return null; } },
+    async set(k, v) { try { const db = await open(); db.transaction("audio", "readwrite").objectStore("audio").put(v, k); } catch (e) {} },
+    async clear() { try { const db = await open(); db.transaction("audio", "readwrite").objectStore("audio").clear(); } catch (e) {} }
+  };
+})();
+const mem = new Map();
+
+/* ---------------- speech out ---------------- */
+let ctx = null, currentSrc = null;
+function unlockAudio() {
+  try {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state !== "running") ctx.resume();
+    const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource();
+    s.buffer = b; s.connect(ctx.destination); s.start(0);
+  } catch (e) {}
+  try { if ("speechSynthesis" in window) speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); } catch (e) {}
+}
+const elevenReady = () => !!(settings.apiKey && settings.voiceId);
+
+async function getAudio(text, voiceId) {
+  const key = [voiceId, settings.model, settings.speed, settings.stability, text].join("|");
+  if (mem.has(key)) return mem.get(key);
+  let buf = await idb.get(key);
+  if (!buf) {
+    const body = { text, model_id: settings.model,
+      voice_settings: { stability: +settings.stability, similarity_boost: 0.75, style: 0.35, use_speaker_boost: true, speed: +settings.speed } };
+    const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}?output_format=mp3_44100_128`, {
+      method: "POST", headers: { "xi-api-key": settings.apiKey, "Content-Type": "application/json", "Accept": "audio/mpeg" }, body: JSON.stringify(body) });
+    if (!r.ok) { let m = ""; try { m = (await r.json()).detail; m = typeof m === "string" ? m : (m && m.message) || ""; } catch (e) {} throw new Error(`ElevenLabs ${r.status}${m ? ": " + m : ""}`); }
+    buf = await r.arrayBuffer();
+    idb.set(key, buf);
+  }
+  mem.set(key, buf);
+  return buf;
+}
+function prefetch(text, voice) { if (elevenReady()) getAudio(text, voice || settings.voiceId).catch(() => {}); }
+
+function playBuf(buf) {
+  return new Promise(async res => {
+    try {
+      if (!ctx) unlockAudio();
+      const ab = await ctx.decodeAudioData(buf.slice(0));
+      const src = ctx.createBufferSource(); src.buffer = ab; src.connect(ctx.destination);
+      currentSrc = src; src.onended = () => { if (currentSrc === src) currentSrc = null; res(); };
+      src.start(0);
+    } catch (e) { res(); }
+  });
+}
+function deviceSpeak(text) {
+  return new Promise(res => {
+    if (!("speechSynthesis" in window)) return res();
+    try {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-US"; u.rate = 0.95 * (+settings.speed || 1); u.pitch = 1.1;
+      const v = speechSynthesis.getVoices().find(v => /en[-_](US|CA|GB)/i.test(v.lang) && /Samantha|Karen|Moira|Daniel|Google/i.test(v.name));
+      if (v) u.voice = v;
+      const done = () => { clearTimeout(t); res(); };
+      const t = setTimeout(done, 2500 + text.length * 110);
+      u.onend = done; u.onerror = done;
+      speechSynthesis.speak(u);
+    } catch (e) { res(); }
+  });
+}
+let warnedEleven = false;
+async function speak(text, voice) {
+  if (!text) return;
+  setSpeaking(true);
+  try {
+    const v = voice || settings.voiceId;
+    if (settings.apiKey && v) {
+      try { const buf = await getAudio(text, v); await playBuf(buf); return; }
+      catch (e) { if (!warnedEleven) { toast(e.message + " — using phone voice", 5000); warnedEleven = true; } if (!settings.fallback) return; }
+    } else if (!settings.fallback) return;
+    await deviceSpeak(text);
+  } finally { setSpeaking(false); }
+}
+function stopAudio() { try { currentSrc && currentSrc.stop(); } catch (e) {} currentSrc = null; try { speechSynthesis.cancel(); } catch (e) {} }
+
+/* ---------------- listening ---------------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let micBlocked = false, cancelListen = null;
+
+function listen(seconds, { earlyStop, silenceMs } = {}) {
+  return new Promise(resolve => {
+    let text = "", done = false, rec = null, lastChange = Date.now(), restarts = 0;
+    const useMic = settings.mic && SR && !micBlocked;
+    const end = Date.now() + seconds * 1000;
+    showRing(seconds, useMic);
+    const finish = () => {
+      if (done) return; done = true; cancelListen = null;
+      clearInterval(iv); hideRing();
+      try { rec && rec.abort ? rec.stop() : null; } catch (e) {}
+      resolve(text.trim());
+    };
+    cancelListen = finish;
+    if (useMic) {
+      try {
+        rec = new SR(); rec.lang = "en-US"; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
+        rec.onresult = e => {
+          let t = ""; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript + " ";
+          text = t; lastChange = Date.now(); $("heard").textContent = text.trim();
+          if (earlyStop && earlyStop(text)) setTimeout(finish, 350);
+        };
+        rec.onerror = e => { if (e.error === "not-allowed" || e.error === "service-not-allowed") { micBlocked = true; toast("Mic is blocked — allow it for this site, or turn on Dictation.", 5000); } };
+        rec.onend = () => { if (!done && !micBlocked && restarts < 4) { restarts++; try { rec.start(); } catch (e) {} } };
+        rec.start();
+      } catch (e) { rec = null; }
+    }
+    const iv = setInterval(() => {
+      const left = Math.max(0, end - Date.now());
+      updateRing(left, seconds);
+      if (left <= 0) finish();
+      else if (silenceMs && text && Date.now() - lastChange > silenceMs) finish();
+    }, 100);
+  });
+}
+
+/* ---------------- answer matching (sounds-like) ---------------- */
+const STOP = new Set("a an the it its is are was to of and in on at for with my your you i me so they them their he she his her be that this what why do does did because just out up im id youre theyre thats".split(" "));
+const words = s => s.toLowerCase().replace(/[’']/g, "").replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean);
+// Turn letters into a rough "how it sounds" key so puns and near-misses count.
+function sound(s) {
+  s = s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (!s) return "";
+  s = s.replace(/^kn/, "n").replace(/^wr/, "r").replace(/tch/g, "ch").replace(/dg/g, "j")
+       .replace(/ph/g, "f").replace(/ck/g, "k").replace(/qu/g, "kw").replace(/x/g, "ks").replace(/wh/g, "w")
+       .replace(/c(?=[eiy])/g, "s").replace(/c(?!h)/g, "k").replace(/z/g, "s").replace(/gh/g, "");
+  if (s.length > 3) s = s.replace(/([^aeiou])e$/, "$1");
+  s = s[0] + s.slice(1).replace(/y/g, "i");
+  return s.replace(/[aeiou]+/g, "a").replace(/(.)\1+/g, "$1");
+}
+function lev(a, b) {
+  const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+const slack = len => len <= 3 ? 0 : len <= 5 ? 1 : Math.floor(len * 0.3);
+const near = (a, b) => !!a && !!b && lev(a, b) <= slack(Math.max(a.length, b.length));
+function isMatch(guess, punch) {
+  const g = words(guess).slice(-30); if (!g.length) return false;
+  const pAll = words(punch), pCon = pAll.filter(w => !STOP.has(w));
+  if (!pAll.length) return false;
+  const targets = [...new Set([sound(pAll.join("")), sound(pCon.join(""))])].filter(Boolean);
+  // 1) any run of spoken words that sounds like the whole punchline
+  for (let i = 0; i < g.length; i++) {
+    let raw = "", rawCon = "";
+    for (let j = i; j < g.length && j < i + 8; j++) {
+      raw += g[j]; if (!STOP.has(g[j])) rawCon += g[j];
+      const a = sound(raw), b = sound(rawCon);
+      for (const t of targets) if (near(a, t) || near(b, t)) return true;
+    }
+  }
+  // 2) most of the important words were said (or something that sounds like them)
+  if (!pCon.length) return false;
+  const gk = g.map(sound), pairs = g.slice(0, -1).map((w, i) => sound(w + g[i + 1]));
+  let hit = 0;
+  for (const w of pCon) { const k = sound(w); if (gk.some(x => near(x, k)) || pairs.some(x => near(x, k))) hit++; }
+  return hit / pCon.length >= 0.6;
+}
+
+/* ---------------- play UI ---------------- */
+const RING_C = 2 * Math.PI * 52;
+$("ringBar").style.strokeDasharray = RING_C;
+function showRing(sec, mic) {
+  $("ring").classList.remove("hidden", "low");
+  $("ringNum").textContent = Math.ceil(sec);
+  $("ringBar").style.strokeDashoffset = 0;
+  $("revealBtn").disabled = false;
+  if (mic) $("prompt").innerHTML = '<span class="mic-dot"></span>Say your answer!';
+}
+function updateRing(leftMs, sec) {
+  $("ringNum").textContent = Math.ceil(leftMs / 1000);
+  $("ringBar").style.strokeDashoffset = RING_C * (1 - leftMs / (sec * 1000));
+  $("ring").classList.toggle("low", leftMs < 3500);
+}
+function hideRing() { $("ring").classList.add("hidden"); $("revealBtn").disabled = true; }
+function setSpeaking(on) {
+  if (on) { if (!$("prompt").dataset.keep) $("prompt").innerHTML = '<span class="speaking-bars"><i></i><i></i><i></i><i></i></span>'; }
+}
+function setPrompt(html, keep) { $("prompt").innerHTML = html; if (keep) $("prompt").dataset.keep = "1"; else delete $("prompt").dataset.keep; }
+function confetti() {
+  const em = ["🎉", "⭐", "🌟", "🎊", "😂", "🥳", "✨"];
+  for (let i = 0; i < 28; i++) {
+    const d = document.createElement("div"); d.className = "conf"; d.textContent = pick(em);
+    d.style.left = Math.random() * 100 + "vw"; d.style.animationDuration = 1.6 + Math.random() * 1.6 + "s";
+    d.style.animationDelay = Math.random() * .4 + "s"; document.body.appendChild(d);
+    setTimeout(() => d.remove(), 4000);
+  }
+}
+function resetStage(item) {
+  const b = $("badge"); b.className = "badge " + item.type;
+  b.textContent = item.type === "knock" ? "Knock-knock" : item.type === "riddle" ? "Riddle" : "Joke";
+  $("setup").textContent = item.type === "knock" ? "Knock knock! 🚪" : item.setup;
+  $("punch").classList.add("hidden"); $("punch").textContent = "";
+  $("heard").textContent = ""; $("verdict").textContent = ""; $("verdict").className = "verdict";
+  setPrompt("");
+}
+function reveal(text) { const p = $("punch"); p.classList.add("hidden"); void p.offsetWidth; p.textContent = text; p.classList.remove("hidden"); }
+
+/* ---------------- game loop ---------------- */
+let queue = [], qi = -1, runId = 0, score = 0, played = 0, current = null;
+const enabled = () => items.filter(i => i.on && i.setup && i.punch);
+function buildQueue() {
+  queue = enabled().slice();
+  if (settings.shuffle) for (let i = queue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [queue[i], queue[j]] = [queue[j], queue[i]]; }
+  qi = -1;
+}
+function updateScore() { $("score").textContent = `⭐ ${score} / ${played}`; }
+function cancelRun() { runId++; stopAudio(); if (cancelListen) cancelListen(); }
+
+const YES = ["You got it!", "Yes! That's right!", "Wow, you're so smart!", "Ding ding ding! Correct!"];
+const NO_GUESS = ["Good try! The answer is…", "Ooh, close! Here's the answer.", "Nice guess! But the answer is…"];
+const SILENT = ["Time's up!", "Ready for the answer?"];
+
+async function playItem(item) {
+  cancelRun();
+  const id = runId; current = item;
+  document.body.classList.add("playing");
+  ["againBtn", "stopBtn"].forEach(b => $(b).disabled = false);
+  $("nextBtn").disabled = false;
+  resetStage(item);
+  const alive = () => id === runId;
+  const think = +item.think || +settings.think || 10;
+  const voice = item.voice || "";
+  const nxt = queue[qi + 1]; if (nxt) { prefetch(nxt.type === "knock" ? nxt.setup + "." : nxt.setup, nxt.voice); prefetch(nxt.punch, nxt.voice); }
+
+  if (item.type === "knock") {
+    const win = +item.think || +settings.knock || 5;
+    await speak("Knock knock!", voice); if (!alive()) return;
+    setPrompt("You say: <b>“Who's there?”</b> 🗣️", true);
+    await listen(win, { earlyStop: settings.early ? t => /there|who/i.test(t) : null, silenceMs: 1200 }); if (!alive()) return;
+    $("heard").textContent = "";
+    $("setup").textContent = item.setup + ".";
+    setPrompt("");
+    await speak(item.setup + ".", voice); if (!alive()) return;
+    setPrompt(`You say: <b>“${esc(item.setup)} who?”</b> 🗣️`, true);
+    await listen(win, { earlyStop: settings.early ? t => /who/i.test(t) : null, silenceMs: 1200 }); if (!alive()) return;
+    $("heard").textContent = "";
+    await sleep(+settings.reveal * 1000 * 0.5); if (!alive()) return;
+    setPrompt("");
+    reveal(item.punch);
+    await speak(item.punch, voice); if (!alive()) return;
+    played++; updateScore(); confetti();
+  } else {
+    await speak(item.setup, voice); if (!alive()) return;
+    setPrompt("");
+    const guess = await listen(think, { earlyStop: settings.early ? t => isMatch(t, item.punch) : null }); if (!alive()) return;
+    const got = isMatch(guess, item.punch);
+    played++; if (got) score++; updateScore();
+    await sleep(+settings.reveal * 1000); if (!alive()) return;
+    setPrompt("");
+    if (got) {
+      $("verdict").textContent = "🎉 You got it!"; $("verdict").className = "verdict yes"; confetti();
+      if (settings.feedback) { await speak(pick(YES), voice); if (!alive()) return; }
+      reveal(item.punch); await speak(item.punch, voice);
+    } else {
+      $("verdict").textContent = guess ? "Good try! 👏" : "Time's up! ⏰"; $("verdict").className = "verdict no";
+      if (settings.feedback) { await speak(pick(guess ? NO_GUESS : SILENT), voice); if (!alive()) return; }
+      reveal(item.punch); await speak(item.punch, voice);
+    }
+    if (!alive()) return;
+  }
+  setPrompt("😂");
+  if (settings.auto) {
+    const wait = (+settings.next || 4) * 1000, t0 = Date.now();
+    while (Date.now() - t0 < wait) { await sleep(200); if (!alive()) return; }
+    nextItem();
+  }
+}
+function nextItem() {
+  if (!queue.length || qi >= queue.length - 1) {
+    buildQueue();
+    if (!queue.length) { toast("Your list is empty — add jokes in ✏️ List"); return; }
+    if (played) toast("🔁 Starting the list again!");
+  }
+  qi++; playItem(queue[qi]);
+}
+function stopAll() {
+  cancelRun(); document.body.classList.remove("playing");
+  setPrompt("Paused ⏸ — tap Next to keep going");
+  ["againBtn", "stopBtn"].forEach(b => $(b).disabled = true);
+  releaseWake();
+}
+
+let wake = null;
+async function requestWake() { try { if ("wakeLock" in navigator) wake = await navigator.wakeLock.request("screen"); } catch (e) {} }
+function releaseWake() { try { wake && wake.release(); } catch (e) {} wake = null; }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && document.body.classList.contains("playing")) requestWake(); });
+
+$("startBtn").onclick = () => {
+  unlockAudio(); requestWake();
+  $("startOverlay").classList.add("hidden");
+  buildQueue(); nextItem();
+};
+$("nextBtn").onclick = () => { unlockAudio(); requestWake(); nextItem(); };
+$("againBtn").onclick = () => { if (current) { unlockAudio(); played = Math.max(0, played); playItem(current); } };
+$("stopBtn").onclick = stopAll;
+$("revealBtn").onclick = () => { if (cancelListen) cancelListen(); };
+
+/* ---------------- nav ---------------- */
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => show(b.dataset.view));
+function show(v) {
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.view === v));
+  ["play", "list", "settings"].forEach(s => $(s).classList.toggle("hidden", s !== v));
+  if (v !== "play") { if (document.body.classList.contains("playing")) stopAll(); }
+  if (v === "list") renderList();
+  if (v === "settings") renderSettings();
+  window.scrollTo(0, 0);
+}
+
+/* ---------------- list editor ---------------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let filter = "all";
+document.querySelectorAll("#filter button").forEach(b => b.onclick = () => {
+  filter = b.dataset.f; document.querySelectorAll("#filter button").forEach(x => x.classList.toggle("on", x === b)); renderList();
+});
+function voiceOptions(sel) {
+  const vs = settings.voices || [];
+  return `<option value="">Default voice</option>` + vs.map(v => `<option value="${esc(v.id)}" ${v.id === sel ? "selected" : ""}>${esc(v.name)}</option>`).join("");
+}
+function renderList() {
+  const box = $("items"); box.innerHTML = "";
+  items.forEach((it, idx) => {
+    if (filter !== "all" && it.type !== filter) return;
+    const c = document.createElement("div"); c.className = "card item" + (it.on ? "" : " off");
+    const isK = it.type === "knock";
+    c.innerHTML = `
+      <div class="row">
+        <span class="num">${idx + 1}</span>
+        <select data-k="type">
+          <option value="joke" ${it.type === "joke" ? "selected" : ""}>😂 Joke</option>
+          <option value="riddle" ${it.type === "riddle" ? "selected" : ""}>🧩 Riddle</option>
+          <option value="knock" ${isK ? "selected" : ""}>🚪 Knock-knock</option>
+        </select>
+        <label class="switch" title="On/off"><input type="checkbox" data-k="on" ${it.on ? "checked" : ""}><i></i></label>
+        <span style="flex:1"></span>
+        <button class="icon play" data-a="play">▶</button>
+        <button class="icon" data-a="up">▲</button>
+        <button class="icon" data-a="down">▼</button>
+        <button class="icon del" data-a="del">✕</button>
+      </div>
+      <label class="small">${isK ? "Who's there? (the name)" : "Question"}</label>
+      <textarea data-k="setup" rows="1">${esc(it.setup)}</textarea>
+      <label class="small">Punchline</label>
+      <input type="text" data-k="punch" value="${esc(it.punch)}">
+      <div class="row">
+        <label class="small">${isK ? "Reply secs" : "Answer secs"}</label>
+        <input type="number" class="sec" data-k="think" min="2" max="60" placeholder="${isK ? settings.knock : settings.think}" value="${it.think ?? ""}">
+        <label class="small">Voice</label>
+        <select data-k="voice" style="flex:1;min-width:140px">${voiceOptions(it.voice)}</select>
+      </div>`;
+    c.querySelectorAll("[data-k]").forEach(el => {
+      const k = el.dataset.k;
+      const h = () => {
+        if (k === "on") { it.on = el.checked; c.classList.toggle("off", !it.on); }
+        else if (k === "think") it.think = el.value === "" ? null : Math.max(2, Math.min(60, +el.value));
+        else it[k] = el.value;
+        saveItems();
+        if (k === "type") renderList();
+      };
+      el.addEventListener(el.tagName === "SELECT" || el.type === "checkbox" ? "change" : "input", h);
+    });
+    c.querySelectorAll("[data-a]").forEach(b => b.onclick = () => {
+      const a = b.dataset.a;
+      if (a === "del") { if (b.dataset.sure) { items.splice(idx, 1); saveItems(); renderList(); } else { b.dataset.sure = 1; b.textContent = "Sure?"; setTimeout(() => { delete b.dataset.sure; b.textContent = "✕"; }, 2500); } }
+      if (a === "up" && idx > 0) { [items[idx - 1], items[idx]] = [items[idx], items[idx - 1]]; saveItems(); renderList(); }
+      if (a === "down" && idx < items.length - 1) { [items[idx + 1], items[idx]] = [items[idx], items[idx + 1]]; saveItems(); renderList(); }
+      if (a === "play") { unlockAudio(); show("play"); $("startOverlay").classList.add("hidden"); buildQueue(); qi = Math.max(-1, queue.indexOf(it)); playItem(it); }
+    });
+    box.appendChild(c);
+  });
+  if (!box.children.length) box.innerHTML = `<div class="card">Nothing here yet — tap ＋ Add.</div>`;
+}
+$("addBtn").onclick = () => {
+  items.unshift({ id: uid(), type: filter === "all" ? "joke" : filter, setup: "", punch: "", think: null, voice: "", on: true });
+  saveItems(); renderList(); const t = document.querySelector("#items textarea"); t && t.focus();
+};
+$("allOnBtn").onclick = () => { items.forEach(i => i.on = true); saveItems(); renderList(); };
+$("resetBtn").onclick = function () {
+  if (!this.dataset.sure) { this.dataset.sure = 1; this.textContent = "Tap again to reset"; setTimeout(() => { delete this.dataset.sure; this.textContent = "↺ Reset to 100"; }, 3000); return; }
+  items = defaults(); saveItems(); renderList(); toast("Back to the original 100 jokes");
+  delete this.dataset.sure; this.textContent = "↺ Reset to 100";
+};
+$("bulkBtn").onclick = () => $("bulkCard").classList.toggle("hidden");
+function parseBulk(txt) {
+  txt = txt.trim(); if (!txt) return [];
+  try {
+    const j = JSON.parse(txt);
+    if (Array.isArray(j)) return j.map(x => Array.isArray(x) ? fromRaw(x) : ({ id: uid(), type: x.type || "joke", setup: x.setup || "", punch: x.punch || x.punchline || "", think: x.think ?? null, voice: x.voice || "", on: x.on !== false })).filter(x => x.setup);
+  } catch (e) {}
+  return txt.split(/\n+/).map(line => {
+    let type = "joke"; const m = line.match(/^\s*(joke|riddle|knock|knock-knock)\s*:\s*/i);
+    if (m) { type = m[1].toLowerCase().startsWith("knock") ? "knock" : m[1].toLowerCase(); line = line.slice(m[0].length); }
+    const parts = line.split("|").map(s => s.trim());
+    if (parts.length < 2 || !parts[0]) return null;
+    const think = parts[2] && !isNaN(+parts[2]) ? +parts[2] : null;
+    return { id: uid(), type, setup: parts[0], punch: parts[1], think, voice: "", on: true };
+  }).filter(Boolean);
+}
+$("appendBtn").onclick = () => { const n = parseBulk($("bulkText").value); if (!n.length) return toast("Couldn't read any jokes — use Question | Punchline"); items = items.concat(n); saveItems(); renderList(); toast(`Added ${n.length}`); $("bulkText").value = ""; };
+$("replaceBtn").onclick = function () {
+  const n = parseBulk($("bulkText").value); if (!n.length) return toast("Nothing to use — paste some jokes first");
+  if (!this.dataset.sure) { this.dataset.sure = 1; this.textContent = `Replace with ${n.length}? Tap again`; setTimeout(() => { delete this.dataset.sure; this.textContent = "Replace whole list"; }, 3000); return; }
+  items = n; saveItems(); renderList(); toast(`List now has ${n.length}`); delete this.dataset.sure; this.textContent = "Replace whole list";
+};
+$("copyBtn").onclick = async () => {
+  const lines = items.map(i => `${i.type === "joke" ? "" : i.type + ": "}${i.setup} | ${i.punch}${i.think ? " | " + i.think : ""}`).join("\n");
+  $("bulkText").value = lines;
+  try { await navigator.clipboard.writeText(lines); toast("Copied! Paste it in Notes to keep a backup."); } catch (e) { $("bulkText").select(); toast("Selected — tap Copy"); }
+};
+
+/* ---------------- settings ---------------- */
+function renderSettings() {
+  $("sKey").value = settings.apiKey; $("sVoiceId").value = settings.voiceId;
+  $("sVoice").innerHTML = (settings.voices.length ? "" : `<option value="">— tap "Load my voices" —</option>`) +
+    settings.voices.map(v => `<option value="${esc(v.id)}" ${v.id === settings.voiceId ? "selected" : ""}>${esc(v.name)}</option>`).join("");
+  $("sModel").value = settings.model;
+  $("sSpeed").value = settings.speed; $("sSpeedV").textContent = (+settings.speed).toFixed(2) + "×";
+  $("sStab").value = settings.stability; $("sStabV").textContent = (+settings.stability).toFixed(2);
+  $("sThink").value = settings.think; $("sKnock").value = settings.knock; $("sReveal").value = settings.reveal; $("sNext").value = settings.next;
+  [["sAuto", "auto"], ["sMic", "mic"], ["sShuffle", "shuffle"], ["sFeedback", "feedback"], ["sEarly", "early"], ["sFallback", "fallback"]].forEach(([id, k]) => $(id).checked = !!settings[k]);
+}
+const bind = (id, k, fn = v => v, ev = "change") => $(id).addEventListener(ev, e => { settings[k] = fn(e.target.type === "checkbox" ? e.target.checked : e.target.value); saveSettings(); renderSettings(); updateStartNote(); });
+bind("sKey", "apiKey", v => v.trim());
+bind("sVoiceId", "voiceId", v => v.trim());
+bind("sVoice", "voiceId");
+bind("sModel", "model");
+bind("sSpeed", "speed", Number, "input");
+bind("sStab", "stability", Number, "input");
+bind("sThink", "think", v => Math.max(3, Math.min(60, +v || 10)));
+bind("sKnock", "knock", v => Math.max(2, Math.min(20, +v || 5)));
+bind("sReveal", "reveal", v => Math.max(0, Math.min(5, +v || 0)));
+bind("sNext", "next", v => Math.max(1, Math.min(30, +v || 4)));
+[["sAuto", "auto"], ["sMic", "mic"], ["sShuffle", "shuffle"], ["sFeedback", "feedback"], ["sEarly", "early"], ["sFallback", "fallback"]].forEach(([id, k]) => bind(id, k, Boolean));
+
+$("loadVoices").onclick = async () => {
+  settings.apiKey = $("sKey").value.trim(); saveSettings();
+  if (!settings.apiKey) return toast("Paste your ElevenLabs API key first");
+  try {
+    const r = await fetch("https://api.elevenlabs.io/v1/voices", { headers: { "xi-api-key": settings.apiKey } });
+    if (!r.ok) throw new Error("ElevenLabs said " + r.status + (r.status === 401 ? " — check the key and its permissions" : ""));
+    const j = await r.json();
+    settings.voices = (j.voices || []).map(v => ({ id: v.voice_id, name: v.name + (v.labels && v.labels.accent ? ` (${v.labels.accent})` : "") })).sort((a, b) => a.name.localeCompare(b.name));
+    if (!settings.voiceId && settings.voices[0]) settings.voiceId = settings.voices[0].id;
+    saveSettings(); renderSettings(); updateStartNote(); toast(`Loaded ${settings.voices.length} voices`);
+  } catch (e) { toast(e.message, 5000); }
+};
+$("testVoice").onclick = async () => { unlockAudio(); warnedEleven = false; await speak("Hi! Are you ready for some super silly jokes?"); };
+$("clearCache").onclick = async () => { mem.clear(); await idb.clear(); toast("Saved audio cleared"); };
+
+function updateStartNote() {
+  const bits = [];
+  bits.push(elevenReady() ? "🗣️ ElevenLabs voice on" : "🗣️ Using the phone's voice (add ElevenLabs in ⚙️)");
+  if (!SR) bits.push("🎤 Mic listening isn't supported in this browser — just shout it out!");
+  $("startNote").textContent = bits.join(" · ");
+}
+updateStartNote(); updateScore();
+})();
+</script>
+</body>
+</html>
