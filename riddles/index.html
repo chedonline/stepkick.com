@@ -455,6 +455,8 @@ function playBuf(buf) {
   return new Promise(async res => {
     try {
       if (!ctx) unlockAudio();
+      // iOS parks the context in "interrupted"/"suspended" after the mic or a call; wake it before playing.
+      if (ctx.state !== "running") { try { await ctx.resume(); } catch (e) {} }
       const ab = await ctx.decodeAudioData(buf.slice(0));
       const src = ctx.createBufferSource(); src.buffer = ab; src.connect(ctx.destination);
       currentSrc = src; src.onended = () => { if (currentSrc === src) currentSrc = null; res(); };
