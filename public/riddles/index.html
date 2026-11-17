@@ -242,6 +242,7 @@ body.playing header nav{opacity:.35}
   <h2>⚙️ Settings</h2>
   <div class="card">
     <h3 style="margin-top:0">🗣️ ElevenLabs voice</h3>
+    <p style="margin:0 0 12px;color:var(--muted)">The built-in jokes already talk in Sarah's voice on every phone, no key needed. You only need a key here for jokes you add yourself, or to pick a different voice.</p>
     <label class="field"><span>API key</span>
       <input type="password" id="sKey" placeholder="sk_…" autocomplete="off">
       <small>Stays on this phone only. Best to make a key that can only do text-to-speech and read voices, with a credit limit.</small>
@@ -284,7 +285,7 @@ body.playing header nav{opacity:.35}
     <ol>
       <li>Open this page in <b>Safari</b> on the iPhone.</li>
       <li>Swipe down from the top-right → <b>Screen Mirroring</b> → pick the Apple TV.</li>
-      <li>Turn the phone sideways so it fills the TV.</li>
+      <li>Hold the phone upright or sideways. Upright works fine; sideways just fills more of the TV.</li>
       <li>Tap <b>🎤</b> at the top left to check the sound and the mic before you play.</li>
       <li>If the mic doesn't hear anything: Settings → General → Keyboard → turn on <b>Enable Dictation</b>, and allow the mic for this site.</li>
     </ol>
@@ -496,7 +497,37 @@ async function getAudio(text, voiceId) {
   mem.set(key, buf);
   return buf;
 }
-function prefetch(text, voice) { if (elevenReady()) getAudio(text, voice || settings.voiceId).catch(() => {}); }
+/* Built-in recordings: every default line is pre-recorded (scripts/riddles-voice.mjs),
+   so any device gets the voice with no key. A device with its own key and a different
+   voice keeps using that voice. */
+const BUILTIN = { voice: "", voiceId: "", lines: {} };
+fetch("audio/manifest.json").then(r => r.ok ? r.json() : null)
+  .then(j => { if (j && j.lines) Object.assign(BUILTIN, j); updateStartNote(); }).catch(() => {});
+function builtinUrl(text, voice) {
+  const f = BUILTIN.lines[text]; if (!f) return null;
+  const v = voice || settings.voiceId;
+  if (settings.apiKey && v && v !== BUILTIN.voiceId) return null;
+  return "audio/" + f;
+}
+async function getBuiltin(url) {
+  if (mem.has(url)) return mem.get(url);
+  const r = await fetch(url); if (!r.ok) throw new Error("audio " + r.status);
+  const b = await r.arrayBuffer(); mem.set(url, b); return b;
+}
+// -> { buf, how } or null when there's no recording and no key (caller falls back to the phone voice)
+async function voiceBuf(text, voice) {
+  const url = builtinUrl(text, voice);
+  if (url) { try { return { buf: await getBuiltin(url), how: BUILTIN.voice + " (built in)" }; } catch (e) {} }
+  const v = voice || settings.voiceId;
+  if (settings.apiKey && v) return { buf: await getAudio(text, v), how: "ElevenLabs (your key)" };
+  return null;
+}
+function voiceLabel() {
+  if (settings.apiKey && settings.voiceId && settings.voiceId !== BUILTIN.voiceId) return "ElevenLabs (your key)";
+  if (BUILTIN.voice) return BUILTIN.voice;
+  return elevenReady() ? "ElevenLabs" : "phone voice";
+}
+function prefetch(text, voice) { voiceBuf(text, voice).catch(() => {}); }
 
 function playBuf(buf) {
   return new Promise(async res => {
@@ -531,11 +562,9 @@ async function speak(text, voice) {
   if (!text) return;
   setSpeaking(true);
   try {
-    const v = voice || settings.voiceId;
-    if (settings.apiKey && v) {
-      try { const buf = await getAudio(text, v); await playBuf(buf); return; }
-      catch (e) { if (!warnedEleven) { toast(e.message + " — using phone voice", 5000); warnedEleven = true; } if (!settings.fallback) return; }
-    } else if (!settings.fallback) return;
+    try { const got = await voiceBuf(text, voice); if (got) { await playBuf(got.buf); return; } }
+    catch (e) { if (!warnedEleven) { toast(e.message + " — using phone voice", 5000); warnedEleven = true; } }
+    if (!settings.fallback) return;
     await deviceSpeak(text);
   } finally { setSpeaking(false); }
 }
@@ -920,7 +949,7 @@ $("clearCache").onclick = async () => { mem.clear(); await idb.clear(); toast("S
 
 function updateStartNote() {
   const bits = [];
-  bits.push(elevenReady() ? "🗣️ ElevenLabs voice on" : "🗣️ Using the phone's voice (add ElevenLabs in ⚙️)");
+  bits.push(BUILTIN.voice || elevenReady() ? "🗣️ Voice: " + voiceLabel() : "🗣️ Using the phone's voice");
   if (!SR) bits.push("🎤 Mic listening isn't supported in this browser — just shout it out!");
   $("startNote").textContent = bits.join(" · ");
 }
@@ -931,7 +960,7 @@ function mtSet(id, msg, cls) { const el = $(id); el.textContent = msg; el.classN
 function mtInfo() {
   const a = [];
   a.push(SR ? "🎤 This browser can listen" : "🎤 This browser can't listen (on iPhone, use Safari)");
-  a.push(elevenReady() ? "🗣️ Voice: ElevenLabs" : "🗣️ Voice: phone voice (no ElevenLabs key in ⚙️)");
+  a.push("🗣️ Voice: " + voiceLabel());
   a.push("🔈 Audio: " + (ctx ? ctx.state : "not started yet"));
   if (navigator.audioSession) a.push("📱 Audio session: " + navigator.audioSession.type);
   if (micBlocked) a.push("⚠️ The mic was blocked on this page. Reload after allowing it.");
@@ -941,10 +970,8 @@ async function mtSpeak(resId) {
   unlockAudio(); stopAudio();
   mtSet(resId, "Playing…");
   let how = "the phone voice", cls = "ok";
-  if (elevenReady()) {
-    try { await playBuf(await getAudio(MT_LINE, settings.voiceId)); how = "ElevenLabs"; }
-    catch (e) { await deviceSpeak(MT_LINE); how = `the phone voice, because ElevenLabs failed (${e.message})`; cls = "bad"; }
-  } else await deviceSpeak(MT_LINE);
+  try { const got = await voiceBuf(MT_LINE); if (got) { await playBuf(got.buf); how = got.how; } else await deviceSpeak(MT_LINE); }
+  catch (e) { await deviceSpeak(MT_LINE); how = `the phone voice, because ElevenLabs failed (${e.message})`; cls = "bad"; }
   mtSet(resId, `Played with ${how}. No sound? Flip the silent switch to ring and turn the volume up.`, cls);
   mtInfo();
 }
