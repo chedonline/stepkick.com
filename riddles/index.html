@@ -131,6 +131,25 @@ textarea.io{width:100%;min-height:180px;border:2px solid #e6e1fa;border-radius:1
 #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#1f1640;color:#fff;padding:12px 18px;border-radius:14px;font-weight:500;max-width:92vw;z-index:99;opacity:0;transition:opacity .3s;pointer-events:none;text-align:center}
 #toast.show{opacity:1}
 
+/* sound & mic test */
+.hleft{display:flex;align-items:center;gap:10px;min-width:0}
+.mtbtn{background:rgba(255,255,255,.14);color:#fff;border-radius:14px;width:42px;height:42px;font-size:20px;flex:none;display:flex;align-items:center;justify-content:center}
+.modal{position:fixed;inset:0;background:rgba(20,10,50,.62);display:flex;align-items:center;justify-content:center;z-index:80;padding:16px}
+.sheet{background:#fff;border-radius:26px;width:100%;max-width:560px;max-height:calc(100vh - 32px);overflow:auto;padding:18px 18px 14px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.mthead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px}
+.mthead h2{margin:0;font-size:24px}
+.mtstep{border-top:2px solid #f1edff;padding:12px 0;display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
+.mtstep small{display:block;color:var(--muted);font-size:15px}
+.mtstep .btn{font-size:16px;padding:10px 16px;white-space:nowrap}
+.mtres,.mtheard{grid-column:1/-1;font-size:15px;line-height:1.35}
+.mtres:empty,.mtheard:empty{display:none}
+.mtheard{background:#f3f0ff;border-radius:14px;padding:8px 12px;color:#4a3d8f}
+.mtheard::before{content:"🎤 "}
+.mtres.ok{color:#127a3a} .mtres.bad{color:#b3204f}
+nav button{white-space:nowrap}
+@media (max-width:430px){ .logo .lt{display:none} }
+.mtinfo{font-size:13px;color:var(--muted);border-top:2px solid #f1edff;padding-top:10px;line-height:1.55}
+
 /* landscape / TV: hide chrome while playing */
 body.playing header nav{opacity:.35}
 @media (orientation:landscape) and (max-height:520px){
@@ -147,7 +166,10 @@ body.playing header nav{opacity:.35}
 </head>
 <body>
 <header>
-  <div class="logo"><span>🤪</span> Giggle Box</div>
+  <div class="hleft">
+    <button class="mtbtn" id="micTestBtn" aria-label="Sound and mic test" title="Sound and mic test">🎤</button>
+    <div class="logo"><span>🤪</span><b class="lt">Giggle Box</b></div>
+  </div>
   <nav>
     <button data-view="play" class="on">▶ Play</button>
     <button data-view="list">✏️ List</button>
@@ -263,10 +285,35 @@ body.playing header nav{opacity:.35}
       <li>Open this page in <b>Safari</b> on the iPhone.</li>
       <li>Swipe down from the top-right → <b>Screen Mirroring</b> → pick the Apple TV.</li>
       <li>Turn the phone sideways so it fills the TV.</li>
+      <li>Tap <b>🎤</b> at the top left to check the sound and the mic before you play.</li>
       <li>If the mic doesn't hear anything: Settings → General → Keyboard → turn on <b>Enable Dictation</b>, and allow the mic for this site.</li>
     </ol>
   </div>
 </section>
+
+<!-- SOUND & MIC TEST -->
+<div id="mt" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="mtTitle">
+  <div class="sheet">
+    <div class="mthead"><h2 id="mtTitle">🎤 Sound &amp; mic test</h2><button class="icon" id="mtClose" aria-label="Close">✕</button></div>
+    <div class="mtstep">
+      <div><b>1. Speaker</b><small>Plays one line. You should hear it on the TV.</small></div>
+      <button class="btn blue" id="mtSpeak">🔊 Play</button>
+      <div class="mtres" id="mtSpeakRes"></div>
+    </div>
+    <div class="mtstep">
+      <div><b>2. Microphone</b><small>Tap, then say <b>“dino snore”</b>.</small></div>
+      <button class="btn pink" id="mtListen">🎤 Listen</button>
+      <div class="mtheard" id="mtHeard"></div>
+      <div class="mtres" id="mtListenRes"></div>
+    </div>
+    <div class="mtstep">
+      <div><b>3. Speaker after the mic</b><small>Still on the TV? Just as loud?</small></div>
+      <button class="btn blue" id="mtSpeak2">🔊 Play again</button>
+      <div class="mtres" id="mtSpeak2Res"></div>
+    </div>
+    <div class="mtinfo" id="mtInfo"></div>
+  </div>
+</div>
 
 <div id="toast"></div>
 
@@ -877,6 +924,74 @@ function updateStartNote() {
   if (!SR) bits.push("🎤 Mic listening isn't supported in this browser — just shout it out!");
   $("startNote").textContent = bits.join(" · ");
 }
+/* ---------------- sound & mic test ---------------- */
+let mtRec = null, mtTimer = null;
+const MT_LINE = "Hi! Can you hear me on the TV?";
+function mtSet(id, msg, cls) { const el = $(id); el.textContent = msg; el.className = "mtres" + (cls ? " " + cls : ""); }
+function mtInfo() {
+  const a = [];
+  a.push(SR ? "🎤 This browser can listen" : "🎤 This browser can't listen (on iPhone, use Safari)");
+  a.push(elevenReady() ? "🗣️ Voice: ElevenLabs" : "🗣️ Voice: phone voice (no ElevenLabs key in ⚙️)");
+  a.push("🔈 Audio: " + (ctx ? ctx.state : "not started yet"));
+  if (navigator.audioSession) a.push("📱 Audio session: " + navigator.audioSession.type);
+  if (micBlocked) a.push("⚠️ The mic was blocked on this page. Reload after allowing it.");
+  $("mtInfo").innerHTML = a.join("<br>");
+}
+async function mtSpeak(resId) {
+  unlockAudio(); stopAudio();
+  mtSet(resId, "Playing…");
+  let how = "the phone voice", cls = "ok";
+  if (elevenReady()) {
+    try { await playBuf(await getAudio(MT_LINE, settings.voiceId)); how = "ElevenLabs"; }
+    catch (e) { await deviceSpeak(MT_LINE); how = `the phone voice, because ElevenLabs failed (${e.message})`; cls = "bad"; }
+  } else await deviceSpeak(MT_LINE);
+  mtSet(resId, `Played with ${how}. No sound? Flip the silent switch to ring and turn the volume up.`, cls);
+  mtInfo();
+}
+function mtListenStop() { clearInterval(mtTimer); mtTimer = null; try { mtRec && mtRec.stop(); } catch (e) {} }
+function mtListen() {
+  if (mtRec) return mtListenStop(); // tap again to stop early
+  unlockAudio(); stopAudio();
+  const btn = $("mtListen");
+  $("mtHeard").textContent = ""; mtSet("mtListenRes", "");
+  if (!SR) return mtSet("mtListenRes", "This browser can't listen. On iPhone, open the page in Safari.", "bad");
+  let text = "", err = "", left = 7;
+  const rec = new SR(); mtRec = rec;
+  rec.lang = "en-US"; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
+  rec.onresult = e => { let t = ""; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript + " "; text = t.trim(); $("mtHeard").textContent = text; if (text) micBlocked = false; };
+  rec.onerror = e => { err = e.error; };
+  rec.onend = () => {
+    if (mtRec === rec) { clearInterval(mtTimer); mtTimer = null; mtRec = null; }
+    btn.textContent = "🎤 Listen";
+    if (err === "not-allowed" || err === "service-not-allowed") {
+      micBlocked = true;
+      mtSet("mtListenRes", "The mic is blocked. In Safari tap aA → Website Settings → Microphone → Allow, then reload. Also check iPhone Settings → General → Keyboard → Enable Dictation.", "bad");
+    } else if (!text) {
+      mtSet("mtListenRes", err && err !== "no-speech" && err !== "aborted" ? `The mic didn't work (${err}).` : "I didn't hear anything. Get closer and try again.", "bad");
+    } else if (isMatch(text, "A dino-snore!")) mtSet("mtListenRes", "✅ I heard you, and that counts as “dino snore”.", "ok");
+    else mtSet("mtListenRes", "I heard you, but that wouldn't count as “dino snore”. Try again a bit slower.", "bad");
+    mtInfo();
+  };
+  try { rec.start(); } catch (e) { mtRec = null; return mtSet("mtListenRes", "Couldn't start the mic: " + e.message, "bad"); }
+  btn.textContent = `⏹ Listening… ${left}`;
+  mtTimer = setInterval(() => { left--; if (left <= 0) mtListenStop(); else btn.textContent = `⏹ Listening… ${left}`; }, 1000);
+}
+function mtOpen() {
+  if (document.body.classList.contains("playing")) stopAll();
+  unlockAudio();
+  ["mtSpeakRes", "mtListenRes", "mtSpeak2Res"].forEach(id => mtSet(id, ""));
+  $("mtHeard").textContent = ""; $("mtListen").textContent = "🎤 Listen";
+  mtInfo(); $("mt").classList.remove("hidden");
+}
+function mtClose() { mtListenStop(); stopAudio(); $("mt").classList.add("hidden"); }
+$("micTestBtn").onclick = mtOpen;
+$("mtClose").onclick = mtClose;
+$("mt").addEventListener("click", e => { if (e.target.id === "mt") mtClose(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("mt").classList.contains("hidden")) mtClose(); });
+$("mtSpeak").onclick = () => mtSpeak("mtSpeakRes");
+$("mtSpeak2").onclick = () => mtSpeak("mtSpeak2Res");
+$("mtListen").onclick = mtListen;
+
 updateStartNote(); updateScore();
 })();
 </script>
