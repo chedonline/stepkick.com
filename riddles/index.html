@@ -149,6 +149,9 @@ textarea.io{width:100%;min-height:180px;border:2px solid #e6e1fa;border-radius:1
 nav button{white-space:nowrap}
 @media (max-width:430px){ .logo .lt{display:none} }
 .mtinfo{font-size:13px;color:var(--muted);border-top:2px solid #f1edff;padding-top:10px;line-height:1.55}
+.mtlogbox{margin-top:10px;font-size:13px;color:var(--muted)}
+.mtlogbox summary{cursor:pointer;font-weight:700}
+.mtlogbox pre{max-height:180px;overflow:auto;background:#f7f5ff;border-radius:10px;padding:8px;font-size:11px;line-height:1.4;white-space:pre-wrap;margin:8px 0}
 
 /* landscape / TV: hide chrome while playing */
 body.playing header nav{opacity:.35}
@@ -312,7 +315,16 @@ body.playing header nav{opacity:.35}
       <button class="btn blue" id="mtSpeak2">🔊 Play again</button>
       <div class="mtres" id="mtSpeak2Res"></div>
     </div>
+    <div class="mtstep">
+      <div><b>4. Like the game</b><small>Talks, listens for 4 seconds, talks again. Does the last line fade?</small></div>
+      <button class="btn blue" id="mtLoop">▶️ Run it</button>
+      <div class="mtres" id="mtLoopRes"></div>
+    </div>
     <div class="mtinfo" id="mtInfo"></div>
+    <details class="mtlogbox"><summary>Audio log</summary>
+      <pre id="mtLog"></pre>
+      <button class="btn" id="mtCopy">📋 Copy log</button>
+    </details>
   </div>
 </div>
 
@@ -469,10 +481,30 @@ const idb = (() => {
 const mem = new Map();
 
 /* ---------------- speech out ---------------- */
-let ctx = null, currentSrc = null;
+let ctx = null, currentSrc = null, micLive = false;
+/* Audio log: what the phone's audio did and when, so iPhone problems can be read back
+   (🎤 test → Copy log). Keeps the last 200 events. */
+const T0 = performance.now(), LOG = [];
+function dlog(msg) {
+  LOG.push(((performance.now() - T0) / 1000).toFixed(2) + "s " + msg);
+  if (LOG.length > 200) LOG.shift();
+  const el = document.getElementById("mtLog"); if (el && !el.closest(".hidden")) el.textContent = LOG.slice(-40).join("\n");
+}
+// iOS audio session (Safari 16.4+): "playback" while talking, back to "auto" so the mic can open.
+function setSession(type) {
+  const s = navigator.audioSession; if (!s || s.type === type) return;
+  try { s.type = type; dlog("session -> " + s.type); } catch (e) { dlog("session " + type + " failed: " + e.message); }
+}
 function unlockAudio() {
   try {
-    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      dlog("audio created: " + ctx.state + (navigator.audioSession ? ", session " + navigator.audioSession.type : ""));
+      ctx.onstatechange = () => {
+        dlog("audio " + ctx.state + (currentSrc ? " DURING A CLIP" : ""));
+        if (ctx.state !== "running" && ctx.state !== "closed" && currentSrc) ctx.resume().catch(() => {});
+      };
+    }
     if (ctx.state !== "running") ctx.resume();
     const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource();
     s.buffer = b; s.connect(ctx.destination); s.start(0);
@@ -529,17 +561,24 @@ function voiceLabel() {
 }
 function prefetch(text, voice) { voiceBuf(text, voice).catch(() => {}); }
 
-function playBuf(buf) {
+function playBuf(buf, label = "clip") {
   return new Promise(async res => {
     try {
       if (!ctx) unlockAudio();
+      if (!micLive) setSession("playback");
       // iOS parks the context in "interrupted"/"suspended" after the mic or a call; wake it before playing.
-      if (ctx.state !== "running") { try { await ctx.resume(); } catch (e) {} }
+      if (ctx.state !== "running") { dlog("audio was " + ctx.state + ", waking"); try { await ctx.resume(); } catch (e) {} }
       const ab = await ctx.decodeAudioData(buf.slice(0));
       const src = ctx.createBufferSource(); src.buffer = ab; src.connect(ctx.destination);
-      currentSrc = src; src.onended = () => { if (currentSrc === src) currentSrc = null; res(); };
+      const t = performance.now();
+      dlog(`play "${label.slice(0, 30)}" ${ab.duration.toFixed(1)}s` + (micLive ? " (MIC STILL ON)" : ""));
+      currentSrc = src; src.onended = () => {
+        const took = (performance.now() - t) / 1000;
+        dlog(`ended after ${took.toFixed(1)}s` + (took < ab.duration - 0.3 ? " (CUT SHORT)" : ""));
+        if (currentSrc === src) currentSrc = null; res();
+      };
       src.start(0);
-    } catch (e) { res(); }
+    } catch (e) { dlog("play failed: " + e.message); res(); }
   });
 }
 function deviceSpeak(text) {
@@ -562,7 +601,7 @@ async function speak(text, voice) {
   if (!text) return;
   setSpeaking(true);
   try {
-    try { const got = await voiceBuf(text, voice); if (got) { await playBuf(got.buf); return; } }
+    try { const got = await voiceBuf(text, voice); if (got) { await playBuf(got.buf, text); return; } }
     catch (e) { if (!warnedEleven) { toast(e.message + " — using phone voice", 5000); warnedEleven = true; } }
     if (!settings.fallback) return;
     await deviceSpeak(text);
@@ -580,25 +619,39 @@ function listen(seconds, { earlyStop, silenceMs } = {}) {
     const useMic = settings.mic && SR && !micBlocked;
     const end = Date.now() + seconds * 1000;
     showRing(seconds, useMic);
+    let micEnded = null;
     const finish = () => {
       if (done) return; done = true; cancelListen = null;
       clearInterval(iv); hideRing();
-      try { rec && rec.abort ? rec.stop() : null; } catch (e) {}
-      resolve(text.trim());
+      if (!rec || !micLive) { try { rec && rec.abort(); } catch (e) {} micLive = false; return setTimeout(() => resolve(text.trim()), rec ? 350 : 0); }
+      // On iPhone the mic shuts down a beat after stop(). Playing the next line during that
+      // switch-over is what makes it start loud and then fade, so wait for the mic to really
+      // close (max 1.5s), then let the audio settle before talking again.
+      const t = performance.now();
+      new Promise(r => { micEnded = r; setTimeout(r, 1500); try { rec.abort(); } catch (e) { r(); } })
+        .then(() => { micLive = false; dlog(`mic closed in ${((performance.now() - t) / 1000).toFixed(2)}s`); setSession("playback"); })
+        .then(() => new Promise(r => setTimeout(r, 350)))
+        .then(() => resolve(text.trim()));
     };
     cancelListen = finish;
     if (useMic) {
       try {
+        setSession("auto");
         rec = new SR(); rec.lang = "en-US"; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
+        rec.onstart = () => { micLive = true; dlog("mic on"); };
         rec.onresult = e => {
           let t = ""; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript + " ";
           text = t; lastChange = Date.now(); $("heard").textContent = text.trim();
           if (earlyStop && earlyStop(text)) setTimeout(finish, 350);
         };
-        rec.onerror = e => { if (e.error === "not-allowed" || e.error === "service-not-allowed") { micBlocked = true; toast("Mic is blocked — allow it for this site, or turn on Dictation.", 5000); } };
-        rec.onend = () => { if (!done && !micBlocked && restarts < 4) { restarts++; try { rec.start(); } catch (e) {} } };
+        rec.onerror = e => { if (e.error !== "aborted") dlog("mic error: " + e.error); if (e.error === "not-allowed" || e.error === "service-not-allowed") { micBlocked = true; toast("Mic is blocked — allow it for this site, or turn on Dictation.", 5000); } };
+        rec.onend = () => {
+          if (done) { micEnded && micEnded(); return; }
+          micLive = false;
+          if (!micBlocked && restarts < 4) { restarts++; dlog("mic stopped by itself, restarting"); try { rec.start(); } catch (e) {} }
+        };
         rec.start();
-      } catch (e) { rec = null; }
+      } catch (e) { rec = null; dlog("mic failed to start: " + e.message); }
     }
     const iv = setInterval(() => {
       const left = Math.max(0, end - Date.now());
@@ -970,7 +1023,7 @@ async function mtSpeak(resId) {
   unlockAudio(); stopAudio();
   mtSet(resId, "Playing…");
   let how = "the phone voice", cls = "ok";
-  try { const got = await voiceBuf(MT_LINE); if (got) { await playBuf(got.buf); how = got.how; } else await deviceSpeak(MT_LINE); }
+  try { const got = await voiceBuf(MT_LINE); if (got) { await playBuf(got.buf, MT_LINE); how = got.how; } else await deviceSpeak(MT_LINE); }
   catch (e) { await deviceSpeak(MT_LINE); how = `the phone voice, because ElevenLabs failed (${e.message})`; cls = "bad"; }
   mtSet(resId, `Played with ${how}. No sound? Flip the silent switch to ring and turn the volume up.`, cls);
   mtInfo();
@@ -986,8 +1039,10 @@ function mtListen() {
   const rec = new SR(); mtRec = rec;
   rec.lang = "en-US"; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
   rec.onresult = e => { let t = ""; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript + " "; text = t.trim(); $("mtHeard").textContent = text; if (text) micBlocked = false; };
-  rec.onerror = e => { err = e.error; };
+  rec.onerror = e => { err = e.error; dlog("mic error: " + e.error); };
+  rec.onstart = () => { micLive = true; dlog("mic on (test)"); };
   rec.onend = () => {
+    micLive = false; dlog("mic closed (test)"); setSession("playback");
     if (mtRec === rec) { clearInterval(mtTimer); mtTimer = null; mtRec = null; }
     btn.textContent = "🎤 Listen";
     if (err === "not-allowed" || err === "service-not-allowed") {
@@ -999,6 +1054,7 @@ function mtListen() {
     else mtSet("mtListenRes", "I heard you, but that wouldn't count as “dino snore”. Try again a bit slower.", "bad");
     mtInfo();
   };
+  setSession("auto");
   try { rec.start(); } catch (e) { mtRec = null; return mtSet("mtListenRes", "Couldn't start the mic: " + e.message, "bad"); }
   btn.textContent = `⏹ Listening… ${left}`;
   mtTimer = setInterval(() => { left--; if (left <= 0) mtListenStop(); else btn.textContent = `⏹ Listening… ${left}`; }, 1000);
@@ -1006,11 +1062,36 @@ function mtListen() {
 function mtOpen() {
   if (document.body.classList.contains("playing")) stopAll();
   unlockAudio();
-  ["mtSpeakRes", "mtListenRes", "mtSpeak2Res"].forEach(id => mtSet(id, ""));
+  ["mtSpeakRes", "mtListenRes", "mtSpeak2Res", "mtLoopRes"].forEach(id => mtSet(id, ""));
   $("mtHeard").textContent = ""; $("mtListen").textContent = "🎤 Listen";
   mtInfo(); $("mt").classList.remove("hidden");
+  $("mtLog").textContent = LOG.slice(-40).join("\n");
 }
-function mtClose() { mtListenStop(); stopAudio(); $("mt").classList.add("hidden"); }
+// Same hand-offs as a game round: talk, listen (the game's listen()), talk again straight away.
+let mtLooping = false;
+async function mtLoop() {
+  if (mtLooping) return; mtLooping = true; unlockAudio(); stopAudio(); mtListenStop();
+  const btn = $("mtLoop"); btn.disabled = true;
+  dlog("--- like-the-game test ---");
+  try {
+    mtSet("mtLoopRes", "Talking…"); await speak("Knock knock!");
+    mtSet("mtLoopRes", "Listening… say “who's there”"); const heard = await listen(4, { silenceMs: 1200 });
+    mtSet("mtLoopRes", "Talking again…"); await speak(MT_LINE);
+    let from = LOG.length - 1; while (from > 0 && !LOG[from].includes("--- like-the-game test ---")) from--;
+    const log = LOG.slice(from);
+    const bad = log.filter(l => /CUT SHORT|DURING A CLIP|MIC STILL ON|failed/.test(l));
+    mtSet("mtLoopRes", (heard ? `Heard “${heard}”. ` : "Heard nothing. ") +
+      (bad.length ? "⚠️ The log caught a problem: " + bad.map(l => l.replace(/^\S+ /, "")).join("; ") + ". Copy the log below and send it over."
+                  : "No problems in the log. If the last line still faded on the TV, copy the log below and send it over."), bad.length ? "bad" : "ok");
+  } finally { mtLooping = false; btn.disabled = false; mtInfo(); }
+}
+$("mtLoop").onclick = mtLoop;
+$("mtCopy").onclick = async () => {
+  const txt = [navigator.userAgent, "session: " + (navigator.audioSession ? navigator.audioSession.type : "n/a"), ...LOG].join("\n");
+  try { await navigator.clipboard.writeText(txt); toast("Log copied"); }
+  catch (e) { const r = document.createRange(); r.selectNodeContents($("mtLog")); getSelection().removeAllRanges(); getSelection().addRange(r); toast("Select-all is on: tap Copy"); }
+};
+function mtClose() { mtListenStop(); if (mtLooping && cancelListen) cancelListen(); stopAudio(); $("mt").classList.add("hidden"); }
 $("micTestBtn").onclick = mtOpen;
 $("mtClose").onclick = mtClose;
 $("mt").addEventListener("click", e => { if (e.target.id === "mt") mtClose(); });
