@@ -618,7 +618,8 @@ async function getAudio(text, voiceId) {
    so any device gets the voice with no key. A device with its own key and a different
    voice keeps using that voice. */
 const BUILTIN = { voice: "", voiceId: "", lines: {} };
-fetch("audio/manifest.json").then(r => r.ok ? r.json() : null)
+// no-cache: always check for a newer list, or newly recorded lines fall back to the phone's voice
+fetch("audio/manifest.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null)
   .then(j => { if (j && j.lines) Object.assign(BUILTIN, j); updateStartNote(); }).catch(() => {});
 function builtinUrl(text, voice) {
   const f = BUILTIN.lines[text]; if (!f) return null;
@@ -718,7 +719,17 @@ async function speak(text, voice) {
 function stopAudio() { if (stopPlayer) stopPlayer(); currentClip = null; try { currentSrc && currentSrc.stop(); } catch (e) {} currentSrc = null; if (ttsUsed) { try { speechSynthesis.cancel(); } catch (e) {} } }
 
 /* ---------------- listening ---------------- */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+// Test-only fake mic (?debug&say=...): acts like iPhone Safari, ending each listening session
+// after 0.8s of nothing, and only "hears" the phrase on the 6th session.
+const fakeSay = /[?&]debug\b/.test(location.search) && new URLSearchParams(location.search).get("say");
+if (fakeSay) {
+  let n = 0;
+  SR = class { start() { const k = ++n; setTimeout(() => { this.onstart && this.onstart();
+      if (k % 6 === 0) setTimeout(() => this.onresult && this.onresult({ results: [Object.assign([{ transcript: fakeSay }], { isFinal: true })] }), 300);
+      else this._t = setTimeout(() => { this.onerror && this.onerror({ error: "no-speech" }); this.onend && this.onend(); }, 800); }, 50); }
+    stop() { clearTimeout(this._t); setTimeout(() => this.onend && this.onend(), 200); } abort() { this.stop(); } };
+}
 let micBlocked = false, cancelListen = null;
 
 function listen(seconds, { earlyStop, silenceMs } = {}) {
@@ -735,31 +746,44 @@ function listen(seconds, { earlyStop, silenceMs } = {}) {
       // On iPhone the mic shuts down a beat after stop(). Playing the next line during that
       // switch-over is what makes it start loud and then fade, so wait for the mic to really
       // close (max 1.5s), then let the audio settle before talking again.
+      // stop(), not abort(): stop still hands over the last words it heard; abort throws them away.
       const t = performance.now();
-      new Promise(r => { micEnded = r; setTimeout(r, 1500); try { rec.abort(); } catch (e) { r(); } })
+      new Promise(r => { micEnded = r; setTimeout(r, 1500); try { rec.stop(); } catch (e) { r(); } })
         .then(() => { micLive = false; dlog(`mic closed in ${((performance.now() - t) / 1000).toFixed(2)}s`); setSession("playback"); })
         .then(() => new Promise(r => setTimeout(r, 350)))
         .then(() => resolve(text.trim()));
     };
     cancelListen = finish;
+    // iPhone Safari ends a listening session at every pause. Keep opening a fresh one until the
+    // timer runs out, and keep what earlier sessions heard (the answer may have come before a pause).
+    let prior = "", stopping = false;
+    const startRec = () => {
+      const r = new SR(); rec = r;
+      r.lang = "en-US"; r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
+      r.onstart = () => { micLive = true; if (!restarts) dlog("mic on"); };
+      r.onresult = e => {
+        if (rec !== r) return;
+        let t = "", fin = "";
+        for (let i = 0; i < e.results.length; i++) { t += e.results[i][0].transcript + " "; if (e.results[i].isFinal) fin += e.results[i][0].transcript + " "; }
+        text = (prior + " " + t).replace(/\s+/g, " ").trim(); lastChange = Date.now(); $("heard").textContent = text;
+        if (fin.trim()) dlog(`heard "${fin.trim().slice(0, 50)}"`);
+        if (!done && !stopping && earlyStop && earlyStop(text)) { stopping = true; dlog("got an answer (or a give-up), stopping the timer"); setTimeout(finish, 350); }
+      };
+      r.onerror = e => { if (e.error !== "aborted" && e.error !== "no-speech") dlog("mic error: " + e.error); if (e.error === "not-allowed" || e.error === "service-not-allowed") { micBlocked = true; toast("Mic is blocked — allow it for this site, or turn on Dictation.", 5000); } };
+      r.onend = () => {
+        if (rec !== r) return;
+        if (done) { micEnded && micEnded(); return; }
+        micLive = false; prior = text;
+        if (!micBlocked && Date.now() < end - 600 && restarts < 30) {
+          restarts++; if (restarts <= 3 || restarts % 5 === 0) dlog(`mic paused, listening again (#${restarts})`);
+          try { startRec(); } catch (e) { dlog("mic restart failed: " + e.message); }
+        }
+      };
+      r.start();
+    };
     if (useMic) {
-      try {
-        setSession("auto");
-        rec = new SR(); rec.lang = "en-US"; rec.continuous = true; rec.interimResults = true; rec.maxAlternatives = 1;
-        rec.onstart = () => { micLive = true; dlog("mic on"); };
-        rec.onresult = e => {
-          let t = ""; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript + " ";
-          text = t; lastChange = Date.now(); $("heard").textContent = text.trim();
-          if (earlyStop && earlyStop(text)) setTimeout(finish, 350);
-        };
-        rec.onerror = e => { if (e.error !== "aborted") dlog("mic error: " + e.error); if (e.error === "not-allowed" || e.error === "service-not-allowed") { micBlocked = true; toast("Mic is blocked — allow it for this site, or turn on Dictation.", 5000); } };
-        rec.onend = () => {
-          if (done) { micEnded && micEnded(); return; }
-          micLive = false;
-          if (!micBlocked && restarts < 4) { restarts++; dlog("mic stopped by itself, restarting"); try { rec.start(); } catch (e) {} }
-        };
-        rec.start();
-      } catch (e) { rec = null; dlog("mic failed to start: " + e.message); }
+      try { setSession("auto"); startRec(); }
+      catch (e) { rec = null; dlog("mic failed to start: " + e.message); }
     }
     const iv = setInterval(() => {
       const left = Math.max(0, end - Date.now());
@@ -817,6 +841,15 @@ function isMatch(guess, punch) {
   for (const w of pCon) { const k = sound(w); if (gk.some(x => near(x, k)) || pairs.some(x => near(x, k))) hit++; }
   return hit / pCon.length >= 0.6;
 }
+/* GIVE-UP START */
+// "I don't know", "I give up", "no idea", "tell me"… = stop the timer and hear the answer.
+const GIVE_UP_PHRASES = ["dont know", "do not know", "dunno", "give up", "giving up", "gave up", "no idea", "no clue",
+  "pass", "skip", "skip it", "tell me", "whats the answer", "what is the answer", "i forgot", "too hard"];
+function gaveUp(text) {
+  const s = " " + words(text).join(" ") + " ";
+  return GIVE_UP_PHRASES.some(p => s.includes(" " + p + " "));
+}
+/* GIVE-UP END */
 
 /* ---------------- play UI ---------------- */
 const RING_C = 2 * Math.PI * 52;
@@ -826,7 +859,7 @@ function showRing(sec, mic) {
   $("ringNum").textContent = Math.ceil(sec);
   $("ringBar").style.strokeDashoffset = 0;
   $("revealBtn").disabled = false;
-  if (mic) $("prompt").innerHTML = '<span class="mic-dot"></span>Say your answer!';
+  if (mic && !$("prompt").dataset.keep) $("prompt").innerHTML = '<span class="mic-dot"></span>Say your answer! <small>(or “I give up”)</small>';
 }
 function updateRing(leftMs, sec) {
   $("ringNum").textContent = Math.ceil(leftMs / 1000);
@@ -871,6 +904,7 @@ function cancelRun() { runId++; stopAudio(); if (cancelListen) cancelListen(); }
 const YES = ["You got it!", "Yes! That's right!", "Wow, you're so smart!", "Ding ding ding! Correct!"];
 const NO_GUESS = ["Good try! The answer is…", "Ooh, close! Here's the answer.", "Nice guess! But the answer is…"];
 const SILENT = ["Time's up!", "Ready for the answer?"];
+const GIVE_UP = ["That's okay! The answer is…", "No problem! Here's the answer."];
 
 async function playItem(item) {
   cancelRun();
@@ -904,11 +938,21 @@ async function playItem(item) {
   } else {
     await speak(item.setup, voice); if (!alive()) return;
     setPrompt("");
-    const guess = await listen(think, { earlyStop: settings.early ? t => isMatch(t, item.punch) : null }); if (!alive()) return;
-    const got = isMatch(guess, item.punch);
+    // Stops the timer as soon as it hears the right answer, or "I don't know" / "I give up".
+    const guess = await listen(think, { earlyStop: t => (settings.early && isMatch(t, item.punch)) || gaveUp(t) }); if (!alive()) return;
+    const got = isMatch(guess, item.punch), quit = !got && gaveUp(guess);
     played++; if (got) score++; updateScore();
-    await sleep(+settings.reveal * 1000); if (!alive()) return;
+    if (!quit) { await sleep(+settings.reveal * 1000); if (!alive()) return; }
     setPrompt("");
+    if (quit) {
+      // tell them the answer, then straight on to the next one
+      $("verdict").textContent = "No problem! 🤷"; $("verdict").className = "verdict no";
+      await speak(pick(GIVE_UP), voice); if (!alive()) return;
+      reveal(item.punch); await speak(item.punch, voice); if (!alive()) return;
+      setPrompt("😂");
+      await sleep(1800); if (!alive()) return;
+      return nextItem();
+    }
     if (got) {
       $("verdict").textContent = "🎉 You got it!"; $("verdict").className = "verdict yes"; confetti();
       if (settings.feedback) { await speak(pick(YES), voice); if (!alive()) return; }
