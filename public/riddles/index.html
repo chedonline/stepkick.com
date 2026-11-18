@@ -7,6 +7,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#2b1055">
 <title>Riddles</title>
+<meta name="apple-mobile-web-app-title" content="Riddles">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -226,7 +230,7 @@ body.playing header nav{opacity:.35}
     <button class="btn green" id="addBtn">＋ Add</button>
     <button class="btn" id="bulkBtn">📋 Paste / Copy list</button>
     <button class="btn" id="allOnBtn">✅ All on</button>
-    <button class="btn pink" id="resetBtn">↺ Reset to 100</button>
+    <button class="btn pink" id="resetBtn">↺ Reset to built-in</button>
   </div>
   <div class="filter" id="filter">
     <button data-f="all" class="on">All</button>
@@ -445,6 +449,52 @@ const RAW = [
 ["joke","What's black and white and red all over?","A sunburned zebra!"],
 ["joke","Why do vampires need mouthwash?","They have bat breath!"],
 ["joke","What did the paper say to the pencil?","Write on!"],
+// added 2026-11-18 (batch 2: phones that saved the old list pick these up once, see mergeNewDefaults)
+["joke","How do you make a tissue dance?","Put a little boogie in it!",2],
+["joke","Why do ducks have feathers?","To cover their butt quack!",2],
+["joke","Why did the golfer bring two pairs of pants?","In case he got a hole in one!",2],
+["joke","What do you call a pony with a sore throat?","A little hoarse!",2],
+["joke","Why can't you give Elsa a balloon?","She'll let it go!",2],
+["joke","What do you call a bear in the rain?","A drizzly bear!",2],
+["joke","Why did the kid throw butter out the window?","To see a butterfly!",2],
+["joke","Why are fish so smart?","They live in schools!",2],
+["joke","What do you call a dog that does science?","A lab!",2],
+["joke","Why did the computer go to the doctor?","It had a virus!",2],
+["joke","What kind of tree fits in your hand?","A palm tree!",2],
+["joke","What do you call a cow that plays music?","A moo-sician!",2],
+["joke","Why did the bee get married?","He found his honey!",2],
+["joke","Why did the pickle feel important?","It was a big dill!",2],
+["joke","What did the hat say to the scarf?","You hang around, I'll go on ahead!",2],
+["joke","What do you call a fly with no wings?","A walk!",2],
+["joke","Why did the picture go to jail?","It was framed!",2],
+["joke","What do you call a shoe made out of a banana?","A slipper!",2],
+["joke","Why don't scientists trust atoms?","They make up everything!",2],
+["joke","What do you call a dog on a hot day?","A hot dog!",2],
+["joke","Why did the boy run around his bed?","To catch up on his sleep!",2],
+["joke","What do you call an elephant that doesn't matter?","An irrelephant!",2],
+["joke","What do frogs order at restaurants?","French flies!",2],
+["joke","What do you call a sheep with no legs?","A cloud!",2],
+["joke","How do you make an octopus laugh?","With ten-tickles!",2],
+["joke","What did the nose say to the finger?","Quit picking on me!",2],
+["joke","What do porcupines say when they hug?","Ouch!",2],
+["joke","Why did the toilet paper roll down the hill?","To get to the bottom!",2],
+["joke","What do you call a fish wearing a bow tie?","Sofishticated!",2],
+["joke","Why did the orange stop rolling?","It ran out of juice!",2],
+["joke","What did the baby corn say to the mama corn?","Where's pop corn?",2],
+["joke","Why are spiders so smart?","They can find everything on the web!",2],
+["joke","What did the left eye say to the right eye?","Between you and me, something smells!",2],
+["riddle","What has to be broken before you can use it?","An egg!",2],
+["riddle","What goes up but never comes down?","Your age!",2],
+["riddle","What can you catch but not throw?","A cold!",2],
+["riddle","What has a head and a tail but no body?","A coin!",2],
+["riddle","What has lots of teeth but can't bite?","A comb!",2],
+["riddle","What gets bigger the more you take away?","A hole!",2],
+["riddle","What can go all around the world but stays in a corner?","A stamp!",2],
+["riddle","What has four legs but can't walk?","A table!",2],
+["riddle","What belongs to you, but other people use it more?","Your name!",2],
+["riddle","What is full of holes but still holds water?","A sponge!",2],
+["riddle","What month has twenty-eight days?","All of them!",2],
+["riddle","What has words but never talks?","A book!",2],
 ["knock","Boo","Don't cry, it's just a joke!"],
 ["knock","Lettuce","Lettuce in, it's cold out here!"],
 ["knock","Cow says","No silly, a cow says moo!"],
@@ -474,12 +524,24 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 };
 let items = store.get("gb_items", null) || defaults();
+/* Jokes added to the built-in list later (RAW entries with a batch number, r[3]) are appended
+   once to a phone's saved list. gb_known remembers every built-in joke already offered, so a
+   joke someone deleted doesn't come back. */
+(function mergeNewDefaults() {
+  const fresh = !store.get("gb_items", null);
+  const known = new Set(store.get("gb_known", null) || RAW.filter(r => !r[3]).map(r => r[1]));
+  const have = new Set(items.map(i => i.setup));
+  const add = fresh ? [] : RAW.filter(r => !known.has(r[1]) && !have.has(r[1]));
+  if (add.length) { items = items.concat(add.map(fromRaw)); store.set("gb_items", items); }
+  store.set("gb_known", RAW.map(r => r[1]));
+  if (add.length) setTimeout(() => { try { toast(`🎉 ${add.length} new jokes and riddles added!`, 4000); } catch (e) {} }, 800);
+})();
 let settings = Object.assign({}, DEFAULT_SETTINGS, store.get("gb_settings", {}));
 let saveT = null;
 const saveItems = () => { clearTimeout(saveT); saveT = setTimeout(() => store.set("gb_items", items), 300); };
 const saveSettings = () => store.set("gb_settings", settings);
 
-const VERSION = "2026-11-18i"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-18j"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 function toast(msg, ms = 3200) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -863,6 +925,26 @@ function isMatch(guess, punch) {
   for (const w of pCon) { const k = sound(w); if (gk.some(x => near(x, k)) || pairs.some(x => near(x, k))) hit++; }
   return hit / pCon.length >= 0.6;
 }
+// Other answers that also count, looked up by the question (so saved lists get them too).
+const ALT_ANSWERS = {
+  "What's black and white and red all over?": ["A newspaper!", "An embarrassed zebra!", "A blushing zebra!"],
+  "What has hands but can't clap?": ["A watch!"],
+  "What has lots of keys but can't open doors?": ["A keyboard!"],
+  "What has one eye but can't see?": ["A hurricane!", "A potato!"],
+  "What runs but never walks?": ["A river!", "A nose!", "A clock!"],
+  "What has a neck but no head?": ["A shirt!", "A guitar!"],
+  "What has ears but can't hear?": ["Corn!"],
+  "What has four legs but can't walk?": ["A chair!", "A bed!"],
+  "What has lots of teeth but can't bite?": ["A zipper!", "A saw!"],
+  "What has a head and a tail but no body?": ["A penny!"],
+  "What is full of holes but still holds water?": ["A sponge!"],
+  "What has words but never talks?": ["A dictionary!"],
+  "What can you catch but not throw?": ["Your breath!"],
+  "What gets wetter the more it dries?": ["A towel!"],
+};
+function rightAnswer(guess, item) {
+  return [item.punch, ...(ALT_ANSWERS[item.setup] || [])].some(p => isMatch(guess, p));
+}
 /* GIVE-UP START */
 // "I don't know", "I give up", "no idea", "tell me"… = stop the timer and hear the answer.
 const GIVE_UP_PHRASES = ["dont know", "do not know", "dunno", "give up", "giving up", "gave up", "no idea", "no clue",
@@ -927,9 +1009,11 @@ function buildQueue() {
 function updateScore() { $("score").textContent = `⭐ ${score} / ${played}`; }
 function cancelRun() { runId++; stopAudio(); if (cancelListen) cancelListen(); }
 
-const YES = ["You got it!", "Yes! That's right!", "Wow, you're so smart!", "Ding ding ding! Correct!"];
-const NO_GUESS = ["Good try! The answer is…", "Ooh, close! Here's the answer.", "Nice guess! But the answer is…"];
-const SILENT = ["Time's up!", "Ready for the answer?"];
+const YES = ["You got it!", "Yes! That's right!", "Wow, you're so smart!", "Ding ding ding! Correct!",
+  "You did it!", "Nailed it!", "Awesome job!", "High five! That's it!", "You're a joke expert!", "Woo-hoo! Right answer!"];
+const NO_GUESS = ["Good try! The answer is…", "Ooh, close! Here's the answer.", "Nice guess! But the answer is…",
+  "Nice try!", "So close! The answer is…", "Great guess! But here's the answer.", "Ooh, not quite! The answer is…"];
+const SILENT = ["Time's up!", "Ready for the answer?", "Let's hear the answer!"];
 const GIVE_UP = ["That's okay! The answer is…", "No problem! Here's the answer."];
 
 // "I don't know" / "I give up": tell them the answer, then straight on to the next one.
@@ -993,8 +1077,8 @@ async function playItem(item) {
     await speak(item.setup, voice); if (!alive()) return;
     setPrompt("");
     // Stops the timer as soon as it hears the right answer, or "I don't know" / "I give up".
-    const guess = await listen(think, { earlyStop: t => (settings.early && isMatch(t, item.punch)) || gaveUp(t) }); if (!alive()) return;
-    const got = isMatch(guess, item.punch), quit = !got && gaveUp(guess);
+    const guess = await listen(think, { earlyStop: t => (settings.early && rightAnswer(t, item)) || gaveUp(t) }); if (!alive()) return;
+    const got = rightAnswer(guess, item), quit = !got && gaveUp(guess);
     played++; if (got) score++; updateScore();
     if (!quit) { await sleep(+settings.reveal * 1000); if (!alive()) return; }
     setPrompt("");
@@ -1164,9 +1248,9 @@ $("addBtn").onclick = () => {
 };
 $("allOnBtn").onclick = () => { items.forEach(i => i.on = true); saveItems(); renderList(); };
 $("resetBtn").onclick = function () {
-  if (!this.dataset.sure) { this.dataset.sure = 1; this.textContent = "Tap again to reset"; setTimeout(() => { delete this.dataset.sure; this.textContent = "↺ Reset to 100"; }, 3000); return; }
-  items = defaults(); saveItems(); renderList(); toast("Back to the original 100 jokes");
-  delete this.dataset.sure; this.textContent = "↺ Reset to 100";
+  if (!this.dataset.sure) { this.dataset.sure = 1; this.textContent = "Tap again to reset"; setTimeout(() => { delete this.dataset.sure; this.textContent = "↺ Reset to built-in"; }, 3000); return; }
+  items = defaults(); saveItems(); renderList(); toast("Back to the built-in " + items.length + " jokes");
+  delete this.dataset.sure; this.textContent = "↺ Reset to built-in";
 };
 $("bulkBtn").onclick = () => $("bulkCard").classList.toggle("hidden");
 function parseBulk(txt) {
