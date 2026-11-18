@@ -88,6 +88,10 @@ nav button.on{background:#fff;color:var(--bg1)}
 #startOverlay h1{margin:0;font-size:clamp(36px,7vw,84px)}
 #startOverlay p{margin:0;color:var(--muted);font-size:clamp(18px,2.6vw,28px);max-width:30ch}
 .startbtn{font-size:clamp(28px,4.5vw,48px)!important;padding:22px 48px!important;border-radius:999px!important}
+.kinds{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.kinds button{font:inherit;font-size:clamp(16px,2.2vw,22px);font-weight:600;border:2px solid #e6e1fa;background:#fff;color:var(--muted);border-radius:999px;padding:8px 16px;cursor:pointer}
+.kinds button.on{background:var(--bg1);border-color:var(--bg1);color:#fff}
+.kinds button:not(.on){text-decoration:line-through;opacity:.7}
 
 /* confetti */
 .conf{position:fixed;top:-40px;font-size:34px;pointer-events:none;z-index:50;animation:fall linear forwards}
@@ -188,6 +192,11 @@ body.playing header nav{opacity:.35}
     <div id="startOverlay">
       <h1>🤪 Riddles</h1>
       <p>I tell a joke. You have a few seconds to shout the answer!</p>
+      <div class="kinds" id="kinds" role="group" aria-label="Which kinds">
+        <button data-k="joke">😂 Jokes</button>
+        <button data-k="riddle">🧩 Riddles</button>
+        <button data-k="knock">🚪 Knock-knock</button>
+      </div>
       <button class="btn big startbtn" id="startBtn">▶ Let's Go!</button>
       <p id="startNote" style="font-size:15px"></p>
     </div>
@@ -455,6 +464,7 @@ const DEFAULT_SETTINGS = {
   apiKey: "", voiceId: "", model: "eleven_turbo_v2_5", speed: 1, stability: 0.4,
   think: 10, knock: 5, reveal: 0.8, auto: true, next: 4,
   mic: true, shuffle: true, feedback: true, early: true, fallback: true, voices: [],
+  kinds: { joke: true, riddle: true, knock: false }, // which kinds play (start-screen chips)
   engine: "auto" // how clips play: "auto" (audio player on iPhone, Web Audio elsewhere), "element", "webaudio"
 };
 
@@ -469,6 +479,7 @@ let saveT = null;
 const saveItems = () => { clearTimeout(saveT); saveT = setTimeout(() => store.set("gb_items", items), 300); };
 const saveSettings = () => store.set("gb_settings", settings);
 
+const VERSION = "2026-11-18e"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 function toast(msg, ms = 3200) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -766,7 +777,9 @@ function listen(seconds, { earlyStop, silenceMs } = {}) {
         let t = "", fin = "";
         for (let i = 0; i < e.results.length; i++) { t += e.results[i][0].transcript + " "; if (e.results[i].isFinal) fin += e.results[i][0].transcript + " "; }
         text = (prior + " " + t).replace(/\s+/g, " ").trim(); lastChange = Date.now(); $("heard").textContent = text;
+        // log what it hears (finished phrases, plus a running snapshot at most every 0.8s)
         if (fin.trim()) dlog(`heard "${fin.trim().slice(0, 50)}"`);
+        else if (Date.now() - (r._logT || 0) > 800) { r._logT = Date.now(); dlog(`hearing "${text.slice(-50)}"`); }
         if (!done && !stopping && earlyStop && earlyStop(text)) { stopping = true; dlog("got an answer (or a give-up), stopping the timer"); setTimeout(finish, 350); }
       };
       r.onerror = e => { if (e.error !== "aborted" && e.error !== "no-speech") dlog("mic error: " + e.error); if (e.error === "not-allowed" || e.error === "service-not-allowed") { micBlocked = true; toast("Mic is blocked — allow it for this site, or turn on Dictation.", 5000); } };
@@ -844,7 +857,9 @@ function isMatch(guess, punch) {
 /* GIVE-UP START */
 // "I don't know", "I give up", "no idea", "tell me"… = stop the timer and hear the answer.
 const GIVE_UP_PHRASES = ["dont know", "do not know", "dunno", "give up", "giving up", "gave up", "no idea", "no clue",
-  "pass", "skip", "skip it", "tell me", "whats the answer", "what is the answer", "i forgot", "too hard"];
+  "pass", "tell me", "whats the answer", "what is the answer", "i forgot", "too hard", "idk", "i quit",
+  "dont get it", "give me the answer"];
+// (not "skip" or "next": a kid repeating "Why did the teddy bear skip dessert?" would give up by accident)
 function gaveUp(text) {
   const s = " " + words(text).join(" ") + " ";
   return GIVE_UP_PHRASES.some(p => s.includes(" " + p + " "));
@@ -893,8 +908,10 @@ function reveal(text) { const p = $("punch"); p.classList.add("hidden"); void p.
 /* ---------------- game loop ---------------- */
 let queue = [], qi = -1, runId = 0, score = 0, played = 0, current = null;
 const enabled = () => items.filter(i => i.on && i.setup && i.punch);
+const kindOn = i => !settings.kinds || settings.kinds[i.type] !== false;
 function buildQueue() {
-  queue = enabled().slice();
+  queue = enabled().filter(kindOn);
+  if (!queue.length && enabled().length) { queue = enabled().slice(); toast("No jokes of those kinds, so playing everything"); }
   if (settings.shuffle) for (let i = queue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [queue[i], queue[j]] = [queue[j], queue[i]]; }
   qi = -1;
 }
@@ -906,6 +923,18 @@ const NO_GUESS = ["Good try! The answer is…", "Ooh, close! Here's the answer."
 const SILENT = ["Time's up!", "Ready for the answer?"];
 const GIVE_UP = ["That's okay! The answer is…", "No problem! Here's the answer."];
 
+// "I don't know" / "I give up": tell them the answer, then straight on to the next one.
+async function giveUpAndNext(item, voice, alive, counted) {
+  dlog("gave up: telling the answer, then next");
+  if (!counted) { played++; updateScore(); }
+  setPrompt(""); $("heard").textContent = "";
+  $("verdict").textContent = "No problem! 🤷"; $("verdict").className = "verdict no";
+  await speak(pick(GIVE_UP), voice); if (!alive()) return;
+  reveal(item.punch); await speak(item.punch, voice); if (!alive()) return;
+  setPrompt("😂");
+  await sleep(1800); if (!alive()) return;
+  nextItem();
+}
 async function playItem(item) {
   cancelRun();
   const id = runId; current = item;
@@ -922,13 +951,16 @@ async function playItem(item) {
     const win = +item.think || +settings.knock || 5;
     await speak("Knock knock!", voice); if (!alive()) return;
     setPrompt("You say: <b>“Who's there?”</b> 🗣️", true);
-    await listen(win, { earlyStop: settings.early ? t => /there|who/i.test(t) : null, silenceMs: 1200 }); if (!alive()) return;
+    const kStop = re => t => gaveUp(t) || (settings.early && re.test(t));
+    const h1 = await listen(win, { earlyStop: kStop(/there|who/i), silenceMs: 1200 }); if (!alive()) return;
+    if (gaveUp(h1)) return giveUpAndNext(item, voice, alive);
     $("heard").textContent = "";
     $("setup").textContent = item.setup + ".";
     setPrompt("");
     await speak(item.setup + ".", voice); if (!alive()) return;
     setPrompt(`You say: <b>“${esc(item.setup)} who?”</b> 🗣️`, true);
-    await listen(win, { earlyStop: settings.early ? t => /who/i.test(t) : null, silenceMs: 1200 }); if (!alive()) return;
+    const h2 = await listen(win, { earlyStop: kStop(/who/i), silenceMs: 1200 }); if (!alive()) return;
+    if (gaveUp(h2)) return giveUpAndNext(item, voice, alive);
     $("heard").textContent = "";
     await sleep(+settings.reveal * 1000 * 0.5); if (!alive()) return;
     setPrompt("");
@@ -944,15 +976,7 @@ async function playItem(item) {
     played++; if (got) score++; updateScore();
     if (!quit) { await sleep(+settings.reveal * 1000); if (!alive()) return; }
     setPrompt("");
-    if (quit) {
-      // tell them the answer, then straight on to the next one
-      $("verdict").textContent = "No problem! 🤷"; $("verdict").className = "verdict no";
-      await speak(pick(GIVE_UP), voice); if (!alive()) return;
-      reveal(item.punch); await speak(item.punch, voice); if (!alive()) return;
-      setPrompt("😂");
-      await sleep(1800); if (!alive()) return;
-      return nextItem();
-    }
+    if (quit) return giveUpAndNext(item, voice, alive, true);
     if (got) {
       $("verdict").textContent = "🎉 You got it!"; $("verdict").className = "verdict yes"; confetti();
       if (settings.feedback) { await speak(pick(YES), voice); if (!alive()) return; }
@@ -995,6 +1019,19 @@ $("startBtn").onclick = () => {
   unlockAudio(); requestWake();
   $("startOverlay").classList.add("hidden");
   buildQueue(); nextItem();
+};
+function renderKinds() {
+  const k = settings.kinds || DEFAULT_SETTINGS.kinds;
+  document.querySelectorAll("#kinds button").forEach(b => {
+    const n = enabled().filter(i => i.type === b.dataset.k).length;
+    b.classList.toggle("on", k[b.dataset.k] !== false); b.setAttribute("aria-pressed", k[b.dataset.k] !== false);
+    b.hidden = !n; b.title = n + " in your list";
+  });
+}
+$("kinds").onclick = e => {
+  const b = e.target.closest("button[data-k]"); if (!b) return;
+  settings.kinds = Object.assign({}, DEFAULT_SETTINGS.kinds, settings.kinds, { [b.dataset.k]: !b.classList.contains("on") });
+  saveSettings(); renderKinds(); buildQueue();
 };
 $("nextBtn").onclick = () => { unlockAudio(); requestWake(); nextItem(); };
 $("againBtn").onclick = () => { if (current) { unlockAudio(); played = Math.max(0, played); playItem(current); } };
@@ -1170,6 +1207,7 @@ function mtInfo() {
     (engineNow() === "webaudio" ? " · " + (ctx ? ctx.state : "not started yet") : playerUnlocked ? " · ready" : ""));
   if (navigator.audioSession) a.push("📱 Audio session: " + navigator.audioSession.type);
   if (micBlocked) a.push("⚠️ The mic was blocked on this page. Reload after allowing it.");
+  a.push("🏷️ Version " + VERSION);
   $("mtInfo").innerHTML = a.join("<br>");
 }
 async function mtSpeak(resId) {
@@ -1204,6 +1242,7 @@ function mtListen() {
     } else if (!text) {
       mtSet("mtListenRes", err && err !== "no-speech" && err !== "aborted" ? `The mic didn't work (${err}).` : "I didn't hear anything. Get closer and try again.", "bad");
     } else if (isMatch(text, "A dino-snore!")) mtSet("mtListenRes", "✅ I heard you, and that counts as “dino snore”.", "ok");
+    else if (gaveUp(text)) mtSet("mtListenRes", "✅ I heard you, and that counts as giving up (the game would tell you the answer and move on).", "ok");
     else mtSet("mtListenRes", "I heard you, but that wouldn't count as “dino snore”. Try again a bit slower.", "bad");
     mtInfo();
   };
@@ -1263,7 +1302,25 @@ $("mtSpeak").onclick = () => mtSpeak("mtSpeakRes");
 $("mtSpeak2").onclick = () => mtSpeak("mtSpeak2Res");
 $("mtListen").onclick = mtListen;
 
-updateStartNote(); updateScore();
+updateStartNote(); updateScore(); renderKinds();
+
+/* Phones keep this page for up to 10 minutes (GitHub Pages cache). Check for a newer
+   version on load and switch to it, so a fix is live as soon as it's pushed.
+   Bump VERSION on every change. */
+(async () => {
+  try {
+    const h = await (await fetch(location.pathname + "?vcheck=" + Date.now(), { cache: "no-store" })).text();
+    const v = (h.match(/const VERSION = "([^"]+)"/) || [])[1];
+    if (!v || v === VERSION) return;
+    dlog("newer version online: " + v);
+    let tried = ""; try { tried = sessionStorage.getItem("gb_tried_v") || ""; } catch (e) {}
+    if (tried === v) return; // already tried once; don't loop if the CDN is still stale
+    try { sessionStorage.setItem("gb_tried_v", v); } catch (e) {}
+    if (document.body.classList.contains("playing")) return toast("A newer version is ready. Reload the page to get it.", 5000);
+    const q = new URLSearchParams(location.search); q.set("v", v);
+    location.replace(location.pathname + "?" + q + location.hash);
+  } catch (e) {}
+})();
 })();
 </script>
 </body>
