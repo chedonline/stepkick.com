@@ -479,7 +479,7 @@ let saveT = null;
 const saveItems = () => { clearTimeout(saveT); saveT = setTimeout(() => store.set("gb_items", items), 300); };
 const saveSettings = () => store.set("gb_settings", settings);
 
-const VERSION = "2026-11-18f"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-18g"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 function toast(msg, ms = 3200) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -1021,9 +1021,38 @@ async function requestWake() { try { if ("wakeLock" in navigator) wake = await n
 function releaseWake() { try { wake && wake.release(); } catch (e) {} wake = null; }
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && document.body.classList.contains("playing")) requestWake(); });
 
-$("startBtn").onclick = () => {
+/* Ask for the mic on the Let's Go tap, before the first joke talks, instead of the prompt
+   popping up in the middle of the first question. Starts the recognizer once (that's what
+   brings up the iPhone's "use the microphone?" prompt), waits for the answer, closes it. */
+let micAsked = false;
+function askMic() {
+  if (micAsked || !settings.mic || !SR || micBlocked) return Promise.resolve();
+  micAsked = true;
+  setPrompt("🎤 Tap <b>Allow</b> so I can hear your answers", true);
+  return new Promise(res => {
+    let r = null, finished = false;
+    const done = why => {
+      if (finished) return; finished = true; clearTimeout(t); dlog("mic check: " + why);
+      try { r && r.abort(); } catch (e) {}
+      setTimeout(() => { setPrompt(""); res(); }, 400); // let the mic close before the first joke talks
+    };
+    const t = setTimeout(() => done("no answer yet, starting anyway"), 20000);
+    try {
+      r = new SR(); r.lang = "en-US"; r.interimResults = false;
+      r.onstart = () => done("allowed");
+      r.onerror = e => {
+        if (e.error === "not-allowed" || e.error === "service-not-allowed") { micBlocked = true; toast("No mic, so just shout the answers and tap 👀 Show answer.", 5000); }
+        done("error " + e.error);
+      };
+      r.onend = () => done("ended");
+      r.start();
+    } catch (e) { done("couldn't start: " + e.message); }
+  });
+}
+$("startBtn").onclick = async () => {
   unlockAudio(); requestWake();
   $("startOverlay").classList.add("hidden");
+  await askMic();
   buildQueue(); nextItem();
 };
 function renderKinds() {
@@ -1112,7 +1141,7 @@ function renderList() {
       if (a === "del") { if (b.dataset.sure) { items.splice(idx, 1); saveItems(); renderList(); } else { b.dataset.sure = 1; b.textContent = "Sure?"; setTimeout(() => { delete b.dataset.sure; b.textContent = "✕"; }, 2500); } }
       if (a === "up" && idx > 0) { [items[idx - 1], items[idx]] = [items[idx], items[idx - 1]]; saveItems(); renderList(); }
       if (a === "down" && idx < items.length - 1) { [items[idx + 1], items[idx]] = [items[idx], items[idx + 1]]; saveItems(); renderList(); }
-      if (a === "play") { unlockAudio(); show("play"); $("startOverlay").classList.add("hidden"); buildQueue(); qi = Math.max(-1, queue.indexOf(it)); playItem(it); }
+      if (a === "play") { unlockAudio(); show("play"); $("startOverlay").classList.add("hidden"); askMic().then(() => { buildQueue(); qi = Math.max(-1, queue.indexOf(it)); playItem(it); }); }
     });
     box.appendChild(c);
   });
