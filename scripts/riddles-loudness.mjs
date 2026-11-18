@@ -1,4 +1,4 @@
-// Measure (and optionally even out) the loudness of the pre-recorded Giggle Box lines.
+// Measure (and optionally even out) the loudness of the pre-recorded Riddles lines.
 //   node scripts/riddles-loudness.mjs        -> report integrated loudness (LUFS) spread
 //   node scripts/riddles-loudness.mjs --fix  -> rewrite every clip to the same loudness (two-pass loudnorm)
 // Needs ffmpeg on PATH. Run --fix after every riddles-voice.mjs --go (new clips come in uneven).

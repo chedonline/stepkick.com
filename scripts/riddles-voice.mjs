@@ -1,4 +1,4 @@
-// Pre-record every built-in Giggle Box line with ElevenLabs, so any device gets the
+// Pre-record every built-in Riddles line with ElevenLabs, so any device gets the
 // voice with no API key. Writes public/riddles/audio/<hash>.mp3 + manifest.json.
 //   node scripts/riddles-voice.mjs          -> dry run: count lines + characters
 //   node scripts/riddles-voice.mjs --go     -> record (skips files that already exist)
