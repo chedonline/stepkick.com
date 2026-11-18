@@ -40,6 +40,11 @@ const measureAll = () => files.map(f => { const s = stats(path.join(dir, f)); re
 const before = measureAll();
 report("before", before);
 if (process.argv.includes("--fix")) {
-  for (const r of before) even(path.join(dir, r.f), r.s);
+  // `--fix a.mp3 b.mp3` evens out just those (new recordings) so already-even clips aren't
+  // re-encoded again; plain `--fix` does every clip.
+  const only = process.argv.filter(a => a.endsWith(".mp3")).map(a => path.basename(a));
+  const off = only.length ? before.filter(r => only.includes(r.f)) : before;
+  console.log(`evening out ${off.length} clip(s)`);
+  for (const r of off) even(path.join(dir, r.f), r.s);
   report("after", measureAll());
 }
