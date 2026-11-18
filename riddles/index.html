@@ -479,7 +479,7 @@ let saveT = null;
 const saveItems = () => { clearTimeout(saveT); saveT = setTimeout(() => store.set("gb_items", items), 300); };
 const saveSettings = () => store.set("gb_settings", settings);
 
-const VERSION = "2026-11-18g"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-18h"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 function toast(msg, ms = 3200) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -937,9 +937,22 @@ async function giveUpAndNext(item, voice, alive, counted) {
   $("verdict").textContent = "No problem! 🤷"; $("verdict").className = "verdict no";
   await speak(pick(GIVE_UP), voice); if (!alive()) return;
   reveal(item.punch); await speak(item.punch, voice); if (!alive()) return;
-  setPrompt("😂");
-  await sleep(1800); if (!alive()) return;
-  nextItem();
+  await afterAnswer(alive, 2);
+}
+/* After the answer: with "Go to next joke by itself" on (⚙️ Settings), count down on screen
+   and on the Next button, then move on; with it off, wait for Next. */
+async function afterAnswer(alive, secs) {
+  const btn = $("nextBtn");
+  if (!settings.auto) { setPrompt("😂 Tap <b>Next ▶</b> when you're ready"); return; }
+  const total = Math.max(1, Math.round(secs || +settings.next || 4));
+  try {
+    for (let s = total; s > 0; s--) {
+      btn.textContent = `Next ▶ ${s}`;
+      setPrompt(`😂 Next one in <b>${s}</b>… <small>(⏸ Stop to stay here)</small>`);
+      for (let k = 0; k < 5; k++) { await sleep(200); if (!alive()) return; }
+    }
+  } finally { btn.textContent = "Next ▶"; }
+  if (alive()) nextItem();
 }
 async function playItem(item) {
   cancelRun();
@@ -994,12 +1007,7 @@ async function playItem(item) {
     }
     if (!alive()) return;
   }
-  setPrompt("😂");
-  if (settings.auto) {
-    const wait = (+settings.next || 4) * 1000, t0 = Date.now();
-    while (Date.now() - t0 < wait) { await sleep(200); if (!alive()) return; }
-    nextItem();
-  }
+  await afterAnswer(alive);
 }
 function nextItem() {
   if (!queue.length || qi >= queue.length - 1) {
