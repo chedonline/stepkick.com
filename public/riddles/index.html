@@ -141,6 +141,7 @@ textarea.io{width:100%;min-height:180px;border:2px solid #e6e1fa;border-radius:1
 .mtstep{border-top:2px solid #f1edff;padding:12px 0;display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
 .mtstep small{display:block;color:var(--muted);font-size:15px}
 .mtstep .btn{font-size:16px;padding:10px 16px;white-space:nowrap}
+.mtsel{font:inherit;font-size:16px;font-weight:600;border:2px solid #e6e1fa;border-radius:12px;padding:9px 10px;background:#fbfaff;color:var(--ink)}
 .mtres,.mtheard{grid-column:1/-1;font-size:15px;line-height:1.35}
 .mtres:empty,.mtheard:empty{display:none}
 .mtheard{background:#f3f0ff;border-radius:14px;padding:8px 12px;color:#4a3d8f}
@@ -300,6 +301,15 @@ body.playing header nav{opacity:.35}
   <div class="sheet">
     <div class="mthead"><h2 id="mtTitle">🎤 Sound &amp; mic test</h2><button class="icon" id="mtClose" aria-label="Close">✕</button></div>
     <div class="mtstep">
+      <div><b>Voice player</b><small>Fading on iPhone? Try the other one, then run step 4 again.</small></div>
+      <select id="mtEngine" class="mtsel" aria-label="Voice player">
+        <option value="auto">Auto</option>
+        <option value="element">Audio player</option>
+        <option value="webaudio">Web Audio</option>
+      </select>
+      <div class="mtres ok" id="mtEngineRes"></div>
+    </div>
+    <div class="mtstep">
       <div><b>1. Speaker</b><small>Plays one line. You should hear it on the TV.</small></div>
       <button class="btn blue" id="mtSpeak">🔊 Play</button>
       <div class="mtres" id="mtSpeakRes"></div>
@@ -444,7 +454,8 @@ const defaults = () => RAW.map(fromRaw);
 const DEFAULT_SETTINGS = {
   apiKey: "", voiceId: "", model: "eleven_turbo_v2_5", speed: 1, stability: 0.4,
   think: 10, knock: 5, reveal: 0.8, auto: true, next: 4,
-  mic: true, shuffle: true, feedback: true, early: true, fallback: true, voices: []
+  mic: true, shuffle: true, feedback: true, early: true, fallback: true, voices: [],
+  engine: "auto" // how clips play: "auto" (audio player on iPhone, Web Audio elsewhere), "element", "webaudio"
 };
 
 /* ---------------- storage ---------------- */
@@ -495,7 +506,75 @@ function setSession(type) {
   const s = navigator.audioSession; if (!s || s.type === type) return;
   try { s.type = type; dlog("session -> " + s.type); } catch (e) { dlog("session " + type + " failed: " + e.message); }
 }
+/* Two ways to play a clip. "webaudio" decodes into an AudioContext (perfect on desktop).
+   "element" plays through one reused <audio> player, which iOS treats as normal media
+   (like a song on a web page) and handles more steadily around the mic and AirPlay. */
+const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const engineNow = () => (settings.engine === "element" || settings.engine === "webaudio") ? settings.engine : (IOS ? "element" : "webaudio");
+const ENGINE_NAMES = { element: "audio player", webaudio: "Web Audio player" };
+let player = null, playerUnlocked = false, silentUrl = null, stopPlayer = null, lastEngine = "";
+function getPlayer() {
+  if (!player) {
+    player = new Audio(); player.preload = "auto";
+    player.setAttribute("playsinline", ""); player.setAttribute("webkit-playsinline", "");
+    ["stalled", "error"].forEach(ev => player.addEventListener(ev, () => { if (player._busy) dlog("player " + ev); }));
+  }
+  return player;
+}
+function silentWav() { // 0.1s of silence, used to unlock the player inside a tap
+  const n = 800, b = new ArrayBuffer(44 + n * 2), v = new DataView(b), w = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  w(0, "RIFF"); v.setUint32(4, 36 + n * 2, true); w(8, "WAVEfmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, 8000, true); v.setUint32(28, 16000, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, "data"); v.setUint32(40, n * 2, true);
+  return new Blob([b], { type: "audio/wav" });
+}
+function unlockPlayer() { // must run inside a tap; afterwards the same player may play without one
+  const p = getPlayer(); if (playerUnlocked || p._busy) return;
+  if (!silentUrl) silentUrl = URL.createObjectURL(silentWav());
+  p.src = silentUrl;
+  try {
+    const pr = p.play();
+    if (pr) unlockPending = pr.then(() => { playerUnlocked = true; dlog("audio player unlocked"); })
+      .catch(e => dlog("audio player unlock failed: " + e.name)).finally(() => { unlockPending = null; });
+  } catch (e) {}
+}
+let unlockPending = null;
+// Resolves true when the clip played (or was stopped), false if the player refused (caller falls back).
+function playEl(buf, label) {
+  return new Promise(res => {
+    const p = getPlayer(), url = URL.createObjectURL(new Blob([buf], { type: "audio/mpeg" })), t = performance.now();
+    let finished = false, started = false, restarts = 0, guard = setTimeout(() => finish("timeout"), 20000);
+    const finish = (why, ok = true) => {
+      if (finished) return; finished = true; clearTimeout(guard);
+      p._busy = false; stopPlayer = null; p.onended = p.onpause = p.onerror = p.onloadedmetadata = null;
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      const took = (performance.now() - t) / 1000, dur = p.duration || 0;
+      if (ok) dlog(`ended after ${took.toFixed(1)}s` + (why !== "end" ? ` (${why})` : "") + (why === "end" && dur && took < dur - 0.3 ? " (CUT SHORT)" : ""));
+      res(ok);
+    };
+    stopPlayer = () => { try { p.pause(); } catch (e) {} finish("stopped"); };
+    p._busy = true;
+    p.onloadedmetadata = () => { if (isFinite(p.duration)) { clearTimeout(guard); guard = setTimeout(() => finish("timeout"), (p.duration + 4) * 1000); } };
+    p.onended = () => finish("end");
+    p.onerror = () => finish("error");
+    p.onpause = () => { // a pause we didn't ask for = the phone paused it; start the line again from the top
+      if (finished || !started || p.ended) return;
+      if (restarts >= 2) return finish("paused by phone");
+      restarts++; dlog("phone paused the line: starting it again");
+      try { p.currentTime = 0; } catch (e) {}
+      p.play().catch(() => finish("paused by phone"));
+    };
+    p.src = url;
+    p.play().then(() => { started = true; dlog(`play "${label.slice(0, 30)}" via audio player` + (micLive ? " (MIC STILL ON)" : "")); })
+      .catch(e => { dlog("audio player refused (" + e.name + "), using Web Audio"); finish("refused", false); });
+  });
+}
 function unlockAudio() {
+  if (engineNow() === "element") unlockPlayer(); else unlockWeb();
+  // The phone's own voice grabs the iPhone's audio and turns other sound down while it talks,
+  // so only wake it when it will actually be used (no recording and no key).
+  if (needPhoneVoice()) { try { if ("speechSynthesis" in window) { speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); ttsUsed = true; } } catch (e) {} }
+}
+function unlockWeb() {
   try {
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -513,12 +592,9 @@ function unlockAudio() {
     const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource();
     s.buffer = b; s.connect(ctx.destination); s.start(0);
   } catch (e) {}
-  // The phone's own voice grabs the iPhone's audio and turns other sound down while it talks,
-  // so only wake it when it will actually be used (no recording and no key).
-  if (needPhoneVoice()) { try { if ("speechSynthesis" in window) { speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); ttsUsed = true; } } catch (e) {} }
 }
 let ttsUsed = false, currentClip = null;
-if (/[?&]debug\b/.test(location.search)) window.gbAudio = () => ctx; // lets a test pause the audio mid-line
+if (/[?&]debug\b/.test(location.search)) { window.gbAudio = () => ctx; window.gbPlayer = () => player; } // lets a test pause the audio mid-line
 const needPhoneVoice = () => !BUILTIN.voice && !elevenReady();
 const elevenReady = () => !!(settings.apiKey && settings.voiceId);
 
@@ -570,10 +646,20 @@ function voiceLabel() {
 }
 function prefetch(text, voice) { voiceBuf(text, voice).catch(() => {}); }
 
-function playBuf(buf, label = "clip") {
+async function playBuf(buf, label = "clip") {
+  if (engineNow() === "element") {
+    if (!micLive) setSession("playback");
+    // let the tap's silent unlock finish first; swapping the clip in mid-unlock would cancel it
+    if (unlockPending) await Promise.race([unlockPending, sleep(600)]);
+    if (await playEl(buf, label)) { lastEngine = "element"; return; }
+  }
+  lastEngine = "webaudio";
+  return playWeb(buf, label);
+}
+function playWeb(buf, label = "clip") {
   return new Promise(async res => {
     try {
-      if (!ctx) unlockAudio();
+      if (!ctx) unlockWeb();
       if (!micLive) setSession("playback");
       // iOS parks the context in "interrupted"/"suspended" after the mic or a call; wake it before playing.
       if (ctx.state !== "running") { dlog("audio was " + ctx.state + ", waking"); try { await ctx.resume(); } catch (e) {} }
@@ -629,7 +715,7 @@ async function speak(text, voice) {
     await deviceSpeak(text);
   } finally { setSpeaking(false); }
 }
-function stopAudio() { currentClip = null; try { currentSrc && currentSrc.stop(); } catch (e) {} currentSrc = null; if (ttsUsed) { try { speechSynthesis.cancel(); } catch (e) {} } }
+function stopAudio() { if (stopPlayer) stopPlayer(); currentClip = null; try { currentSrc && currentSrc.stop(); } catch (e) {} currentSrc = null; if (ttsUsed) { try { speechSynthesis.cancel(); } catch (e) {} } }
 
 /* ---------------- listening ---------------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1036,7 +1122,8 @@ function mtInfo() {
   const a = [];
   a.push(SR ? "🎤 This browser can listen" : "🎤 This browser can't listen (on iPhone, use Safari)");
   a.push("🗣️ Voice: " + voiceLabel());
-  a.push("🔈 Audio: " + (ctx ? ctx.state : "not started yet"));
+  a.push("🔈 Player: " + ENGINE_NAMES[engineNow()] + (settings.engine === "auto" ? " (auto" + (IOS ? ", iPhone" : "") + ")" : "") +
+    (engineNow() === "webaudio" ? " · " + (ctx ? ctx.state : "not started yet") : playerUnlocked ? " · ready" : ""));
   if (navigator.audioSession) a.push("📱 Audio session: " + navigator.audioSession.type);
   if (micBlocked) a.push("⚠️ The mic was blocked on this page. Reload after allowing it.");
   $("mtInfo").innerHTML = a.join("<br>");
@@ -1045,7 +1132,7 @@ async function mtSpeak(resId) {
   unlockAudio(); stopAudio();
   mtSet(resId, "Playing…");
   let how = "the phone voice", cls = "ok";
-  try { const got = await voiceBuf(MT_LINE); if (got) { await playBuf(got.buf, MT_LINE); how = got.how; } else await deviceSpeak(MT_LINE); }
+  try { const got = await voiceBuf(MT_LINE); if (got) { await playBuf(got.buf, MT_LINE); how = got.how + " through the " + ENGINE_NAMES[lastEngine]; } else await deviceSpeak(MT_LINE); }
   catch (e) { await deviceSpeak(MT_LINE); how = `the phone voice, because ElevenLabs failed (${e.message})`; cls = "bad"; }
   mtSet(resId, `Played with ${how}. No sound? Flip the silent switch to ring and turn the volume up.`, cls);
   mtInfo();
@@ -1086,7 +1173,7 @@ function mtOpen() {
   unlockAudio();
   ["mtSpeakRes", "mtListenRes", "mtSpeak2Res", "mtLoopRes"].forEach(id => mtSet(id, ""));
   $("mtHeard").textContent = ""; $("mtListen").textContent = "🎤 Listen";
-  mtInfo(); $("mt").classList.remove("hidden");
+  mtEngineNote(); mtInfo(); $("mt").classList.remove("hidden");
   $("mtLog").textContent = LOG.slice(-40).join("\n");
 }
 // Same hand-offs as a game round: talk, listen (the game's listen()), talk again straight away.
@@ -1108,6 +1195,16 @@ async function mtLoop() {
   } finally { mtLooping = false; btn.disabled = false; mtInfo(); }
 }
 $("mtLoop").onclick = mtLoop;
+function mtEngineNote() {
+  $("mtEngine").value = settings.engine;
+  $("mtEngineRes").textContent = "Now using: " + ENGINE_NAMES[engineNow()] + (settings.engine === "auto" ? (IOS ? " (auto picks this on iPhone)" : " (auto picks this off iPhone)") : "");
+}
+$("mtEngine").onchange = e => {
+  stopAudio(); settings.engine = e.target.value; saveSettings();
+  dlog("--- voice player: " + ENGINE_NAMES[engineNow()] + " ---");
+  unlockAudio(); // the change is a tap, so the new player can be unlocked right here
+  mtEngineNote(); mtInfo();
+};
 $("mtCopy").onclick = async () => {
   const txt = [navigator.userAgent, "session: " + (navigator.audioSession ? navigator.audioSession.type : "n/a"), ...LOG].join("\n");
   try { await navigator.clipboard.writeText(txt); toast("Log copied"); }
