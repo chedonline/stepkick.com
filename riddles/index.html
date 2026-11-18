@@ -479,7 +479,7 @@ let saveT = null;
 const saveItems = () => { clearTimeout(saveT); saveT = setTimeout(() => store.set("gb_items", items), 300); };
 const saveSettings = () => store.set("gb_settings", settings);
 
-const VERSION = "2026-11-18h"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-18i"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 function toast(msg, ms = 3200) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -736,6 +736,7 @@ if (fakeSay) {
     stop() { clearTimeout(this._t); setTimeout(() => this.onend && this.onend(), 200); } abort() { this.stop(); } };
 }
 let micBlocked = false, micWorked = false, cancelListen = null;
+const MIC_SETTLE = 850; // ms to wait after the mic closes before talking (clears the iPhone's closing chime)
 
 function listen(seconds, { earlyStop, silenceMs } = {}) {
   return new Promise(resolve => {
@@ -748,7 +749,7 @@ function listen(seconds, { earlyStop, silenceMs } = {}) {
       if (done) return; done = true; cancelListen = null;
       clearInterval(iv); hideRing();
       if ($("heard").textContent === "🎤 listening…") $("heard").textContent = "";
-      if (!rec || !micLive) { try { rec && rec.abort(); } catch (e) {} micLive = false; return setTimeout(() => resolve(text.trim()), rec ? 350 : 0); }
+      if (!rec || !micLive) { try { rec && rec.abort(); } catch (e) {} micLive = false; return setTimeout(() => resolve(text.trim()), rec ? MIC_SETTLE : 0); }
       // On iPhone the mic shuts down a beat after stop(). Playing the next line during that
       // switch-over is what makes it start loud and then fade, so wait for the mic to really
       // close (max 1.5s), then let the audio settle before talking again.
@@ -756,7 +757,9 @@ function listen(seconds, { earlyStop, silenceMs } = {}) {
       const t = performance.now();
       new Promise(r => { micEnded = r; setTimeout(r, 1500); try { rec.stop(); } catch (e) { r(); } })
         .then(() => { micLive = false; dlog(`mic closed in ${((performance.now() - t) / 1000).toFixed(2)}s`); })
-        .then(() => new Promise(r => setTimeout(r, 350)))
+        // 850ms: the iPhone plays its "mic closed" chime after the mic has closed; talking
+        // sooner put the chime on top of "You got it!"
+        .then(() => new Promise(r => setTimeout(r, MIC_SETTLE)))
         .then(() => resolve(text.trim()));
     };
     cancelListen = finish;
@@ -1042,7 +1045,7 @@ function askMic() {
     const done = why => {
       if (finished) return; finished = true; clearTimeout(t); dlog("mic check: " + why);
       try { r && r.abort(); } catch (e) {}
-      setTimeout(() => { setPrompt(""); res(); }, 400); // let the mic close before the first joke talks
+      setTimeout(() => { setPrompt(""); res(); }, MIC_SETTLE); // let the mic (and its chime) finish before the first joke talks
     };
     const t = setTimeout(() => done("no answer yet, starting anyway"), 20000);
     try {
