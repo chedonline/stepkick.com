@@ -500,17 +500,26 @@ function unlockAudio() {
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       dlog("audio created: " + ctx.state + (navigator.audioSession ? ", session " + navigator.audioSession.type : ""));
+      // If iOS pauses the audio mid-line (it fades it out first), don't snap back in the middle
+      // of a word: wake the audio, then start that line again from the top with a soft fade-in.
       ctx.onstatechange = () => {
-        dlog("audio " + ctx.state + (currentSrc ? " DURING A CLIP" : ""));
-        if (ctx.state !== "running" && ctx.state !== "closed" && currentSrc) ctx.resume().catch(() => {});
+        dlog("audio " + ctx.state + (currentClip ? " DURING A CLIP" : ""));
+        if (!currentClip || ctx.state === "closed") return;
+        if (ctx.state !== "running") { currentClip.hit = true; ctx.resume().catch(() => {}); }
+        else if (currentClip.hit) { currentClip.hit = false; currentClip.replay(); }
       };
     }
     if (ctx.state !== "running") ctx.resume();
     const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource();
     s.buffer = b; s.connect(ctx.destination); s.start(0);
   } catch (e) {}
-  try { if ("speechSynthesis" in window) speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); } catch (e) {}
+  // The phone's own voice grabs the iPhone's audio and turns other sound down while it talks,
+  // so only wake it when it will actually be used (no recording and no key).
+  if (needPhoneVoice()) { try { if ("speechSynthesis" in window) { speechSynthesis.speak(new SpeechSynthesisUtterance(" ")); ttsUsed = true; } } catch (e) {} }
 }
+let ttsUsed = false, currentClip = null;
+if (/[?&]debug\b/.test(location.search)) window.gbAudio = () => ctx; // lets a test pause the audio mid-line
+const needPhoneVoice = () => !BUILTIN.voice && !elevenReady();
 const elevenReady = () => !!(settings.apiKey && settings.voiceId);
 
 async function getAudio(text, voiceId) {
@@ -569,15 +578,28 @@ function playBuf(buf, label = "clip") {
       // iOS parks the context in "interrupted"/"suspended" after the mic or a call; wake it before playing.
       if (ctx.state !== "running") { dlog("audio was " + ctx.state + ", waking"); try { await ctx.resume(); } catch (e) {} }
       const ab = await ctx.decodeAudioData(buf.slice(0));
-      const src = ctx.createBufferSource(); src.buffer = ab; src.connect(ctx.destination);
-      const t = performance.now();
       dlog(`play "${label.slice(0, 30)}" ${ab.duration.toFixed(1)}s` + (micLive ? " (MIC STILL ON)" : ""));
-      currentSrc = src; src.onended = () => {
-        const took = (performance.now() - t) / 1000;
-        dlog(`ended after ${took.toFixed(1)}s` + (took < ab.duration - 0.3 ? " (CUT SHORT)" : ""));
-        if (currentSrc === src) currentSrc = null; res();
+      let src = null, replays = 0, finished = false;
+      const clip = { hit: false };
+      const start = fadeIn => {
+        const s = ctx.createBufferSource(), g = ctx.createGain(), t = performance.now();
+        s.buffer = ab; s.connect(g); g.connect(ctx.destination);
+        if (fadeIn) { const n = ctx.currentTime; g.gain.setValueAtTime(0.0001, n); g.gain.exponentialRampToValueAtTime(1, n + 0.3); }
+        s.onended = () => {
+          if (s.replaced || finished) return;
+          const took = (performance.now() - t) / 1000;
+          dlog(`ended after ${took.toFixed(1)}s` + (took < ab.duration - 0.3 ? " (CUT SHORT)" : ""));
+          finished = true; if (currentClip === clip) currentClip = null; if (currentSrc === s) currentSrc = null; res();
+        };
+        src = s; currentSrc = s; s.start(0);
       };
-      src.start(0);
+      clip.replay = () => {
+        if (finished || replays >= 2) return;
+        replays++; dlog("audio came back mid-line: starting the line again, fading in");
+        const old = src; old.replaced = true; try { old.stop(); } catch (e) {}
+        start(true);
+      };
+      currentClip = clip; start(false);
     } catch (e) { dlog("play failed: " + e.message); res(); }
   });
 }
@@ -592,7 +614,7 @@ function deviceSpeak(text) {
       const done = () => { clearTimeout(t); res(); };
       const t = setTimeout(done, 2500 + text.length * 110);
       u.onend = done; u.onerror = done;
-      speechSynthesis.speak(u);
+      ttsUsed = true; speechSynthesis.speak(u);
     } catch (e) { res(); }
   });
 }
@@ -607,7 +629,7 @@ async function speak(text, voice) {
     await deviceSpeak(text);
   } finally { setSpeaking(false); }
 }
-function stopAudio() { try { currentSrc && currentSrc.stop(); } catch (e) {} currentSrc = null; try { speechSynthesis.cancel(); } catch (e) {} }
+function stopAudio() { currentClip = null; try { currentSrc && currentSrc.stop(); } catch (e) {} currentSrc = null; if (ttsUsed) { try { speechSynthesis.cancel(); } catch (e) {} } }
 
 /* ---------------- listening ---------------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
