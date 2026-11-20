@@ -20,10 +20,11 @@ const YES = grab(/const YES = (\[[^\]]*\]);/, "YES");
 const NO_GUESS = grab(/const NO_GUESS = (\[[^\]]*\]);/, "NO_GUESS");
 const SILENT = grab(/const SILENT = (\[[^\]]*\]);/, "SILENT");
 const GIVE_UP = grab(/const GIVE_UP = (\[[^\]]*\]);/, "GIVE_UP");
+const ALT_ANSWERS = grab(/const ALT_ANSWERS = (\{[\s\S]*?\n\});/, "ALT_ANSWERS"); // other accepted answers get said back too
 const MT_LINE = grab(/const MT_LINE = ("[^"]*");/, "MT_LINE");
 const TEST_LINE = grab(/speak\(("Hi! Are you ready[^"]*")\)/, "test line");
 
-const lines = new Set([...YES, ...NO_GUESS, ...SILENT, ...GIVE_UP, MT_LINE, TEST_LINE]);
+const lines = new Set([...YES, ...NO_GUESS, ...SILENT, ...GIVE_UP, ...Object.values(ALT_ANSWERS).flat(), MT_LINE, TEST_LINE]);
 for (const [type, setup, punch] of RAW) {
   if (type === "knock") { lines.add("Knock knock!"); lines.add(setup + "."); }
   else lines.add(setup);
