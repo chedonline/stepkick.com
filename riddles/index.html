@@ -959,7 +959,7 @@ let saveT = null;
 const saveItems = () => { clearTimeout(saveT); saveT = setTimeout(() => store.set("gb_items", items), 300); };
 const saveSettings = () => store.set("gb_settings", settings);
 
-const VERSION = "2026-11-20d"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-20e"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 function toast(msg, ms = 3200) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -1701,7 +1701,13 @@ function stopAll() {
 let wake = null;
 async function requestWake() { try { if ("wakeLock" in navigator) wake = await navigator.wakeLock.request("screen"); } catch (e) {} }
 function releaseWake() { try { wake && wake.release(); } catch (e) {} wake = null; }
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && document.body.classList.contains("playing")) requestWake(); });
+// Only play while the game is on screen: switching apps, locking the phone or hiding the
+// tab pauses it (no talking or listening in the background). Tap Next to carry on.
+document.addEventListener("visibilitychange", () => {
+  const playing = document.body.classList.contains("playing");
+  if (document.visibilityState === "hidden") { if (playing || current) { dlog("page hidden: pausing"); stopAll(); } }
+  else if (playing) requestWake();
+});
 
 /* Ask for the mic on the Let's Go tap, before the first joke talks, instead of the prompt
    popping up in the middle of the first question. Starts the recognizer once (that's what
