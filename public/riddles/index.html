@@ -360,6 +360,14 @@ body.playing header nav{opacity:.35}
       <div class="mtres ok" id="mtEngineRes"></div>
     </div>
     <div class="mtstep">
+      <div><b>Fresh audio after listening</b><small>Crackly or garbled after the mic? Turn this on, then run step 4 and compare.</small></div>
+      <select id="mtFresh" class="mtsel" aria-label="Fresh audio after listening">
+        <option value="off">Off</option>
+        <option value="on">On</option>
+      </select>
+      <div class="mtres ok" id="mtFreshRes"></div>
+    </div>
+    <div class="mtstep">
       <div><b>1. Speaker</b><small>Plays one line. You should hear it on the TV.</small></div>
       <button class="btn blue" id="mtSpeak">🔊 Play</button>
       <div class="mtres" id="mtSpeakRes"></div>
@@ -927,7 +935,8 @@ const DEFAULT_SETTINGS = {
   mic: true, shuffle: true, feedback: true, early: true, fallback: true, voices: [],
   // which categories play (start-screen chips); bonus packs also need unlocking in the Joke Book
   kinds: { animals: true, food: true, school: true, silly: true, riddle: true, knock: false, gross: true, brainy: true },
-  engine: "auto" // how clips play: "auto" (audio player on iPhone, Web Audio elsewhere), "element", "webaudio"
+  engine: "auto", // how clips play: "auto" (audio player on iPhone, Web Audio elsewhere), "element", "webaudio"
+  freshAudio: false // iPhone experiment: swap in a new Web Audio player after every listen (🎤 test)
 };
 
 /* ---------------- storage ---------------- */
@@ -959,7 +968,7 @@ let saveT = null;
 const saveItems = () => { clearTimeout(saveT); saveT = setTimeout(() => store.set("gb_items", items), 300); };
 const saveSettings = () => store.set("gb_settings", settings);
 
-const VERSION = "2026-11-20e"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-20f"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 function toast(msg, ms = 3200) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -1064,22 +1073,40 @@ function unlockAudio() {
 }
 function unlockWeb() {
   try {
-    if (!ctx) {
-      ctx = new (window.AudioContext || window.webkitAudioContext)();
-      dlog("audio created: " + ctx.state + (navigator.audioSession ? ", session " + navigator.audioSession.type : ""));
-      // If iOS pauses the audio mid-line (it fades it out first), don't snap back in the middle
-      // of a word: wake the audio, then start that line again from the top with a soft fade-in.
-      ctx.onstatechange = () => {
-        dlog("audio " + ctx.state + (currentClip ? " DURING A CLIP" : ""));
-        if (!currentClip || ctx.state === "closed") return;
-        if (ctx.state !== "running") { currentClip.hit = true; ctx.resume().catch(() => {}); }
-        else if (currentClip.hit) { currentClip.hit = false; currentClip.replay(); }
-      };
-    }
+    if (!ctx) { ctx = makeCtx(); dlog("audio created: " + ctx.state + ", " + ctx.sampleRate + " Hz" + (navigator.audioSession ? ", session " + navigator.audioSession.type : "")); }
     if (ctx.state !== "running") ctx.resume();
     const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource();
     s.buffer = b; s.connect(ctx.destination); s.start(0);
   } catch (e) {}
+}
+function makeCtx() {
+  const c = new (window.AudioContext || window.webkitAudioContext)();
+  // If iOS pauses the audio mid-line (it fades it out first), don't snap back in the middle
+  // of a word: wake the audio, then start that line again from the top with a soft fade-in.
+  c.onstatechange = () => {
+    if (c !== ctx) return; // an old player being retired
+    dlog("audio " + c.state + (currentClip ? " DURING A CLIP" : ""));
+    if (!currentClip || c.state === "closed") return;
+    if (c.state !== "running") { currentClip.hit = true; c.resume().catch(() => {}); }
+    else if (currentClip.hit) { currentClip.hit = false; currentClip.replay(); }
+  };
+  return c;
+}
+/* iPhone experiment ("Fresh audio after listening" in the 🎤 test): opening the mic switches
+   the phone into call-style audio, and a Web Audio player made before that can come out
+   crackly afterwards. This swaps in a brand-new player once the mic has closed. The phone may
+   refuse to start one without a tap; then the old player is kept, so the voice never goes silent. */
+async function freshCtx() {
+  if (!settings.freshAudio || engineNow() !== "webaudio" || !ctx) return;
+  let c = null;
+  try {
+    c = makeCtx();
+    const b = c.createBuffer(1, 1, 22050), s = c.createBufferSource(); s.buffer = b; s.connect(c.destination); s.start(0);
+    await Promise.race([c.resume().catch(() => {}), sleep(800)]);
+    if (c.state !== "running") { dlog("fresh audio: the phone wouldn't start a new player (" + c.state + "), kept the old one"); c.close().catch(() => {}); return; }
+    const old = ctx; ctx = c; old.close().catch(() => {});
+    dlog("fresh audio: new player, " + c.sampleRate + " Hz" + (old.sampleRate !== c.sampleRate ? " (old one was " + old.sampleRate + " Hz)" : ""));
+  } catch (e) { dlog("fresh audio failed: " + e.message); try { c && c.close(); } catch (x) {} }
 }
 let ttsUsed = false, currentClip = null;
 if (/[?&]debug\b/.test(location.search)) { window.gbAudio = () => ctx; window.gbPlayer = () => player; } // lets a test pause the audio mid-line
@@ -1248,6 +1275,7 @@ function listen(seconds, { earlyStop, silenceMs } = {}) {
         // 850ms: the iPhone plays its "mic closed" chime after the mic has closed; talking
         // sooner put the chime on top of "You got it!"
         .then(() => new Promise(r => setTimeout(r, MIC_SETTLE)))
+        .then(freshCtx)
         .then(() => resolve(text.trim()));
     };
     cancelListen = finish;
@@ -2018,7 +2046,7 @@ function mtListen() {
   rec.onerror = e => { err = e.error; dlog("mic error: " + e.error); };
   rec.onstart = () => { micLive = true; dlog("mic on (test)"); };
   rec.onend = () => {
-    micLive = false; dlog("mic closed (test)");
+    micLive = false; dlog("mic closed (test)"); setTimeout(freshCtx, MIC_SETTLE);
     if (mtRec === rec) { clearInterval(mtTimer); mtTimer = null; mtRec = null; }
     btn.textContent = "🎤 Listen";
     if (err === "not-allowed" || err === "service-not-allowed") {
@@ -2040,7 +2068,7 @@ function mtOpen() {
   unlockAudio();
   ["mtSpeakRes", "mtListenRes", "mtSpeak2Res", "mtLoopRes"].forEach(id => mtSet(id, ""));
   $("mtHeard").textContent = ""; $("mtListen").textContent = "🎤 Listen";
-  mtEngineNote(); mtInfo(); $("mt").classList.remove("hidden");
+  mtEngineNote(); mtFreshNote(); mtInfo(); $("mt").classList.remove("hidden");
   $("mtLog").textContent = LOG.slice(-40).join("\n");
 }
 // Same hand-offs as a game round: talk, listen (the game's listen()), talk again straight away.
@@ -2067,11 +2095,21 @@ function mtEngineNote() {
   $("mtEngineRes").textContent = "Now using: " + ENGINE_NAMES[engineNow()] + (settings.engine === "auto" ? " (auto)" : "") +
     (engineNow() === "element" && IOS ? ". Heads up: on iPhone this one can stop the mic hearing you after the first joke." : "");
 }
+function mtFreshNote() {
+  $("mtFresh").value = settings.freshAudio ? "on" : "off";
+  $("mtFreshRes").textContent = !settings.freshAudio ? "" : engineNow() !== "webaudio" ? "Only works with the Web Audio player (pick it above)." :
+    "On: after each listen the game swaps in a new player. Stays on for the game too.";
+}
+$("mtFresh").onchange = e => {
+  settings.freshAudio = e.target.value === "on"; saveSettings();
+  dlog("--- fresh audio after listening: " + (settings.freshAudio ? "on" : "off") + " ---");
+  unlockAudio(); mtFreshNote(); mtInfo();
+};
 $("mtEngine").onchange = e => {
   stopAudio(); settings.engine = e.target.value; saveSettings();
   dlog("--- voice player: " + ENGINE_NAMES[engineNow()] + " ---");
   unlockAudio(); // the change is a tap, so the new player can be unlocked right here
-  mtEngineNote(); mtInfo();
+  mtEngineNote(); mtFreshNote(); mtInfo();
 };
 $("mtCopy").onclick = async () => {
   const txt = [navigator.userAgent, "session: " + (navigator.audioSession ? navigator.audioSession.type : "n/a"), ...LOG].join("\n");
