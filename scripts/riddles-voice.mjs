@@ -20,11 +20,13 @@ const YES = grab(/const YES = (\[[^\]]*\]);/, "YES");
 const NO_GUESS = grab(/const NO_GUESS = (\[[^\]]*\]);/, "NO_GUESS");
 const SILENT = grab(/const SILENT = (\[[^\]]*\]);/, "SILENT");
 const GIVE_UP = grab(/const GIVE_UP = (\[[^\]]*\]);/, "GIVE_UP");
+const LEVEL_UP = grab(/const LEVEL_UP = (\[[^\]]*\]);/, "LEVEL_UP");
+const UNLOCK = grab(/const UNLOCK = (\[[^\]]*\]);/, "UNLOCK");
 const ALT_ANSWERS = grab(/const ALT_ANSWERS = (\{[\s\S]*?\n\});/, "ALT_ANSWERS"); // other accepted answers get said back too
 const MT_LINE = grab(/const MT_LINE = ("[^"]*");/, "MT_LINE");
 const TEST_LINE = grab(/speak\(("Hi! Are you ready[^"]*")\)/, "test line");
 
-const lines = new Set([...YES, ...NO_GUESS, ...SILENT, ...GIVE_UP, ...Object.values(ALT_ANSWERS).flat(), MT_LINE, TEST_LINE]);
+const lines = new Set([...YES, ...NO_GUESS, ...SILENT, ...GIVE_UP, ...LEVEL_UP, ...UNLOCK, ...Object.values(ALT_ANSWERS).flat(), MT_LINE, TEST_LINE]);
 for (const [type, setup, punch] of RAW) {
   if (type === "knock") { lines.add("Knock knock!"); lines.add(setup + "."); }
   else lines.add(setup);
@@ -61,7 +63,12 @@ async function record(text) {
   console.error(`FAILED after retries "${text}"`); failed++; delete manifest.lines[text];
 }
 
-const queue = list.slice();
+// --max N: record at most N new lines this run (to measure cost or stay inside the credit balance)
+const maxArg = process.argv.indexOf("--max"), maxNew = maxArg > 0 ? +process.argv[maxArg + 1] : Infinity;
+const existsOk = t => { const d = path.join(outDir, file(t)); return fs.existsSync(d) && fs.statSync(d).size > 1000; };
+let budget = maxNew;
+const queue = list.filter(t => existsOk(t) || budget-- > 0);
+for (const t of list) if (!queue.includes(t) && existsOk(t)) manifest.lines[t] = file(t);
 await Promise.all(Array.from({ length: 3 }, async () => { while (queue.length) await record(queue.shift()); }));
 fs.writeFileSync(path.join(outDir, "manifest.json"), JSON.stringify(manifest, null, 1));
 console.log(`made ${made}, already had ${skipped}, failed ${failed}`);
