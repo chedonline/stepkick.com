@@ -959,7 +959,7 @@ let saveT = null;
 const saveItems = () => { clearTimeout(saveT); saveT = setTimeout(() => store.set("gb_items", items), 300); };
 const saveSettings = () => store.set("gb_settings", settings);
 
-const VERSION = "2026-11-20c"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-20d"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 function toast(msg, ms = 3200) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -1051,6 +1051,7 @@ function playEl(buf, label) {
       p.play().catch(() => finish("paused by phone"));
     };
     p.src = url;
+    try { p.volume = Math.min(1, clipGain.get(buf) || 1); } catch (e) {}
     p.play().then(() => { started = true; dlog(`play "${label.slice(0, 30)}" via audio player` + (micLive ? " (MIC STILL ON)" : "")); })
       .catch(e => { dlog("audio player refused (" + e.name + "), using Web Audio"); finish("refused", false); });
   });
@@ -1114,10 +1115,16 @@ function builtinUrl(text, voice) {
   if (settings.apiKey && v && v !== BUILTIN.voiceId) return null;
   return "audio/" + f;
 }
+// Recordings are the untouched ElevenLabs files; the manifest's "gain" (dB per file) evens out
+// their volume here in the player. Re-encoding the files to even them out added crackle.
+const clipGain = new WeakMap();
 async function getBuiltin(url) {
   if (mem.has(url)) return mem.get(url);
   const r = await fetch(url); if (!r.ok) throw new Error("audio " + r.status);
-  const b = await r.arrayBuffer(); mem.set(url, b); return b;
+  const b = await r.arrayBuffer(); mem.set(url, b);
+  const db = (BUILTIN.gain || {})[url.replace(/^audio\//, "")];
+  if (db) clipGain.set(b, Math.pow(10, db / 20));
+  return b;
 }
 // -> { buf, how } or null when there's no recording and no key (caller falls back to the phone voice)
 async function voiceBuf(text, voice) {
@@ -1149,14 +1156,15 @@ function playWeb(buf, label = "clip") {
       if (!ctx) unlockWeb();
       // iOS parks the context in "interrupted"/"suspended" after the mic or a call; wake it before playing.
       if (ctx.state !== "running") { dlog("audio was " + ctx.state + ", waking"); try { await ctx.resume(); } catch (e) {} }
-      const ab = await ctx.decodeAudioData(buf.slice(0));
-      dlog(`play "${label.slice(0, 30)}" ${ab.duration.toFixed(1)}s` + (micLive ? " (MIC STILL ON)" : ""));
+      const ab = await ctx.decodeAudioData(buf.slice(0)), lvl = clipGain.get(buf) || 1;
+      dlog(`play "${label.slice(0, 30)}" ${ab.duration.toFixed(1)}s` + (lvl !== 1 ? ` at ${(20 * Math.log10(lvl)).toFixed(1)} dB` : "") + (micLive ? " (MIC STILL ON)" : ""));
       let src = null, replays = 0, finished = false;
       const clip = { hit: false };
       const start = fadeIn => {
         const s = ctx.createBufferSource(), g = ctx.createGain(), t = performance.now();
         s.buffer = ab; s.connect(g); g.connect(ctx.destination);
-        if (fadeIn) { const n = ctx.currentTime; g.gain.setValueAtTime(0.0001, n); g.gain.exponentialRampToValueAtTime(1, n + 0.3); }
+        g.gain.value = lvl;
+        if (fadeIn) { const n = ctx.currentTime; g.gain.setValueAtTime(0.0001, n); g.gain.exponentialRampToValueAtTime(lvl, n + 0.3); }
         s.onended = () => {
           if (s.replaced || finished) return;
           const took = (performance.now() - t) / 1000;

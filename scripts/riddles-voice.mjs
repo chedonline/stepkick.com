@@ -44,7 +44,9 @@ if (!key) { console.error("No ElevenLabs key found"); process.exit(1); }
 const outDir = path.join(root, "public/riddles/audio");
 fs.mkdirSync(outDir, { recursive: true });
 const file = t => crypto.createHash("sha1").update(t).digest("hex").slice(0, 12) + ".mp3";
-const manifest = { voice: VOICE.name, voiceId: VOICE.id, model: MODEL, lines: {} };
+let oldGain = {};
+try { oldGain = JSON.parse(fs.readFileSync(path.join(outDir, "manifest.json"), "utf8")).gain || {}; } catch {}
+const manifest = { voice: VOICE.name, voiceId: VOICE.id, model: MODEL, lines: {}, gain: oldGain };
 let made = 0, skipped = 0, failed = 0; const madeFiles = [];
 
 async function record(text) {
@@ -72,5 +74,5 @@ for (const t of list) if (!queue.includes(t) && existsOk(t)) manifest.lines[t] =
 await Promise.all(Array.from({ length: 3 }, async () => { while (queue.length) await record(queue.shift()); }));
 fs.writeFileSync(path.join(outDir, "manifest.json"), JSON.stringify(manifest, null, 1));
 console.log(`made ${made}, already had ${skipped}, failed ${failed}`);
-if (made) console.log("Now even out the volume: node scripts/riddles-loudness.mjs --fix " + madeFiles.join(" "));
+if (made) console.log("Now set the new clips' volume (files stay untouched): node scripts/riddles-loudness.mjs");
 if (failed) process.exit(1);
