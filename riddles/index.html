@@ -541,7 +541,7 @@ let saveT = null;
 const saveItems = () => { clearTimeout(saveT); saveT = setTimeout(() => store.set("gb_items", items), 300); };
 const saveSettings = () => store.set("gb_settings", settings);
 
-const VERSION = "2026-11-18j"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-20a"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 function toast(msg, ms = 3200) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -942,9 +942,11 @@ const ALT_ANSWERS = {
   "What can you catch but not throw?": ["Your breath!"],
   "What gets wetter the more it dries?": ["A towel!"],
 };
-function rightAnswer(guess, item) {
-  return [item.punch, ...(ALT_ANSWERS[item.setup] || [])].some(p => isMatch(guess, p));
+// The answer they actually gave (main punchline first, then the other accepted ones), or null.
+function matchedAnswer(guess, item) {
+  return [item.punch, ...(ALT_ANSWERS[item.setup] || [])].find(p => isMatch(guess, p)) || null;
 }
+const rightAnswer = (guess, item) => !!matchedAnswer(guess, item);
 /* GIVE-UP START */
 // "I don't know", "I give up", "no idea", "tell me"… = stop the timer and hear the answer.
 const GIVE_UP_PHRASES = ["dont know", "do not know", "dunno", "give up", "giving up", "gave up", "no idea", "no clue",
@@ -1078,15 +1080,18 @@ async function playItem(item) {
     setPrompt("");
     // Stops the timer as soon as it hears the right answer, or "I don't know" / "I give up".
     const guess = await listen(think, { earlyStop: t => (settings.early && rightAnswer(t, item)) || gaveUp(t) }); if (!alive()) return;
-    const got = rightAnswer(guess, item), quit = !got && gaveUp(guess);
+    const said = matchedAnswer(guess, item), got = !!said, quit = !got && gaveUp(guess);
     played++; if (got) score++; updateScore();
     if (!quit) { await sleep(+settings.reveal * 1000); if (!alive()) return; }
     setPrompt("");
     if (quit) return giveUpAndNext(item, voice, alive, true);
     if (got) {
-      $("verdict").textContent = "🎉 You got it!"; $("verdict").className = "verdict yes"; confetti();
+      // Say back the answer they gave: "A newspaper!" if that's what they said, not the main one.
+      const other = said !== item.punch;
+      $("verdict").textContent = "🎉 You got it!" + (other ? ` (Another answer: ${item.punch.replace(/!$/, "")})` : "");
+      $("verdict").className = "verdict yes"; confetti();
       if (settings.feedback) { await speak(pick(YES), voice); if (!alive()) return; }
-      reveal(item.punch); await speak(item.punch, voice);
+      reveal(said); await speak(said, voice);
     } else {
       $("verdict").textContent = guess ? "Good try! 👏" : "Time's up! ⏰"; $("verdict").className = "verdict no";
       if (settings.feedback) { await speak(pick(guess ? NO_GUESS : SILENT), voice); if (!alive()) return; }
