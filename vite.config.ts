@@ -20,10 +20,10 @@ export default defineConfig({
       workbox: {
         // Precache everything — the whole game works offline.
         globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
-        // /riddles/ (Riddles) is a standalone page: always fetch it fresh and
-        // never let the service worker answer it with the Stepkick app shell.
-        globIgnores: ['**/riddles/**'],
-        navigateFallbackDenylist: [/^\/riddles(\/|$)/],
+        // /riddles/ (Riddles) and /french/ (Mots) are standalone pages: always fetch them
+        // fresh and never let the service worker answer them with the Stepkick app shell.
+        globIgnores: ['**/riddles/**', '**/french/**'],
+        navigateFallbackDenylist: [/^\/riddles(\/|$)/, /^\/french(\/|$)/],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
       manifest: {

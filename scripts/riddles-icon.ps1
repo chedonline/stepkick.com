@@ -1,12 +1,13 @@
-# Render the Riddles app icon (scripts/riddles-icon.html) to PNGs.
-#   powershell -File scripts/riddles-icon.ps1
+# Render an app icon (scripts/<app>-icon.html) to PNGs. Apps: riddles (default), french.
+#   powershell -File scripts/riddles-icon.ps1 [-App french]
 # Headless Edge renders it once at 512px (it mishandles tiny windows), then .NET scales it down.
-# Writes public/riddles/icon-512.png, icon-192.png, apple-touch-icon.png (180, iPhone home screen), favicon-32.png
+# Writes public/<app>/icon-512.png, icon-192.png, apple-touch-icon.png (180, iPhone home screen), favicon-32.png
+param([string]$App = "riddles")
 Add-Type -AssemblyName System.Drawing
 $edge = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 $root = Split-Path -Parent $PSScriptRoot
-$src = "file:///" + ((Join-Path $PSScriptRoot "riddles-icon.html") -replace "\\", "/")
-$out = Join-Path $root "public\riddles"
+$src = "file:///" + ((Join-Path $PSScriptRoot "$App-icon.html") -replace "\\", "/")
+$out = Join-Path $root "public\$App"
 $big = Join-Path $out "icon-512.png"
 if (Test-Path $big) { Remove-Item $big }
 & $edge --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --virtual-time-budget=3000 "--window-size=512,512" "--screenshot=$big" $src 2>$null | Out-Null

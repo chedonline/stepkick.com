@@ -10,7 +10,9 @@ import { spawnSync } from "node:child_process";
 
 const TARGET_I = -16, MAX_TP = -1; // loudness target (LUFS) and the highest peak allowed after the gain (dBTP)
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/(\w:)/, "$1")), "..");
-const dir = path.join(root, "public/riddles/audio");
+// audio folder: public/riddles/audio by default, or pass one (e.g. public/french/audio)
+const dirArg = process.argv.slice(2).find(a => !a.startsWith("--"));
+const dir = path.resolve(root, dirArg || "public/riddles/audio");
 const mpath = path.join(dir, "manifest.json");
 const manifest = JSON.parse(fs.readFileSync(mpath, "utf8"));
 const files = [...new Set(Object.values(manifest.lines))];
