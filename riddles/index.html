@@ -63,6 +63,9 @@ nav button.on{background:#fff;color:var(--bg1)}
 .punch{font-size:clamp(26px,min(6vw,10vh),80px);font-weight:700;color:var(--pink);line-height:1.1;max-width:20ch;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
 @keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
 .verdict{font-size:clamp(24px,4vw,48px);font-weight:700}
+/* 👎: small, out of the way, two taps */
+.dislike{position:absolute;right:14px;bottom:14px;z-index:2;font:inherit;font-size:20px;border:2px solid #eee9fb;background:#fff;color:var(--muted);border-radius:999px;padding:6px 12px;cursor:pointer;opacity:.75}
+.dislike.armed{opacity:1;font-size:15px;font-weight:700;color:#fff;background:var(--orange);border-color:var(--orange)}
 .verdict.yes{color:var(--green)} .verdict.no{color:var(--orange)}
 
 /* countdown ring */
@@ -95,11 +98,30 @@ nav button.on{background:#fff;color:var(--bg1)}
 .kinds{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .kinds button{font:inherit;font-size:clamp(16px,2.2vw,22px);font-weight:600;border:2px solid #e6e1fa;background:#fff;color:var(--muted);border-radius:999px;padding:8px 16px;cursor:pointer}
 .kinds button.on{background:var(--bg1);border-color:var(--bg1);color:#fff}
-.kinds button:not(.on){text-decoration:line-through;opacity:.7}
+.kinds button:not(.on):not(.locked){text-decoration:line-through;opacity:.7}
+.kinds button.locked{border-style:dashed;background:#faf8ff;color:#9a93bd;opacity:.85}
 
 /* confetti */
 .conf{position:fixed;top:-40px;font-size:34px;pointer-events:none;z-index:50;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+/* joke book */
+.bk-rank{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center}
+.bk-rank .ic{font-size:56px;grid-row:span 3;line-height:1}
+.bk-rank .nm{font-size:24px;font-weight:700}
+.bk-rank small,.bk-note{color:var(--muted);font-size:14px;margin:4px 0 10px}
+.bar{height:12px;background:#f1edff;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#ffc83d,#ff8a3d);border-radius:99px}
+.bk-cat summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center}
+.bk-cat summary::-webkit-details-marker{display:none}
+.bk-cat summary b{font-size:19px}
+.bk-cat summary span{color:var(--muted);font-size:15px;white-space:nowrap}
+.bk-cat summary .bar{grid-column:1/-1}
+.bk-cat.locked{opacity:.75;border:2px dashed #ddd6f7}
+.bk-list{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.bk-list li{background:#faf8ff;border-radius:12px;padding:8px 12px;font-size:16px}
+.bk-list li i{display:block;font-style:normal;color:#5b3fc4;font-weight:600}
+.bk-list li.unheard{color:#b3acd3}
 
 /* list + settings */
 .panel{max-width:900px;margin:0 auto;padding:4px 14px 60px}
@@ -157,6 +179,7 @@ textarea.io{width:100%;min-height:180px;border:2px solid #e6e1fa;border-radius:1
 .mtres.ok{color:#127a3a} .mtres.bad{color:#b3204f}
 nav button{white-space:nowrap}
 @media (max-width:430px){ .logo .lt{display:none} }
+@media (max-width:400px){ .logo{display:none} }
 .mtinfo{font-size:13px;color:var(--muted);border-top:2px solid #f1edff;padding-top:10px;line-height:1.55}
 .mtlogbox{margin-top:10px;font-size:13px;color:var(--muted)}
 .mtlogbox summary{cursor:pointer;font-weight:700}
@@ -184,8 +207,9 @@ body.playing header nav{opacity:.35}
   </div>
   <nav>
     <button data-view="play" class="on">▶ Play</button>
-    <button data-view="list">✏️ List</button>
-    <button data-view="settings">⚙️</button>
+    <button data-view="book">📖 Book</button>
+    <button data-view="list" aria-label="Joke list">✏️</button>
+    <button data-view="settings" aria-label="Settings">⚙️</button>
   </nav>
 </header>
 
@@ -196,11 +220,7 @@ body.playing header nav{opacity:.35}
     <div id="startOverlay">
       <h1>🤪 Riddles</h1>
       <p>I tell a joke. You have a few seconds to shout the answer!</p>
-      <div class="kinds" id="kinds" role="group" aria-label="Which kinds">
-        <button data-k="joke">😂 Jokes</button>
-        <button data-k="riddle">🧩 Riddles</button>
-        <button data-k="knock">🚪 Knock-knock</button>
-      </div>
+      <div class="kinds" id="kinds" role="group" aria-label="Which kinds"></div>
       <button class="btn big startbtn" id="startBtn">▶ Let's Go!</button>
       <p id="startNote" style="font-size:15px"></p>
     </div>
@@ -214,6 +234,7 @@ body.playing header nav{opacity:.35}
     <div class="heard" id="heard"></div>
     <div class="verdict" id="verdict"></div>
     <div class="punch hidden" id="punch"></div>
+    <button class="dislike hidden" id="dislikeBtn" title="Don't like this joke? Tap twice to hide it">👎</button>
   </div>
   <div class="controls">
     <button class="btn blue" id="revealBtn" disabled>👀 Show answer</button>
@@ -255,6 +276,22 @@ body.playing header nav{opacity:.35}
 </section>
 
 <!-- SETTINGS -->
+<!-- JOKE BOOK -->
+<section id="book" class="panel hidden">
+  <h2>📖 Joke Book</h2>
+  <div class="card bk-rank" id="bkRank"></div>
+  <div id="bkCats"></div>
+  <div class="card" id="bkHidden"></div>
+  <div class="card">
+    <b>💾 Backup code</b>
+    <p class="bk-note">Your Joke Book lives on this phone. Copy the code to keep it safe, or paste a code to move it to another phone.</p>
+    <div class="toolbar">
+      <button class="btn blue" id="bkCopy">📋 Copy my code</button>
+      <button class="btn green" id="bkRestore">↩️ Paste a code</button>
+    </div>
+  </div>
+</section>
+
 <section id="settings" class="panel hidden">
   <h2>⚙️ Settings</h2>
   <div class="card">
@@ -359,162 +396,537 @@ body.playing header nav{opacity:.35}
 
 /* ---------------- default 100 ---------------- */
 const RAW = [
-["joke","What do you call a sleeping dinosaur?","A dino-snore!"],
-["joke","Why do fish live in salt water?","Because pepper makes them sneeze!"],
-["joke","What do you call a bear with no teeth?","A gummy bear!"],
-["joke","What do you call a cow with no legs?","Ground beef!"],
-["joke","What do you call a pig that does karate?","A pork chop!"],
-["joke","What kind of key opens a banana?","A monkey!"],
-["joke","Why don't elephants use computers?","They're scared of the mouse!"],
-["joke","What do you call a dog magician?","A labracadabrador!"],
-["joke","How do you count cows?","With a cow-culator!"],
-["joke","What do you call an alligator in a vest?","An in-vest-igator!"],
-["joke","What do you call a fish with no eyes?","A fsh!"],
-["joke","Where do sheep get their hair cut?","At the baa-baa shop!"],
-["joke","Why don't oysters share?","Because they're shellfish!"],
-["joke","What do you call a lazy kangaroo?","A pouch potato!"],
-["joke","What do bees chew?","Bumble gum!"],
-["joke","Why did the banana go to the doctor?","It wasn't peeling well!"],
-["joke","What do you call cheese that isn't yours?","Nacho cheese!"],
-["joke","Why did the cookie go to the hospital?","It felt crummy!"],
-["joke","Why did the tomato blush?","It saw the salad dressing!"],
-["joke","What do you call a sad strawberry?","A blueberry!"],
-["joke","What's a ghost's favourite dessert?","I scream!"],
-["joke","Why don't eggs tell jokes?","They'd crack each other up!"],
-["riddle","What kind of nut has no shell?","A doughnut!"],
-["joke","What do you call a fake noodle?","An impasta!"],
-["joke","Why do potatoes make good detectives?","They keep their eyes peeled!"],
-["joke","Why did the student eat her homework?","The teacher said it was a piece of cake!"],
-["joke","What's a math teacher's favourite dessert?","Pie!"],
-["joke","Why was the math book sad?","It had too many problems!"],
-["joke","What do elves learn in school?","The elf-abet!"],
-["joke","What's a snake's favourite school subject?","Hiss-tory!"],
-["joke","Why did the music teacher need a ladder?","To reach the high notes!"],
-["joke","What's the king of all school supplies?","The ruler!"],
-["joke","Why was the teacher wearing sunglasses?","Her students were so bright!"],
-["joke","How do bees get to school?","On the school buzz!"],
-["joke","Why don't skeletons fight each other?","They don't have the guts!"],
-["joke","What do you call a witch at the beach?","A sand-witch!"],
-["joke","What room does a ghost stay away from?","The living room!"],
-["joke","Why did the scarecrow win an award?","He was outstanding in his field!"],
-["joke","How does the moon cut its hair?","Eclipse it!"],
-["joke","What did the tree say when spring came?","What a re-leaf!"],
-["joke","What do clouds wear under their raincoats?","Thunderwear!"],
-["joke","How do you throw a party in space?","You planet!"],
-["joke","What did one volcano say to the other?","I lava you!"],
-["joke","What's a tornado's favourite game?","Twister!"],
-["joke","What did the ocean say to the beach?","Nothing, it just waved!"],
-["riddle","What has hands but can't clap?","A clock!"],
-["riddle","What has lots of keys but can't open doors?","A piano!"],
-["joke","Why can't a bicycle stand up by itself?","It's two tired!"],
-["riddle","What gets wetter the more it dries?","A towel!"],
-["riddle","What has one eye but can't see?","A needle!"],
-["riddle","What runs but never walks?","Water!"],
-["joke","What did the stamp say to the envelope?","Stick with me and we'll go places!"],
-["riddle","What has ears but can't hear?","A cornfield!"],
-["joke","Why did the teddy bear skip dessert?","It was already stuffed!"],
-["joke","What do you call a boomerang that won't come back?","A stick!"],
-["joke","Why are ghosts bad at lying?","You can see right through them!"],
-["joke","Why did the girl bring a ladder to school?","She wanted to go to high school!"],
-["joke","What do you call a dinosaur that knows lots of words?","A thesaurus!"],
-["joke","Why did the robot go on vacation?","To recharge its batteries!"],
-["riddle","What room has no doors or windows?","A mushroom!"],
-["joke","What do you call a train full of gum?","A chew-chew train!"],
-["joke","How do trees get on the internet?","They log in!"],
-["riddle","What has a neck but no head?","A bottle!"],
-["joke","What did the big flower say to the little flower?","Hi, bud!"],
-["joke","Why do birds fly south for the winter?","It's too far to walk!"],
-["joke","What's a cat's favourite colour?","Purr-ple!"],
-["joke","Where do cows go on dates?","To the moo-vies!"],
-["joke","What do you call a sleeping bull?","A bulldozer!"],
-["joke","What's a duck's favourite snack?","Cheese and quackers!"],
-["joke","Why did the chicken join a band?","It had the drumsticks!"],
-["joke","Why is the moon never hungry?","Because it's always full!"],
-["joke","What do planets like to read?","Comet books!"],
-["riddle","What's orange and sounds like a parrot?","A carrot!"],
-["joke","What did the zero say to the eight?","Nice belt!"],
-["joke","Why did the cookie cry?","Its mom was a wafer so long!"],
-["joke","What do you call a funny mountain?","Hill-arious!"],
-["joke","What do you call a pile of kittens?","A meow-ntain!"],
-["joke","What kind of shoes do frogs wear?","Open-toad sandals!"],
-["joke","What did one plate say to the other plate?","Dinner's on me!"],
-["joke","What's a frog's favourite drink?","Croak-a-cola!"],
-["joke","Why are cats so good at video games?","They have nine lives!"],
-["riddle","What falls all the time but never gets hurt?","Rain!"],
-["joke","What's an astronaut's favourite key on the keyboard?","The space bar!"],
-["joke","What do snowmen eat for breakfast?","Frosted flakes!"],
-["riddle","What do you call a snowman in the summer?","A puddle!"],
-["joke","What did one wall say to the other wall?","Meet you at the corner!"],
-["joke","What did the duck say after shopping?","Put it on my bill!"],
-["joke","What's black and white and red all over?","A sunburned zebra!"],
-["joke","Why do vampires need mouthwash?","They have bat breath!"],
-["joke","What did the paper say to the pencil?","Write on!"],
-// added 2026-11-18 (batch 2: phones that saved the old list pick these up once, see mergeNewDefaults)
-["joke","How do you make a tissue dance?","Put a little boogie in it!",2],
-["joke","Why do ducks have feathers?","To cover their butt quack!",2],
-["joke","Why did the golfer bring two pairs of pants?","In case he got a hole in one!",2],
-["joke","What do you call a pony with a sore throat?","A little hoarse!",2],
-["joke","Why can't you give Elsa a balloon?","She'll let it go!",2],
-["joke","What do you call a bear in the rain?","A drizzly bear!",2],
-["joke","Why did the kid throw butter out the window?","To see a butterfly!",2],
-["joke","Why are fish so smart?","They live in schools!",2],
-["joke","What do you call a dog that does science?","A lab!",2],
-["joke","Why did the computer go to the doctor?","It had a virus!",2],
-["joke","What kind of tree fits in your hand?","A palm tree!",2],
-["joke","What do you call a cow that plays music?","A moo-sician!",2],
-["joke","Why did the bee get married?","He found his honey!",2],
-["joke","Why did the pickle feel important?","It was a big dill!",2],
-["joke","What did the hat say to the scarf?","You hang around, I'll go on ahead!",2],
-["joke","What do you call a fly with no wings?","A walk!",2],
-["joke","Why did the picture go to jail?","It was framed!",2],
-["joke","What do you call a shoe made out of a banana?","A slipper!",2],
-["joke","Why don't scientists trust atoms?","They make up everything!",2],
-["joke","What do you call a dog on a hot day?","A hot dog!",2],
-["joke","Why did the boy run around his bed?","To catch up on his sleep!",2],
-["joke","What do you call an elephant that doesn't matter?","An irrelephant!",2],
-["joke","What do frogs order at restaurants?","French flies!",2],
-["joke","What do you call a sheep with no legs?","A cloud!",2],
-["joke","How do you make an octopus laugh?","With ten-tickles!",2],
-["joke","What did the nose say to the finger?","Quit picking on me!",2],
-["joke","What do porcupines say when they hug?","Ouch!",2],
-["joke","Why did the toilet paper roll down the hill?","To get to the bottom!",2],
-["joke","What do you call a fish wearing a bow tie?","Sofishticated!",2],
-["joke","Why did the orange stop rolling?","It ran out of juice!",2],
-["joke","What did the baby corn say to the mama corn?","Where's pop corn?",2],
-["joke","Why are spiders so smart?","They can find everything on the web!",2],
-["joke","What did the left eye say to the right eye?","Between you and me, something smells!",2],
-["riddle","What has to be broken before you can use it?","An egg!",2],
-["riddle","What goes up but never comes down?","Your age!",2],
-["riddle","What can you catch but not throw?","A cold!",2],
-["riddle","What has a head and a tail but no body?","A coin!",2],
-["riddle","What has lots of teeth but can't bite?","A comb!",2],
-["riddle","What gets bigger the more you take away?","A hole!",2],
-["riddle","What can go all around the world but stays in a corner?","A stamp!",2],
-["riddle","What has four legs but can't walk?","A table!",2],
-["riddle","What belongs to you, but other people use it more?","Your name!",2],
-["riddle","What is full of holes but still holds water?","A sponge!",2],
-["riddle","What month has twenty-eight days?","All of them!",2],
-["riddle","What has words but never talks?","A book!",2],
-["knock","Boo","Don't cry, it's just a joke!"],
-["knock","Lettuce","Lettuce in, it's cold out here!"],
-["knock","Cow says","No silly, a cow says moo!"],
-["knock","Olive","Olive you!"],
-["knock","Tank","You're welcome!"],
-["knock","Hawaii","I'm fine, Hawaii you?"],
-["knock","Lena","Lena little closer, I have a secret!"],
-["knock","Wooden shoe","Wooden shoe like to hear another joke?"],
-["knock","Owls say","Yes, they do!"],
-["knock","Atch","Bless you!"]
+// [type, question, answer, category, batch]. category: animals/food/school/silly/gross for jokes,
+// riddle/brainy for riddles, knock. batch (2, 3...) = added later; phones with a saved list get them once.
+["joke","What do you call a sleeping dinosaur?","A dino-snore!","animals"],
+["joke","Why do fish live in salt water?","Because pepper makes them sneeze!","animals"],
+["joke","What do you call a bear with no teeth?","A gummy bear!","animals"],
+["joke","What do you call a cow with no legs?","Ground beef!","animals"],
+["joke","What do you call a pig that does karate?","A pork chop!","animals"],
+["joke","What kind of key opens a banana?","A monkey!","animals"],
+["joke","Why don't elephants use computers?","They're scared of the mouse!","animals"],
+["joke","What do you call a dog magician?","A labracadabrador!","animals"],
+["joke","How do you count cows?","With a cow-culator!","animals"],
+["joke","What do you call an alligator in a vest?","An in-vest-igator!","animals"],
+["joke","What do you call a fish with no eyes?","A fsh!","animals"],
+["joke","Where do sheep get their hair cut?","At the baa-baa shop!","animals"],
+["joke","Why don't oysters share?","Because they're shellfish!","animals"],
+["joke","What do you call a lazy kangaroo?","A pouch potato!","animals"],
+["joke","What do bees chew?","Bumble gum!","animals"],
+["joke","Why did the banana go to the doctor?","It wasn't peeling well!","food"],
+["joke","What do you call cheese that isn't yours?","Nacho cheese!","food"],
+["joke","Why did the cookie go to the hospital?","It felt crummy!","food"],
+["joke","Why did the tomato blush?","It saw the salad dressing!","food"],
+["joke","What do you call a sad strawberry?","A blueberry!","food"],
+["joke","What's a ghost's favourite dessert?","I scream!","silly"],
+["joke","Why don't eggs tell jokes?","They'd crack each other up!","food"],
+["riddle","What kind of nut has no shell?","A doughnut!","riddle"],
+["joke","What do you call a fake noodle?","An impasta!","food"],
+["joke","Why do potatoes make good detectives?","They keep their eyes peeled!","food"],
+["joke","Why did the student eat her homework?","The teacher said it was a piece of cake!","school"],
+["joke","What's a math teacher's favourite dessert?","Pie!","school"],
+["joke","Why was the math book sad?","It had too many problems!","school"],
+["joke","What do elves learn in school?","The elf-abet!","school"],
+["joke","What's a snake's favourite school subject?","Hiss-tory!","animals"],
+["joke","Why did the music teacher need a ladder?","To reach the high notes!","school"],
+["joke","What's the king of all school supplies?","The ruler!","school"],
+["joke","Why was the teacher wearing sunglasses?","Her students were so bright!","school"],
+["joke","How do bees get to school?","On the school buzz!","animals"],
+["joke","Why don't skeletons fight each other?","They don't have the guts!","silly"],
+["joke","What do you call a witch at the beach?","A sand-witch!","silly"],
+["joke","What room does a ghost stay away from?","The living room!","silly"],
+["joke","Why did the scarecrow win an award?","He was outstanding in his field!","silly"],
+["joke","How does the moon cut its hair?","Eclipse it!","school"],
+["joke","What did the tree say when spring came?","What a re-leaf!","school"],
+["joke","What do clouds wear under their raincoats?","Thunderwear!","school"],
+["joke","How do you throw a party in space?","You planet!","school"],
+["joke","What did one volcano say to the other?","I lava you!","school"],
+["joke","What's a tornado's favourite game?","Twister!","school"],
+["joke","What did the ocean say to the beach?","Nothing, it just waved!","school"],
+["riddle","What has hands but can't clap?","A clock!","riddle"],
+["riddle","What has lots of keys but can't open doors?","A piano!","riddle"],
+["joke","Why can't a bicycle stand up by itself?","It's two tired!","silly"],
+["riddle","What gets wetter the more it dries?","A towel!","riddle"],
+["riddle","What has one eye but can't see?","A needle!","riddle"],
+["riddle","What runs but never walks?","Water!","riddle"],
+["joke","What did the stamp say to the envelope?","Stick with me and we'll go places!","silly"],
+["riddle","What has ears but can't hear?","A cornfield!","riddle"],
+["joke","Why did the teddy bear skip dessert?","It was already stuffed!","silly"],
+["joke","What do you call a boomerang that won't come back?","A stick!","silly"],
+["joke","Why are ghosts bad at lying?","You can see right through them!","silly"],
+["joke","Why did the girl bring a ladder to school?","She wanted to go to high school!","school"],
+["joke","What do you call a dinosaur that knows lots of words?","A thesaurus!","animals"],
+["joke","Why did the robot go on vacation?","To recharge its batteries!","school"],
+["riddle","What room has no doors or windows?","A mushroom!","riddle"],
+["joke","What do you call a train full of gum?","A chew-chew train!","silly"],
+["joke","How do trees get on the internet?","They log in!","school"],
+["riddle","What has a neck but no head?","A bottle!","riddle"],
+["joke","What did the big flower say to the little flower?","Hi, bud!","school"],
+["joke","Why do birds fly south for the winter?","It's too far to walk!","animals"],
+["joke","What's a cat's favourite colour?","Purr-ple!","animals"],
+["joke","Where do cows go on dates?","To the moo-vies!","animals"],
+["joke","What do you call a sleeping bull?","A bulldozer!","animals"],
+["joke","What's a duck's favourite snack?","Cheese and quackers!","animals"],
+["joke","Why did the chicken join a band?","It had the drumsticks!","animals"],
+["joke","Why is the moon never hungry?","Because it's always full!","school"],
+["joke","What do planets like to read?","Comet books!","school"],
+["riddle","What's orange and sounds like a parrot?","A carrot!","riddle"],
+["joke","What did the zero say to the eight?","Nice belt!","school"],
+["joke","Why did the cookie cry?","Its mom was a wafer so long!","food"],
+["joke","What do you call a funny mountain?","Hill-arious!","silly"],
+["joke","What do you call a pile of kittens?","A meow-ntain!","animals"],
+["joke","What kind of shoes do frogs wear?","Open-toad sandals!","animals"],
+["joke","What did one plate say to the other plate?","Dinner's on me!","food"],
+["joke","What's a frog's favourite drink?","Croak-a-cola!","animals"],
+["joke","Why are cats so good at video games?","They have nine lives!","animals"],
+["riddle","What falls all the time but never gets hurt?","Rain!","riddle"],
+["joke","What's an astronaut's favourite key on the keyboard?","The space bar!","school"],
+["joke","What do snowmen eat for breakfast?","Frosted flakes!","silly"],
+["riddle","What do you call a snowman in the summer?","A puddle!","riddle"],
+["joke","What did one wall say to the other wall?","Meet you at the corner!","silly"],
+["joke","What did the duck say after shopping?","Put it on my bill!","animals"],
+["joke","What's black and white and red all over?","A sunburned zebra!","animals"],
+["joke","Why do vampires need mouthwash?","They have bat breath!","silly"],
+["joke","What did the paper say to the pencil?","Write on!","school"],
+["knock","Boo","Don't cry, it's just a joke!","knock"],
+["knock","Lettuce","Lettuce in, it's cold out here!","knock"],
+["knock","Cow says","No silly, a cow says moo!","knock"],
+["knock","Olive","Olive you!","knock"],
+["knock","Tank","You're welcome!","knock"],
+["knock","Hawaii","I'm fine, Hawaii you?","knock"],
+["knock","Lena","Lena little closer, I have a secret!","knock"],
+["knock","Wooden shoe","Wooden shoe like to hear another joke?","knock"],
+["knock","Owls say","Yes, they do!","knock"],
+["knock","Atch","Bless you!","knock"],
+// batch 2: added 2026-11-18
+["joke","How do you make a tissue dance?","Put a little boogie in it!","silly",2],
+["joke","Why do ducks have feathers?","To cover their butt quack!","animals",2],
+["joke","Why did the golfer bring two pairs of pants?","In case he got a hole in one!","silly",2],
+["joke","What do you call a pony with a sore throat?","A little hoarse!","animals",2],
+["joke","Why can't you give Elsa a balloon?","She'll let it go!","silly",2],
+["joke","What do you call a bear in the rain?","A drizzly bear!","animals",2],
+["joke","Why did the kid throw butter out the window?","To see a butterfly!","silly",2],
+["joke","Why are fish so smart?","They live in schools!","animals",2],
+["joke","What do you call a dog that does science?","A lab!","animals",2],
+["joke","Why did the computer go to the doctor?","It had a virus!","school",2],
+["joke","What kind of tree fits in your hand?","A palm tree!","school",2],
+["joke","What do you call a cow that plays music?","A moo-sician!","animals",2],
+["joke","Why did the bee get married?","He found his honey!","animals",2],
+["joke","Why did the pickle feel important?","It was a big dill!","food",2],
+["joke","What did the hat say to the scarf?","You hang around, I'll go on ahead!","silly",2],
+["joke","What do you call a fly with no wings?","A walk!","animals",2],
+["joke","Why did the picture go to jail?","It was framed!","silly",2],
+["joke","What do you call a shoe made out of a banana?","A slipper!","silly",2],
+["joke","Why don't scientists trust atoms?","They make up everything!","school",2],
+["joke","What do you call a dog on a hot day?","A hot dog!","animals",2],
+["joke","Why did the boy run around his bed?","To catch up on his sleep!","silly",2],
+["joke","What do you call an elephant that doesn't matter?","An irrelephant!","animals",2],
+["joke","What do frogs order at restaurants?","French flies!","animals",2],
+["joke","What do you call a sheep with no legs?","A cloud!","animals",2],
+["joke","How do you make an octopus laugh?","With ten-tickles!","animals",2],
+["joke","What did the nose say to the finger?","Quit picking on me!","silly",2],
+["joke","What do porcupines say when they hug?","Ouch!","animals",2],
+["joke","Why did the toilet paper roll down the hill?","To get to the bottom!","silly",2],
+["joke","What do you call a fish wearing a bow tie?","Sofishticated!","animals",2],
+["joke","Why did the orange stop rolling?","It ran out of juice!","food",2],
+["joke","What did the baby corn say to the mama corn?","Where's pop corn?","food",2],
+["joke","Why are spiders so smart?","They can find everything on the web!","animals",2],
+["joke","What did the left eye say to the right eye?","Between you and me, something smells!","silly",2],
+["riddle","What has to be broken before you can use it?","An egg!","riddle",2],
+["riddle","What goes up but never comes down?","Your age!","riddle",2],
+["riddle","What can you catch but not throw?","A cold!","riddle",2],
+["riddle","What has a head and a tail but no body?","A coin!","riddle",2],
+["riddle","What has lots of teeth but can't bite?","A comb!","riddle",2],
+["riddle","What gets bigger the more you take away?","A hole!","riddle",2],
+["riddle","What can go all around the world but stays in a corner?","A stamp!","riddle",2],
+["riddle","What has four legs but can't walk?","A table!","riddle",2],
+["riddle","What belongs to you, but other people use it more?","Your name!","riddle",2],
+["riddle","What is full of holes but still holds water?","A sponge!","riddle",2],
+["riddle","What month has twenty-eight days?","All of them!","riddle",2],
+["riddle","What has words but never talks?","A book!","riddle",2],
+// batch 3: added 2026-11-20
+["joke","What do you call a cow with a twitch?","Beef jerky!","animals",3],
+["joke","Why do cows wear bells?","Because their horns don't work!","animals",3],
+["joke","What do you get when you cross a snake and a pie?","A pie-thon!","animals",3],
+["joke","Why are frogs always so happy?","They eat whatever bugs them!","animals",3],
+["joke","Where do fish keep their money?","In the river bank!","animals",3],
+["joke","What do you call a dinosaur that crashes his car?","Tyrannosaurus wrecks!","animals",3],
+["joke","Why do bees have sticky hair?","They use honeycombs!","animals",3],
+["joke","What do you get when a cow is in an earthquake?","A milkshake!","animals",3],
+["joke","Why did the chicken cross the playground?","To get to the other slide!","animals",3],
+["joke","What do you call an owl that does magic tricks?","Hoo-dini!","animals",3],
+["joke","What is a cat's favourite dessert?","Chocolate mouse!","animals",3],
+["joke","What do you call a dog that can tell time?","A watch dog!","animals",3],
+["joke","What kind of dog loves taking bubble baths?","A shampoodle!","animals",3],
+["joke","What do you call a horse that lives next door?","A neigh-bour!","animals",3],
+["joke","What do you call a snake that builds houses?","A boa constructor!","animals",3],
+["joke","What do ducks watch on TV?","Duck-umentaries!","animals",3],
+["joke","What do you call a duck that gets all A's?","A wise quacker!","animals",3],
+["joke","Why don't seagulls fly over the bay?","Then they'd be bagels!","animals",3],
+["joke","Where do polar bears go to vote?","The North Poll!","animals",3],
+["joke","Where do killer whales go to hear music?","The orca-stra!","animals",3],
+["joke","What does an octopus wear when it's cold?","A coat of arms!","animals",3],
+["joke","Why are fish so easy to weigh?","They have their own scales!","animals",3],
+["joke","What do you call a dinosaur with no eyes?","A do-you-think-he-saurus!","animals",3],
+["joke","What do you call a cow that won't give milk?","An udder failure!","animals",3],
+["joke","Why do hummingbirds hum?","They never learned the words!","animals",3],
+["joke","What do you call a really big ant?","A gi-ant!","animals",3],
+["joke","What do you call a very old ant?","An antique!","animals",3],
+["joke","What do bees do with their honey?","They cell it!","animals",3],
+["joke","What's a bee's favourite haircut?","A buzz cut!","animals",3],
+["joke","What's a dog's favourite pizza?","Pupperoni!","animals",3],
+["joke","What happens when a frog parks in the wrong spot?","It gets toad!","animals",3],
+["joke","How do bunnies travel?","By hare-plane!","animals",3],
+["joke","Where do pigs park their cars?","In the porking lot!","animals",3],
+["joke","Which side of a chicken has the most feathers?","The outside!","animals",3],
+["joke","What do you call a dinosaur in a hurry?","A pronto-saurus!","animals",3],
+["joke","Why can't dinosaurs clap?","Because they're extinct!","animals",3],
+["joke","What do sharks eat with peanut butter?","Jellyfish!","animals",3],
+["joke","What do snakes do after an argument?","They hiss and make up!","animals",3],
+["joke","What do you call a penguin in the desert?","Lost!","animals",3],
+["joke","How do penguins build their houses?","Igloos them together!","animals",3],
+["joke","What do you call a monkey that loves potato chips?","A chip-monk!","animals",3],
+["joke","Why did the monkey love the banana?","Because it had appeal!","animals",3],
+["joke","What do you call a cat that loves bowling?","An alley cat!","animals",3],
+["joke","What happened when the cat swallowed a ball of wool?","She had mittens!","animals",3],
+["joke","How do you catch a squirrel?","Climb a tree and act like a nut!","animals",3],
+["joke","Why did the turtle cross the road?","To get to the shell station!","animals",3],
+["joke","What do you get when you cross a parrot and a centipede?","A walkie-talkie!","animals",3],
+["joke","What time is it when an elephant sits on your fence?","Time to get a new fence!","animals",3],
+["joke","What bird needs to wear a wig?","A bald eagle!","animals",3],
+["joke","What do you call a cow that cuts the grass?","A lawn moo-er!","animals",3],
+["joke","What kind of snake is good at math?","An adder!","animals",3],
+["joke","What does a frog say when it washes the windows?","Rub it, rub it!","animals",3],
+["joke","What's a frog's favourite year?","A leap year!","animals",3],
+["joke","What did the beaver say to the tree?","It's been nice gnawing you!","animals",3],
+["joke","What do you call a peanut in a spacesuit?","An astro-nut!","food",3],
+["joke","What did the lettuce say to the celery?","Quit stalking me!","food",3],
+["joke","Why does the mushroom get invited to every party?","He's a fun-guy!","food",3],
+["joke","Why did the pizza maker run out of money?","He couldn't make enough dough!","food",3],
+["joke","Why won't the chef share his pizza jokes?","They're way too cheesy!","food",3],
+["joke","Why did the strawberry call for help?","It was in a jam!","food",3],
+["joke","What vegetable is cool, but not that cool?","A radish!","food",3],
+["joke","Why did the potato cross the road?","It saw a fork up ahead!","food",3],
+["joke","What do you call a potato wearing glasses?","A spec-tater!","food",3],
+["joke","Why was the corn so grumpy?","Everyone kept pulling its ears!","food",3],
+["joke","What's a plumber's favourite vegetable?","A leek!","food",3],
+["joke","How do you fix a broken tomato?","With tomato paste!","food",3],
+["joke","Why did the little tomato fall behind?","It couldn't ketchup!","food",3],
+["joke","Why did the doughnut go to the dentist?","It needed a filling!","food",3],
+["joke","What's a ghost's favourite pasta?","Spook-ghetti!","food",3],
+["joke","What kind of candy is never on time?","Choco-late!","food",3],
+["joke","What do you call a hot dog on wheels?","Fast food!","food",3],
+["joke","Why did the hamburger go to the gym?","To get better buns!","food",3],
+["joke","What did the hamburger name its daughter?","Patty!","food",3],
+["joke","What do salt and pepper say at the holidays?","Season's greetings!","food",3],
+["joke","Why did the egg hide under the table?","It was a little chicken!","food",3],
+["joke","How do monsters like their eggs?","Terri-fried!","food",3],
+["joke","Why did the bacon laugh?","The egg cracked a yolk!","food",3],
+["joke","What fruit do twins love?","Pears!","food",3],
+["joke","What kind of apple has a short temper?","A crab apple!","food",3],
+["joke","What do you call an apple that plays the trumpet?","A tooty fruity!","food",3],
+["joke","Why was the cucumber so worried?","It was in a pickle!","food",3],
+["joke","What do you give a lemon that gets hurt?","Lemon-aid!","food",3],
+["joke","Why did the hot pepper put on a sweater?","It was a little chilli!","food",3],
+["joke","What's a vampire's favourite fruit?","A neck-tarine!","food",3],
+["joke","What's a ghost's favourite fruit?","Boo-berries!","food",3],
+["joke","Why did nobody eat at the restaurant on the moon?","It had no atmosphere!","food",3],
+["joke","Why did the ice cream truck break down?","It was a rocky road!","food",3],
+["joke","Where do ice creams go to learn?","Sundae school!","food",3],
+["joke","Why did the baker stop making doughnuts?","He got tired of the hole business!","food",3],
+["joke","What do you call a bagel that can fly?","A plain bagel!","food",3],
+["joke","What does a nosy pepper do?","Gets jalapeno business!","food",3],
+["joke","What do you call a nut that sneezes?","A cashew!","food",3],
+["joke","Why did the bubble gum cross the road?","It was stuck to the chicken's foot!","food",3],
+["joke","What did the sushi say to the bee?","Wasabi!","food",3],
+["joke","What's the best thing to put into a pie?","Your teeth!","food",3],
+["joke","What's yellow and can write?","A ballpoint banana!","food",3],
+["joke","Why are bananas never lonely?","They hang around in bunches!","food",3],
+["joke","How does a cucumber turn into a pickle?","It has a jarring experience!","food",3],
+["joke","How do we know carrots are good for your eyes?","Have you ever seen a rabbit wear glasses?","food",3],
+["joke","Why did the lettuce win the race?","It was a head!","food",3],
+["joke","What did the gingerbread man put on his bed?","A cookie sheet!","food",3],
+["joke","What do elves make their sandwiches with?","Shortbread!","food",3],
+["joke","What did the hungry clock do?","It went back for seconds!","food",3],
+["joke","What kind of cup can't hold any water?","A cupcake!","food",3],
+["joke","What's a pretzel's favourite dance?","The twist!","food",3],
+["joke","What kind of beans never grow in a garden?","Jelly beans!","food",3],
+["joke","How do you make a lemon drop?","Just let it fall!","food",3],
+["joke","What kind of egg does a naughty chicken lay?","A deviled egg!","food",3],
+["joke","What does a lemon say when it answers the phone?","Yellow!","food",3],
+["joke","What did the banana say to the monkey?","Nothing, bananas can't talk!","food",3],
+["joke","Where do hamburgers go dancing?","To the meat ball!","food",3],
+["joke","What do sea monsters eat for dinner?","Fish and ships!","food",3],
+["joke","Why did the girl put sugar under her pillow?","She wanted sweet dreams!","food",3],
+["joke","What's a tree's favourite drink?","Root beer!","food",3],
+["joke","Why did the boy stare at the orange juice box for hours?","Because it said concentrate!","food",3],
+["joke","What did the mushroom say when the room was packed?","There's not mush room!","food",3],
+["joke","How do you make an apple turnover?","Push it down a hill!","food",3],
+["joke","What kind of cheese is always sad?","Blue cheese!","food",3],
+["joke","What did the cheese say when it looked in the mirror?","Looking gouda!","food",3],
+["joke","What kind of apple isn't an apple?","A pineapple!","food",3],
+["joke","What kind of key can you eat?","A cookie!","food",3],
+["joke","What's the strongest vegetable?","A muscle sprout!","food",3],
+["joke","What's green and goes to summer camp?","A brussels scout!","food",3],
+["joke","What's a scarecrow's favourite fruit?","Straw-berries!","food",3],
+["joke","Why did the yogurt go to the art museum?","It was cultured!","food",3],
+["joke","What do you call candy that was stolen?","Hot chocolate!","food",3],
+["joke","What did the peanut butter say to the bread?","Quit loafing around!","food",3],
+["joke","What did the banana do when the monkey chased it?","It split!","food",3],
+["joke","What vegetable can tie your tummy in knots?","String beans!","food",3],
+["joke","Why did the teacher write on the window?","To make the lesson clear!","school",3],
+["joke","Why did the student study on the airplane?","To get higher grades!","school",3],
+["joke","Why is six afraid of seven?","Because seven ate nine!","school",3],
+["joke","What did the triangle say to the circle?","You're pointless!","school",3],
+["joke","Why did the two fours skip lunch?","They already eight!","school",3],
+["joke","What's a bird's favourite school subject?","Owl-gebra!","school",3],
+["joke","What did one pencil say to the other pencil?","You're looking sharp!","school",3],
+["joke","Why did the broom get a bad mark?","It was always sweeping in class!","school",3],
+["joke","Why did the clock get sent to the principal's office?","It tocked too much!","school",3],
+["joke","Where's the best place in school to grow flowers?","In kindergarten!","school",3],
+["joke","Why did the cyclops close his school?","He only had one pupil!","school",3],
+["joke","What do you call a number that can't sit still?","A roamin' numeral!","school",3],
+["joke","Why are magicians so good in class?","They ace the trick questions!","school",3],
+["joke","Why did the student bring scissors to school?","He wanted to cut class!","school",3],
+["joke","Why didn't the sun go to university?","It already had a million degrees!","school",3],
+["joke","How does the solar system hold up its pants?","With an asteroid belt!","school",3],
+["joke","What kind of music do planets sing?","Nep-tunes!","school",3],
+["joke","How do you get a baby astronaut to sleep?","You rock-et!","school",3],
+["joke","What did Mars say to Saturn?","Give me a ring sometime!","school",3],
+["joke","Where do astronauts eat their sandwiches?","In the launch room!","school",3],
+["joke","What did one raindrop say to the other?","Two's company, three's a cloud!","school",3],
+["joke","What do you call it when it rains chickens?","Fowl weather!","school",3],
+["joke","How do hurricanes see where they're going?","With one eye!","school",3],
+["joke","What does a cloud do when it's itchy?","It finds a sky-scraper!","school",3],
+["joke","What happens when it rains cats and dogs?","You might step in a poodle!","school",3],
+["joke","What did one lightning bolt say to the other?","You're shocking!","school",3],
+["joke","What did one snowman say to the other snowman?","Do you smell carrots?","school",3],
+["joke","Why did the leaf go to the doctor?","It was feeling green!","school",3],
+["joke","What do computers eat for a snack?","Microchips!","school",3],
+["joke","Why was the robot so tired after the road trip?","It had a hard drive!","school",3],
+["joke","What did the calculator say to the student?","You can count on me!","school",3],
+["joke","Why did the boy do his times tables on the floor?","He wasn't allowed to use tables!","school",3],
+["joke","What's the best tool for doing math?","Multi-pliers!","school",3],
+["joke","Why did the girl wear glasses in math class?","To help with di-vision!","school",3],
+["joke","Why did the boy throw the clock out the window?","He wanted to see time fly!","school",3],
+["joke","Why did the book join the police?","It wanted to go undercover!","school",3],
+["joke","How do books stay warm in winter?","They put on their jackets!","school",3],
+["joke","Where do books like to sleep?","Under the covers!","school",3],
+["joke","Why is the library the tallest building in town?","It has the most stories!","school",3],
+["joke","Why are scientists so good at fixing problems?","They have all the solutions!","school",3],
+["joke","Why did the teacher jump into the lake?","To test the water!","school",3],
+["joke","What's a teacher's favourite nation?","Expla-nation!","school",3],
+["joke","What do librarians use to go fishing?","Bookworms!","school",3],
+["joke","What did the tree say in the fall?","Leaf me alone!","school",3],
+["joke","What kind of flowers grow on your face?","Tulips!","school",3],
+["joke","Why couldn't the flower ride its bike?","It lost its petals!","school",3],
+["joke","What did the dirt say to the rain?","Keep this up and my name is mud!","school",3],
+["joke","What's the smartest bug in school?","A spelling bee!","school",3],
+["joke","What holds the moon up in the sky?","Moon beams!","school",3],
+["joke","What did the alien say to the garden?","Take me to your weeder!","school",3],
+["joke","What does a computer do at lunchtime?","It has a byte!","school",3],
+["joke","Why did the robot get so grumpy?","Someone kept pushing its buttons!","school",3],
+["joke","What kind of beat does a computer dance to?","An algo-rhythm!","school",3],
+["joke","Why was the report card all wet?","It was below C level!","school",3],
+["joke","Where do pencils go on vacation?","Pencil-vania!","school",3],
+["joke","What school subject do witches love?","Spell-ing!","school",3],
+["joke","Why did the tree go to the dentist?","It needed a root canal!","school",3],
+["joke","Why did the scientist take out his doorbell?","To win the no-bell prize!","school",3],
+["joke","Why did the computer get glasses?","To improve its web sight!","school",3],
+["joke","Why did the robot go back to robot school?","Its skills were getting rusty!","school",3],
+["joke","What kind of plates do astronauts eat off?","Satellite dishes!","school",3],
+["joke","What did the astronaut see on the stove?","An unidentified frying object!","school",3],
+["joke","What flies around the school at night?","The alpha-bat!","school",3],
+["joke","How do you cut the ocean in half?","With a see-saw!","school",3],
+["joke","What did the cupcake say to the frosting?","I'd be muffin without you!","food",3],
+["joke","Why did the melon jump into the lake?","It wanted to be a watermelon!","food",3],
+["joke","Why did the man put his money in the freezer?","He wanted cold hard cash!","silly",3],
+["joke","What do you call a belt made out of watches?","A waist of time!","silly",3],
+["joke","Why are ghosts so good at cheering?","They have lots of spirit!","silly",3],
+["joke","Where do ghosts go shopping?","At the boo-tique!","silly",3],
+["joke","What do you call a ghost's mom and dad?","Trans-parents!","silly",3],
+["joke","Why didn't the skeleton go to the dance?","He had no body to go with!","silly",3],
+["joke","What's a skeleton's favourite instrument?","The trom-bone!","silly",3],
+["joke","What does a vampire take for a sore throat?","Coffin drops!","silly",3],
+["joke","What do monsters turn on when it's hot outside?","The scare conditioner!","silly",3],
+["joke","Where do baby ghosts go during the day?","Day-scare!","silly",3],
+["joke","How do witches keep their hair in place?","With scare spray!","silly",3],
+["joke","What's a vampire's favourite sport?","Bat-minton!","silly",3],
+["joke","What does Santa do in his garden?","Hoe, hoe, hoe!","silly",3],
+["joke","What do you call someone who's scared of Santa?","Claus-trophobic!","silly",3],
+["joke","Where do snowmen keep their money?","In a snow bank!","silly",3],
+["joke","What do you call a snowman with six-pack abs?","The abdominal snowman!","silly",3],
+["joke","What kind of music do mummies like?","Wrap music!","silly",3],
+["joke","Why did Santa's helper go to the doctor?","He had low elf-esteem!","silly",3],
+["joke","Why are Christmas trees so bad at knitting?","They keep dropping their needles!","silly",3],
+["joke","Why did the soccer ball quit the team?","It was tired of being kicked around!","silly",3],
+["joke","What's a cheerleader's favourite colour?","Yeller!","silly",3],
+["joke","Why are basketball players such messy eaters?","They're always dribbling!","silly",3],
+["joke","Why did the bowling pins lie down?","They were on strike!","silly",3],
+["joke","What do hockey players and magicians have in common?","They both do hat tricks!","silly",3],
+["joke","Why did the football coach go to the bank?","To get his quarter back!","silly",3],
+["joke","What lights up a soccer stadium?","A soccer match!","silly",3],
+["joke","Why are tennis players so loud?","They raise a racket!","silly",3],
+["joke","What kind of shoes do ninjas wear?","Sneakers!","silly",3],
+["joke","What's a balloon's least favourite kind of music?","Pop!","silly",3],
+["joke","What kind of band do you wear on your head?","A head-band!","silly",3],
+["joke","How do you fix a broken tuba?","With a tuba glue!","silly",3],
+["joke","Why did the music note get sent to its room?","It got into treble!","silly",3],
+["joke","Why did the car get a flat tire?","There was a fork in the road!","silly",3],
+["joke","Where do cars go swimming?","In the car pool!","silly",3],
+["joke","What did the traffic light say to the car?","Don't look, I'm changing!","silly",3],
+["joke","What did the boat say to the pier?","What's up, dock?","silly",3],
+["joke","Why did the rocket lose its job?","It got fired!","silly",3],
+["joke","Why did the belt get in trouble?","It held up a pair of pants!","silly",3],
+["joke","Why did the invisible man turn down the job?","He couldn't see himself doing it!","silly",3],
+["joke","What did the pirate say on his eightieth birthday?","Aye matey!","silly",3],
+["joke","Why couldn't the pirate play cards?","He was sitting on the deck!","silly",3],
+["joke","What did the blanket say to the bed?","Don't worry, I've got you covered!","silly",3],
+["joke","What did the big clock hand say to the little clock hand?","Got a minute?","silly",3],
+["joke","Why did the yo-yo go to the doctor?","It was feeling up and down!","silly",3],
+["joke","Why are robots never scared?","They have nerves of steel!","silly",3],
+["joke","What's a robot's favourite kind of music?","Heavy metal!","silly",3],
+["joke","Why did the phone wear glasses?","It lost all its contacts!","silly",3],
+["joke","Why did the firefighter wear red suspenders?","To hold his pants up!","silly",3],
+["joke","Why did the gardener plant light bulbs?","To grow a power plant!","silly",3],
+["joke","Why did the barber win the race?","He knew a shortcut!","silly",3],
+["joke","What do you call a nose with no body?","Nobody nose!","silly",3],
+["joke","What's the most musical part of your body?","Your eardrums!","silly",3],
+["joke","Why is your nose in the middle of your face?","Because it's the scenter!","silly",3],
+["joke","What does a dentist call x-rays?","Tooth pics!","silly",3],
+["joke","What did one elevator say to the other elevator?","I think I'm coming down with something!","silly",3],
+["joke","Why can't you trust stairs?","They're always up to something!","silly",3],
+["joke","Why was the broom late?","It over-swept!","silly",3],
+["joke","When is a door not a door?","When it's a jar!","silly",3],
+["joke","What does a house wear?","Address!","silly",3],
+["joke","Why did the drum take a nap?","It was beat!","silly",3],
+["joke","What kind of bow can't be tied?","A rainbow!","silly",3],
+["joke","What did the big bucket say to the little bucket?","You look a little pail!","silly",3],
+["joke","What did the ground say to the earthquake?","You crack me up!","silly",3],
+["joke","What did the toothpaste say to the toothbrush?","Give me a squeeze!","silly",3],
+["joke","What has four wheels and flies?","A garbage truck!","gross",3],
+["joke","What did one toilet say to the other toilet?","You look a bit flushed!","gross",3],
+["joke","What's green and goes up and down?","A booger in an elevator!","gross",3],
+["joke","What did the slime say to the kid?","I'm stuck on you!","gross",3],
+["joke","What do you call a monster with earwax in both ears?","Anything you want, he can't hear you!","gross",3],
+["joke","Why did the kid bring toilet paper to the party?","He was a party pooper!","gross",3],
+["joke","What do you call someone who never toots in public?","A private tooter!","gross",3],
+["joke","What do you find up a clean nose?","Fingerprints!","gross",3],
+["joke","Why was the nose so tired?","It wouldn't stop running!","gross",3],
+["joke","What smells worse than a stinky sock?","Two stinky socks!","gross",3],
+["joke","What kind of music do stinky feet like?","Funk!","gross",3],
+["joke","What did one tissue say to the other tissue?","Let's blow this place!","gross",3],
+["joke","Why are your feet so funny?","Because they're corny!","gross",3],
+["joke","Why did the burp get sent to its room?","It came out without asking!","gross",3],
+["joke","Why did the sneaker win the race?","It had athlete's foot!","gross",3],
+["joke","What's a slime's favourite game?","Hide and goo-seek!","gross",3],
+["joke","Why does your nose run and your feet smell?","Because you're built upside down!","gross",3],
+["joke","What do you call a teeny tiny toot?","A squeaker!","gross",3],
+["joke","What do you call a booger that won't come off your finger?","A sticker!","gross",3],
+["joke","Why did the smelly sock jump into the washing machine?","It wanted to come clean!","gross",3],
+["joke","What do you call someone who just did a giant burp?","Relieved!","gross",3],
+["joke","What do boogers say when a joke isn't funny?","That's snot funny!","gross",3],
+["joke","What do you call a ghost with a runny nose?","A boo-ger!","gross",3],
+["joke","Why did the kid toot in the bathtub?","To make bubbles!","gross",3],
+["joke","How can you tell someone has really stinky feet?","Their shoes run away!","gross",3],
+["riddle","What has a thumb and four fingers but isn't alive?","A glove!","riddle",3],
+["riddle","What goes up and down but never moves?","Stairs!","riddle",3],
+["riddle","What can you hold in your right hand but never in your left hand?","Your left elbow!","riddle",3],
+["riddle","What has a bed but never sleeps, and a mouth but never eats?","A river!","riddle",3],
+["riddle","What can you break without ever touching it?","A promise!","riddle",3],
+["riddle","What can fill a whole room but takes up no space?","Light!","riddle",3],
+["riddle","What kind of band never plays any music?","A rubber band!","riddle",3],
+["riddle","What has one head, one foot and four legs?","A bed!","riddle",3],
+["riddle","What goes through towns and over hills but never moves?","A road!","riddle",3],
+["riddle","What has lots of rings but no fingers?","A telephone!","riddle",3],
+["riddle","What is always coming but never arrives?","Tomorrow!","riddle",3],
+["riddle","What do you throw out when you want to use it, and pull in when you're done?","An anchor!","riddle",3],
+["riddle","What starts with a P, ends with an E, and has thousands of letters?","The post office!","riddle",3],
+["riddle","What goes up when the rain comes down?","An umbrella!","riddle",3],
+["riddle","What can you keep after you give it to someone?","Your word!","riddle",3],
+["riddle","What has a tongue but can't talk?","A shoe!","riddle",3],
+["riddle","What has a bark but no bite?","A tree!","riddle",3],
+["riddle","What gets sharper the more you use it?","Your brain!","riddle",3],
+["riddle","What can't talk, but always answers when you shout at it?","An echo!","riddle",3],
+["riddle","What runs all the way around the yard without moving?","A fence!","riddle",3],
+["riddle","What has its bottom at the top?","Your legs!","riddle",3],
+["riddle","What has lots of needles but can't sew?","A pine tree!","riddle",3],
+["riddle","What has a pupil but never goes to school?","Your eye!","riddle",3],
+["riddle","What kind of coat can only go on when it's wet?","A coat of paint!","riddle",3],
+["riddle","What is easy to get into but hard to get out of?","Trouble!","riddle",3],
+["riddle","What do you lose every time you stand up?","Your lap!","riddle",3],
+["riddle","What has six faces but no eyes, nose or mouth?","A dice!","riddle",3],
+["riddle","What flies but has no wings?","Time!","riddle",3],
+["riddle","I'm tall when I'm young and short when I'm old. What am I?","A candle!","riddle",3],
+["riddle","What can you serve but never eat?","A tennis ball!","riddle",3],
+["riddle","What is always in front of you but you can never see it?","The future!","riddle",3],
+["riddle","What gets cut on a table but never gets eaten?","A deck of cards!","riddle",3],
+["riddle","What do you answer even though it never asks a question?","A doorbell!","riddle",3],
+["riddle","What kind of cup can't hold anything?","A hiccup!","riddle",3],
+["riddle","What follows you everywhere but you can never catch it?","Your shadow!","riddle",3],
+["riddle","What has a head but can't think?","A nail!","riddle",3],
+["riddle","What has a point but nothing to say?","A pencil!","riddle",3],
+["riddle","What has no beginning, no middle and no end?","A circle!","riddle",3],
+["riddle","What kind of ship never sinks?","Friendship!","riddle",3],
+["riddle","What can you see with your eyes closed?","Your dreams!","riddle",3],
+["riddle","If you drop me I might crack, but smile at me and I'll smile back. What am I?","A mirror!","riddle",3],
+["riddle","What shows you the way but never moves?","A sign!","riddle",3],
+["riddle","What has a cap but no head?","A pen!","riddle",3],
+["riddle","What has lots of buttons but nothing to wear?","A remote control!","riddle",3],
+["riddle","What is always behind you but you can never see it?","Your back!","riddle",3],
+["riddle","What is so fragile that just saying its name breaks it?","Silence!","brainy",3],
+["riddle","What has branches but no leaves, no trunk and no fruit?","A bank!","brainy",3],
+["riddle","What has cities but no houses, forests but no trees, and water but no fish?","A map!","brainy",3],
+["riddle","Where does today come before yesterday?","In the dictionary!","brainy",3],
+["riddle","What is black when you buy it, red when you use it, and grey when you throw it away?","Charcoal!","brainy",3],
+["riddle","What can be cracked, made, told and played?","A joke!","brainy",3],
+["riddle","What do you have to keep feeding to keep alive, but a drink of water makes it die?","Fire!","brainy",3],
+["riddle","What grows upside down, lives all winter and disappears in the summer?","An icicle!","brainy",3],
+["riddle","What starts with an E, ends with an E, and only has one letter in it?","An envelope!","brainy",3],
+["riddle","What word gets shorter when you add two letters to it?","Short!","brainy",3],
+["riddle","If you have it, you want to share it, but once you share it, you don't have it. What is it?","A secret!","brainy",3],
+["riddle","Poor people have it, rich people need it, and if you eat it you'll starve. What is it?","Nothing!","brainy",3],
+["riddle","The more you take, the more you leave behind. What are they?","Footsteps!","brainy",3],
+["riddle","What has keys but no locks, space but no room, and you can enter but never go inside?","A keyboard!","brainy",3],
+["riddle","A man walked in the rain with no umbrella and no hat, but not one hair on his head got wet. How?","He was bald!","brainy",3],
+["riddle","Which is heavier, a kilo of feathers or a kilo of bricks?","They weigh the same!","brainy",3],
+["riddle","A red house is made of red bricks and a blue house is made of blue bricks. What is a greenhouse made of?","Glass!","brainy",3],
+["riddle","How far can you walk into a forest?","Halfway!","brainy",3],
+["riddle","Which is faster, hot or cold?","Hot, because you can catch a cold!","brainy",3],
+["riddle","What is light as a feather, but even the strongest person can't hold it for long?","Your breath!","brainy",3],
+["riddle","What tastes better than it smells?","Your tongue!","brainy",3],
+["riddle","What gets dirtier the whiter it gets?","A chalkboard!","brainy",3],
+["riddle","What is so light it floats, but nobody can pick it up without popping it?","A bubble!","brainy",3],
+["riddle","What has a neck but no head, and two arms but no hands?","A shirt!","brainy",3],
+["riddle","Before Mount Everest was discovered, what was the tallest mountain in the world?","Mount Everest!","brainy",3],
+["riddle","What can you hear but never touch or see?","Your voice!","riddle",3]
 ];
 const uid = () => Math.random().toString(36).slice(2, 10);
-const fromRaw = r => ({ id: uid(), type: r[0], setup: r[1], punch: r[2], think: null, voice: "", on: true });
+const fromRaw = r => ({ id: uid(), type: r[0], setup: r[1], punch: r[2], cat: r[3], think: null, voice: "", on: true });
+
+/* ---------------- categories ---------------- */
+// Start-screen chips. Bonus packs unlock in the Joke Book once you have `bonus` stars.
+const CATS = [
+  { k: "animals", label: "🐾 Animals" },
+  { k: "food", label: "🍕 Food" },
+  { k: "school", label: "🏫 School & Science" },
+  { k: "silly", label: "🤪 Silly" },
+  { k: "riddle", label: "🧩 Riddles" },
+  { k: "knock", label: "🚪 Knock-knock" },
+  { k: "gross", label: "🤢 Gross-Out", bonus: 10 },
+  { k: "brainy", label: "🧠 Brain Busters", bonus: 25 },
+];
+const CAT_OF = new Map(RAW.map(r => [r[1], r[3]]));
+// Saved lists from before categories have no cat: look it up by the question; your own jokes count as Silly.
+const catOf = it => it.cat || CAT_OF.get(it.setup) || (it.type === "joke" ? "silly" : it.type);
 const defaults = () => RAW.map(fromRaw);
 
 const DEFAULT_SETTINGS = {
   apiKey: "", voiceId: "", model: "eleven_turbo_v2_5", speed: 1, stability: 0.4,
   think: 10, knock: 5, reveal: 0.8, auto: true, next: 4,
   mic: true, shuffle: true, feedback: true, early: true, fallback: true, voices: [],
-  kinds: { joke: true, riddle: true, knock: false }, // which kinds play (start-screen chips)
+  // which categories play (start-screen chips); bonus packs also need unlocking in the Joke Book
+  kinds: { animals: true, food: true, school: true, silly: true, riddle: true, knock: false, gross: true, brainy: true },
   engine: "auto" // how clips play: "auto" (audio player on iPhone, Web Audio elsewhere), "element", "webaudio"
 };
 
@@ -524,12 +936,12 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 };
 let items = store.get("gb_items", null) || defaults();
-/* Jokes added to the built-in list later (RAW entries with a batch number, r[3]) are appended
+/* Jokes added to the built-in list later (RAW entries with a batch number, r[4]) are appended
    once to a phone's saved list. gb_known remembers every built-in joke already offered, so a
    joke someone deleted doesn't come back. */
 (function mergeNewDefaults() {
   const fresh = !store.get("gb_items", null);
-  const known = new Set(store.get("gb_known", null) || RAW.filter(r => !r[3]).map(r => r[1]));
+  const known = new Set(store.get("gb_known", null) || RAW.filter(r => !r[4]).map(r => r[1]));
   const have = new Set(items.map(i => i.setup));
   const add = fresh ? [] : RAW.filter(r => !known.has(r[1]) && !have.has(r[1]));
   if (add.length) { items = items.concat(add.map(fromRaw)); store.set("gb_items", items); }
@@ -537,11 +949,17 @@ let items = store.get("gb_items", null) || defaults();
   if (add.length) setTimeout(() => { try { toast(`🎉 ${add.length} new jokes and riddles added!`, 4000); } catch (e) {} }, 800);
 })();
 let settings = Object.assign({}, DEFAULT_SETTINGS, store.get("gb_settings", {}));
+// Older saves had { joke, riddle, knock }: carry "jokes off" over to the four joke categories.
+settings.kinds = (k => {
+  const out = Object.assign({}, DEFAULT_SETTINGS.kinds, k);
+  if ("joke" in out) { if (out.joke === false) ["animals", "food", "school", "silly"].forEach(c => out[c] = false); delete out.joke; }
+  return out;
+})(settings.kinds || {});
 let saveT = null;
 const saveItems = () => { clearTimeout(saveT); saveT = setTimeout(() => store.set("gb_items", items), 300); };
 const saveSettings = () => store.set("gb_settings", settings);
 
-const VERSION = "2026-11-20a"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-20c"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 function toast(msg, ms = 3200) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -941,6 +1359,101 @@ const ALT_ANSWERS = {
   "What has words but never talks?": ["A dictionary!"],
   "What can you catch but not throw?": ["Your breath!"],
   "What gets wetter the more it dries?": ["A towel!"],
+  "What do you get when you cross a snake and a pie?": ["A python"],
+  "What do you call a dinosaur that crashes his car?": ["Tyrannosaurus rex"],
+  "What do you call an owl that does magic tricks?": ["Houdini"],
+  "What do you call a horse that lives next door?": ["A neighbour"],
+  "What do ducks watch on TV?": ["Documentaries"],
+  "Where do polar bears go to vote?": ["The North Pole"],
+  "Where do killer whales go to hear music?": ["The orchestra"],
+  "What do you call a really big ant?": ["A giant"],
+  "What do bees do with their honey?": ["They sell it"],
+  "What happens when a frog parks in the wrong spot?": ["It gets towed"],
+  "How do bunnies travel?": ["By airplane"],
+  "What do you call a monkey that loves potato chips?": ["A chipmunk"],
+  "What do you call a cow that cuts the grass?": ["A lawn mower"],
+  "What does a frog say when it washes the windows?": ["Ribbit"],
+  "What do you call a peanut in a spacesuit?": ["An astronaut"],
+  "Why does the mushroom get invited to every party?": ["He's a fungi"],
+  "What vegetable is cool, but not that cool?": ["Rad-ish"],
+  "What do you call a potato wearing glasses?": ["A spectator"],
+  "What's a plumber's favourite vegetable?": ["A leak"],
+  "Why did the little tomato fall behind?": ["Catch up"],
+  "What's a ghost's favourite pasta?": ["Spaghetti"],
+  "What kind of candy is never on time?": ["Chocolate"],
+  "How do monsters like their eggs?": ["Terrified"],
+  "What do you give a lemon that gets hurt?": ["Lemonade"],
+  "What's a vampire's favourite fruit?": ["A nectarine"],
+  "What's a ghost's favourite fruit?": ["Blueberries"],
+  "What do you call a bagel that can fly?": ["A plane bagel"],
+  "Why did the lettuce win the race?": ["Ahead"],
+  "What did the mushroom say when the room was packed?": ["Not much room"],
+  "What did the cheese say when it looked in the mirror?": ["Looking good"],
+  "What's a scarecrow's favourite fruit?": ["Strawberries"],
+  "What did the banana do when the monkey chased it?": ["Banana split"],
+  "What's a bird's favourite school subject?": ["Algebra"],
+  "Why did the clock get sent to the principal's office?": ["It talked too much"],
+  "What do you call a number that can't sit still?": ["A Roman numeral"],
+  "What kind of music do planets sing?": ["Neptunes"],
+  "How do you get a baby astronaut to sleep?": ["Rocket"],
+  "Where do astronauts eat their sandwiches?": ["The lunch room"],
+  "What do you call it when it rains chickens?": ["Foul weather"],
+  "What does a cloud do when it's itchy?": ["A skyscraper"],
+  "What's the best tool for doing math?": ["Multiply"],
+  "Why did the girl wear glasses in math class?": ["Division"],
+  "What's a teacher's favourite nation?": ["Explanation"],
+  "What kind of flowers grow on your face?": ["Two lips"],
+  "Why couldn't the flower ride its bike?": ["Pedals"],
+  "What did the alien say to the garden?": ["Take me to your leader"],
+  "What does a computer do at lunchtime?": ["A bite"],
+  "What kind of beat does a computer dance to?": ["An algorithm"],
+  "Why was the report card all wet?": ["Below sea level"],
+  "Where do pencils go on vacation?": ["Pennsylvania"],
+  "What school subject do witches love?": ["Spelling"],
+  "Why did the scientist take out his doorbell?": ["The Nobel prize"],
+  "Why did the computer get glasses?": ["Website"],
+  "What flies around the school at night?": ["The alphabet"],
+  "How do you cut the ocean in half?": ["A seesaw"],
+  "What did the cupcake say to the frosting?": ["I would be nothing without you!"],
+  "What goes up and down but never moves?": ["A staircase!","Steps!"],
+  "What can you hold in your right hand but never in your left hand?": ["Your left arm!"],
+  "What has a bed but never sleeps, and a mouth but never eats?": ["A stream!"],
+  "What can fill a whole room but takes up no space?": ["Air!"],
+  "What goes through towns and over hills but never moves?": ["A street!","A path!"],
+  "What has lots of rings but no fingers?": ["A phone!","A tree!"],
+  "What can you keep after you give it to someone?": ["A promise!"],
+  "What has a tongue but can't talk?": ["A sneaker!","A boot!"],
+  "What gets sharper the more you use it?": ["Your mind!"],
+  "What has its bottom at the top?": ["A leg!"],
+  "What has lots of needles but can't sew?": ["A Christmas tree!","A cactus!"],
+  "What has a pupil but never goes to school?": ["An eye!"],
+  "What kind of coat can only go on when it's wet?": ["Paint!"],
+  "What has six faces but no eyes, nose or mouth?": ["A die!","A cube!"],
+  "What flies but has no wings?": ["A kite!","A balloon!"],
+  "What can you serve but never eat?": ["A ball!"],
+  "What gets cut on a table but never gets eaten?": ["Cards!"],
+  "What do you answer even though it never asks a question?": ["The door!","A phone!"],
+  "What has a head but can't think?": ["A hammer!","A pin!"],
+  "What has a point but nothing to say?": ["A pin!","A pen!"],
+  "What has no beginning, no middle and no end?": ["A ring!"],
+  "What kind of ship never sinks?": ["A friendship!"],
+  "What can you see with your eyes closed?": ["Darkness!","Nothing!"],
+  "What shows you the way but never moves?": ["A signpost!","A map!","A compass!"],
+  "What has a cap but no head?": ["A marker!","A bottle!"],
+  "What has lots of buttons but nothing to wear?": ["A remote!","A calculator!","A phone!","A keyboard!"],
+  "What is always behind you but you can never see it?": ["The past!"],
+  "Where does today come before yesterday?": ["A dictionary!"],
+  "What is black when you buy it, red when you use it, and grey when you throw it away?": ["Coal!"],
+  "What do you have to keep feeding to keep alive, but a drink of water makes it die?": ["A fire!"],
+  "The more you take, the more you leave behind. What are they?": ["Footprints!","Steps!"],
+  "A man walked in the rain with no umbrella and no hat, but not one hair on his head got wet. How?": ["He has no hair!","He's bald!"],
+  "Which is heavier, a kilo of feathers or a kilo of bricks?": ["Neither!","The same!","Both!"],
+  "How far can you walk into a forest?": ["Half!"],
+  "Which is faster, hot or cold?": ["Hot!"],
+  "What gets dirtier the whiter it gets?": ["A blackboard!"],
+  "What has a neck but no head, and two arms but no hands?": ["A sweater!","A jacket!","A T-shirt!"],
+  "Before Mount Everest was discovered, what was the tallest mountain in the world?": ["Everest!"],
+  "What can you hear but never touch or see?": ["A sound!","Music!","A noise!"],
 };
 // The answer they actually gave (main punchline first, then the other accepted ones), or null.
 function matchedAnswer(guess, item) {
@@ -994,17 +1507,75 @@ function resetStage(item) {
   $("setup").textContent = item.type === "knock" ? "Knock knock! 🚪" : item.setup;
   $("punch").classList.add("hidden"); $("punch").textContent = "";
   $("heard").textContent = ""; $("verdict").textContent = ""; $("verdict").className = "verdict";
-  setPrompt("");
+  setPrompt(""); showDislike(false);
 }
-function reveal(text) { const p = $("punch"); p.classList.add("hidden"); void p.offsetWidth; p.textContent = text; p.classList.remove("hidden"); }
+function reveal(text) { const p = $("punch"); p.classList.add("hidden"); void p.offsetWidth; p.textContent = text; p.classList.remove("hidden"); showDislike(true); }
+
+/* 👎 "I don't like this one": shows once the answer is up. First tap arms it ("Tap again to
+   hide"), second tap within 3s switches the joke off on this phone and adds it to the
+   hidden list (📖 Book → Copy) so it can be removed for everyone. */
+let hiddenJokes = store.get("gb_hidden", []);
+function showDislike(on) { const b = $("dislikeBtn"); b.classList.toggle("hidden", !on); b.classList.remove("armed"); b.textContent = "👎"; clearTimeout(b._t); }
+$("dislikeBtn").onclick = () => {
+  const b = $("dislikeBtn"), it = current; if (!it) return;
+  if (!b.classList.contains("armed")) {
+    b.classList.add("armed"); b.textContent = "👎 Tap again to hide it";
+    b._t = setTimeout(() => showDislike(true), 3000); return;
+  }
+  it.on = false; saveItems();
+  if (!hiddenJokes.some(h => h.q === it.setup)) { hiddenJokes.push({ q: it.setup, a: it.punch }); store.set("gb_hidden", hiddenJokes); }
+  dlog("hid: " + it.setup);
+  showDislike(false); toast("👎 Got it. You won't hear that one again (✏️ List can turn it back on).", 4500);
+};
 
 /* ---------------- game loop ---------------- */
 let queue = [], qi = -1, runId = 0, score = 0, played = 0, current = null;
 const enabled = () => items.filter(i => i.on && i.setup && i.punch);
-const kindOn = i => !settings.kinds || settings.kinds[i.type] !== false;
+/* ---------------- joke book (progress) ---------------- */
+// book: question -> 1 heard, 2 guessed right (⭐). cycle: heard since the last "heard them all"
+// reset; the queue only deals jokes not in it, so you don't hear repeats across sessions.
+let book = store.get("gb_book", {});
+const cycle = new Set(store.get("gb_cycle", []));
+const saveBook = () => { store.set("gb_book", book); store.set("gb_cycle", [...cycle]); };
+const RANKS = [
+  { at: 0, name: "Giggler", icon: "🙂" }, { at: 20, name: "Chuckler", icon: "😄" }, { at: 60, name: "Jokester", icon: "😆" },
+  { at: 150, name: "Comedian", icon: "🤣" }, { at: 300, name: "Joke Master", icon: "👑" }, { at: 600, name: "Laugh Legend", icon: "🏆" },
+];
+const starCount = () => Object.values(book).filter(v => v === 2).length;
+const points = () => Object.values(book).reduce((n, v) => n + (v === 2 ? 3 : 1), 0); // 1 per joke heard, 3 if you got it
+const rankOf = p => RANKS.filter(r => p >= r.at).pop();
+const catUnlocked = k => { const c = CATS.find(c => c.k === k); return !c || !c.bonus || starCount() >= c.bonus; };
+function markHeard(it) { cycle.add(it.setup); if (!book[it.setup]) book[it.setup] = 1; saveBook(); }
+function markStar(it) { book[it.setup] = 2; saveBook(); }
+const LEVEL_UP = ["Level up! You're getting so funny!", "Whoa, you leveled up!"];
+const UNLOCK = ["Whoa! You unlocked a bonus pack!"];
+// After a round: celebrate a new rank or a newly unlocked bonus pack (roundStart = rank and stars before it).
+let roundStart = null;
+async function celebrate(voice, alive) {
+  if (!roundStart) return;
+  const r0 = roundStart.r, s0 = roundStart.s; roundStart = null;
+  const r1 = rankOf(points());
+  if (r1.name !== r0.name) {
+    toast(`${r1.icon} Level up! You're a ${r1.name}!`, 4500); confetti(); dlog("rank up: " + r1.name);
+    await speak(pick(LEVEL_UP), voice); if (!alive()) return;
+  }
+  for (const c of CATS.filter(c => c.bonus && s0 < c.bonus && starCount() >= c.bonus)) {
+    toast(`🔓 Unlocked: ${c.label}! Find it in the 📖 Book.`, 5500); confetti(); dlog("unlocked " + c.k);
+    settings.kinds[c.k] = true; saveSettings(); renderKinds();
+    await speak(pick(UNLOCK), voice); if (!alive()) return;
+  }
+}
+
+const kindOn = i => settings.kinds[catOf(i)] !== false && catUnlocked(catOf(i));
 function buildQueue() {
-  queue = enabled().filter(kindOn);
-  if (!queue.length && enabled().length) { queue = enabled().slice(); toast("No jokes of those kinds, so playing everything"); }
+  const pool = enabled().filter(kindOn);
+  let fresh = pool.filter(i => !cycle.has(i.setup));
+  if (!fresh.length && pool.length) { // heard every one of these: start the cycle over
+    pool.forEach(i => cycle.delete(i.setup)); saveBook(); fresh = pool.slice();
+    toast("🔁 You've heard them all! Starting over.");
+  }
+  queue = fresh;
+  if (!queue.length && enabled().length) { queue = enabled().filter(i => catUnlocked(catOf(i))); toast("No jokes of those kinds, so playing everything"); }
   if (settings.shuffle) for (let i = queue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [queue[i], queue[j]] = [queue[j], queue[i]]; }
   qi = -1;
 }
@@ -1026,6 +1597,7 @@ async function giveUpAndNext(item, voice, alive, counted) {
   $("verdict").textContent = "No problem! 🤷"; $("verdict").className = "verdict no";
   await speak(pick(GIVE_UP), voice); if (!alive()) return;
   reveal(item.punch); await speak(item.punch, voice); if (!alive()) return;
+  await celebrate(voice, alive); if (!alive()) return;
   await afterAnswer(alive, 2);
 }
 /* After the answer: with "Go to next joke by itself" on (⚙️ Settings), count down on screen
@@ -1051,6 +1623,8 @@ async function playItem(item) {
   $("nextBtn").disabled = false;
   resetStage(item);
   const alive = () => id === runId;
+  roundStart = { r: rankOf(points()), s: starCount() }; // for level-up / unlock celebrations after this one
+  markHeard(item);
   const think = +item.think || +settings.think || 10;
   const voice = item.voice || "";
   const nxt = queue[qi + 1]; if (nxt) { prefetch(nxt.type === "knock" ? nxt.setup + "." : nxt.setup, nxt.voice); prefetch(nxt.punch, nxt.voice); }
@@ -1081,7 +1655,7 @@ async function playItem(item) {
     // Stops the timer as soon as it hears the right answer, or "I don't know" / "I give up".
     const guess = await listen(think, { earlyStop: t => (settings.early && rightAnswer(t, item)) || gaveUp(t) }); if (!alive()) return;
     const said = matchedAnswer(guess, item), got = !!said, quit = !got && gaveUp(guess);
-    played++; if (got) score++; updateScore();
+    played++; if (got) { score++; markStar(item); } updateScore();
     if (!quit) { await sleep(+settings.reveal * 1000); if (!alive()) return; }
     setPrompt("");
     if (quit) return giveUpAndNext(item, voice, alive, true);
@@ -1099,13 +1673,13 @@ async function playItem(item) {
     }
     if (!alive()) return;
   }
+  await celebrate(voice, alive); if (!alive()) return;
   await afterAnswer(alive);
 }
 function nextItem() {
   if (!queue.length || qi >= queue.length - 1) {
     buildQueue();
     if (!queue.length) { toast("Your list is empty — add jokes in ✏️ List"); return; }
-    if (played) toast("🔁 Starting the list again!");
   }
   qi++; playItem(queue[qi]);
 }
@@ -1156,16 +1730,19 @@ $("startBtn").onclick = async () => {
   buildQueue(); nextItem();
 };
 function renderKinds() {
-  const k = settings.kinds || DEFAULT_SETTINGS.kinds;
-  document.querySelectorAll("#kinds button").forEach(b => {
-    const n = enabled().filter(i => i.type === b.dataset.k).length;
-    b.classList.toggle("on", k[b.dataset.k] !== false); b.setAttribute("aria-pressed", k[b.dataset.k] !== false);
-    b.hidden = !n; b.title = n + " in your list";
-  });
+  const k = settings.kinds, stars = starCount();
+  $("kinds").innerHTML = CATS.map(c => {
+    const n = enabled().filter(i => catOf(i) === c.k).length;
+    if (!n) return "";
+    if (c.bonus && stars < c.bonus) return `<button class="locked" data-k="${c.k}" title="Get ${c.bonus} ⭐ to unlock">🔒 ${c.label.replace(/^\S+\s/, "")} · ${c.bonus}⭐</button>`;
+    const on = k[c.k] !== false;
+    return `<button class="${on ? "on" : ""}" data-k="${c.k}" aria-pressed="${on}" title="${n} in your list">${c.label}</button>`;
+  }).join("");
 }
 $("kinds").onclick = e => {
   const b = e.target.closest("button[data-k]"); if (!b) return;
-  settings.kinds = Object.assign({}, DEFAULT_SETTINGS.kinds, settings.kinds, { [b.dataset.k]: !b.classList.contains("on") });
+  if (b.classList.contains("locked")) { const c = CATS.find(c => c.k === b.dataset.k); return toast(`🔒 Get ${c.bonus} ⭐ to unlock ${c.label}. You have ${starCount()}.`, 4000); }
+  settings.kinds = Object.assign({}, settings.kinds, { [b.dataset.k]: !b.classList.contains("on") });
   saveSettings(); renderKinds(); buildQueue();
 };
 $("nextBtn").onclick = () => { unlockAudio(); requestWake(); nextItem(); };
@@ -1177,12 +1754,71 @@ $("revealBtn").onclick = () => { if (cancelListen) cancelListen(); };
 document.querySelectorAll("nav button").forEach(b => b.onclick = () => show(b.dataset.view));
 function show(v) {
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.view === v));
-  ["play", "list", "settings"].forEach(s => $(s).classList.toggle("hidden", s !== v));
+  ["play", "book", "list", "settings"].forEach(s => $(s).classList.toggle("hidden", s !== v));
   if (v !== "play") { if (document.body.classList.contains("playing")) stopAll(); }
+  if (v === "play") renderKinds();
+  if (v === "book") renderBook();
   if (v === "list") renderList();
   if (v === "settings") renderSettings();
   window.scrollTo(0, 0);
 }
+
+/* ---------------- joke book view ---------------- */
+function renderBook() {
+  const p = points(), r = rankOf(p), next = RANKS.find(x => x.at > p), stars = starCount();
+  const all = items.filter(i => i.on && i.setup && i.punch);
+  const heardN = all.filter(i => book[i.setup]).length;
+  $("bkHidden").classList.toggle("hidden", !hiddenJokes.length);
+  $("bkHidden").innerHTML = `<b>👎 Jokes you hid (${hiddenJokes.length})</b>
+    <p class="bk-note">Copy this list and send it over, and they'll get swapped out for better ones.</p>
+    <ul class="bk-list">${hiddenJokes.map(h => `<li>${esc(h.q)}<i>${esc(h.a)}</i></li>`).join("")}</ul>
+    <div class="toolbar" style="margin-top:10px"><button class="btn blue" id="bkHiddenCopy">📋 Copy the list</button></div>`;
+  const hc = $("bkHiddenCopy"); if (hc) hc.onclick = async () => {
+    const txt = "Riddles: jokes we hid\n" + hiddenJokes.map(h => `- ${h.q} | ${h.a}`).join("\n");
+    try { await navigator.clipboard.writeText(txt); toast("List copied"); } catch (e) { prompt("Copy this list:", txt); }
+  };
+  $("bkRank").innerHTML = `<div class="ic">${r.icon}</div><div class="nm">${r.name}</div>
+    <small>⭐ ${stars} guessed · 📖 ${heardN} of ${all.length} collected · ${p} points</small>
+    <div>${next ? `<div class="bar"><i style="width:${Math.round(100 * (p - r.at) / (next.at - r.at))}%"></i></div>
+      <small>${next.at - p} more points to ${next.icon} ${next.name} (1 point per new joke, 3 if you guess it)</small>` : "<small>Top rank! 🎉</small>"}</div>`;
+  $("bkCats").innerHTML = CATS.map(c => {
+    const list = all.filter(i => catOf(i) === c.k); if (!list.length) return "";
+    const got = list.filter(i => book[i.setup]).length, st = list.filter(i => book[i.setup] === 2).length;
+    if (c.bonus && stars < c.bonus) return `<div class="card bk-cat locked"><details><summary><b>🔒 ${c.label}</b>
+      <span>${list.length} jokes</span><div class="bar"><i style="width:${Math.round(100 * stars / c.bonus)}%"></i></div>
+      <span style="grid-column:1/-1">Bonus pack: get ${c.bonus} ⭐ to unlock (you have ${stars})</span></summary></details></div>`;
+    const rows = list.slice().sort((a, b) => (book[b.setup] || 0) - (book[a.setup] || 0)).map(i => book[i.setup]
+      ? `<li>${book[i.setup] === 2 ? "⭐ " : ""}${esc(i.type === "knock" ? "Knock knock! " + i.setup : i.setup)}<i>${esc(i.punch)}</i></li>`
+      : `<li class="unheard">❓ Not heard yet</li>`).join("");
+    return `<div class="card bk-cat"><details><summary><b>${c.label}</b><span>${got}/${list.length} · ⭐ ${st}</span>
+      <div class="bar"><i style="width:${Math.round(100 * got / list.length)}%"></i></div></summary><ul class="bk-list">${rows}</ul></details></div>`;
+  }).join("");
+}
+// Backup code: short hashes of the questions you've heard (h) and guessed (s), base64'd.
+const qhash = s => { let h = 2166136261; for (const ch of s) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; } return h.toString(36).slice(0, 5); };
+function bookCode() {
+  const h = [], s = [];
+  for (const [q, v] of Object.entries(book)) (v === 2 ? s : h).push(qhash(q));
+  return "RB1." + btoa(h.join(",") + ";" + s.join(","));
+}
+function restoreBook(code) {
+  const m = /RB1\.([A-Za-z0-9+/=]+)/.exec(code || ""); if (!m) return toast("That doesn't look like a Riddles backup code", 4000);
+  let txt; try { txt = atob(m[1]); } catch (e) { return toast("That code is broken. Copy it again?", 4000); }
+  const [h, s] = txt.split(";").map(x => new Set(x ? x.split(",") : []));
+  const byHash = new Map([...RAW.map(r => r[1]), ...items.map(i => i.setup)].map(q => [qhash(q), q]));
+  let n = 0;
+  for (const [x, v] of [...[...h].map(x => [x, 1]), ...[...s].map(x => [x, 2])]) {
+    const q = byHash.get(x); if (q && (book[q] || 0) < v) { book[q] = v; n++; }
+  }
+  saveBook(); renderBook(); renderKinds(); toast(`📖 Restored ${n} jokes into your Joke Book`, 4000);
+}
+$("bkCopy").onclick = async () => {
+  const code = bookCode();
+  try { await navigator.clipboard.writeText(code); toast("Backup code copied. Paste it somewhere safe!"); }
+  catch (e) { prompt("Copy this backup code:", code); }
+};
+if (/[?&]debug\b/.test(location.search)) window.gbBook = { bookCode, restoreBook, get book() { return book; } };
+$("bkRestore").onclick = () => { const c = prompt("Paste your Riddles backup code:"); if (c) restoreBook(c.trim()); };
 
 /* ---------------- list editor ---------------- */
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
