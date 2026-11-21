@@ -178,8 +178,12 @@ await page.waitForSelector('.subject-grid', { timeout: 3000 });
 
 // circuits mode: open, solve puzzle 1 (OR, both off, goal ON -> flip one switch)
 console.log('▶ Circuits');
-await page.waitForSelector('.circ-launch', { timeout: 3000 });
-await page.click('.circ-launch');
+// voice apps (Mots, Riddles) are links to their own pages: check they're there, don't open them
+const voice = await page.$$eval('.voice-launch .circ-launch-title', (els) => els.map((e) => e.textContent));
+if (voice.join('|') !== 'Mots|Riddles') throw new Error('voice app launchers missing: ' + voice.join('|'));
+console.log('  ✓ voice apps on home: ' + voice.join(', '));
+await page.waitForSelector('.circuits-launch', { timeout: 3000 });
+await page.click('.circuits-launch');
 await page.waitForSelector('.circuits .circ-switch', { timeout: 3000 });
 const preSolve = await page.evaluate(() => !!document.querySelector('.circ-bulb.lit'));
 if (preSolve) throw new Error('circuits: puzzle 1 started already solved');

@@ -807,6 +807,17 @@ body.framed[data-view='ipad-l'] #app {
   border-radius: 999px;
 }
 
+/* voice apps (Mots, Riddles): their own colours so they read as a different kind of game */
+.voice-launch.mots-launch {
+  --accent: #2dd4bf;
+  background: linear-gradient(160deg, #0b5560, #174a8f);
+}
+.voice-launch.riddles-launch {
+  --accent: #b18cff;
+  background: linear-gradient(160deg, #3b1c7a, #1b3f8f);
+}
+.voice-launch .circ-launch-sub { color: rgba(255, 255, 255, 0.78); }
+
 /* ---------- circuits screen ---------- */
 
 .circuits {

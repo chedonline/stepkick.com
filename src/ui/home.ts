@@ -17,8 +17,12 @@ export interface HomeModes {
 }
 
 // The non-quiz play modes, rendered as launcher bars below the subject tiles.
-const LAUNCHERS: { key: keyof HomeModes; cls: string; icon: string; title: string; sub: string; badge?: string }[] = [
-  { key: 'circuits', cls: 'circ-launch', icon: '🔌', title: 'Circuits', sub: 'Tap switches, light the bulb!' },
+// `href` ones are the standalone voice apps (their own pages under stepkick.com, left alone by
+// the service worker): they open as a page, not a screen inside this app.
+const LAUNCHERS: { key?: keyof HomeModes; href?: string; cls: string; icon: string; title: string; sub: string; badge?: string }[] = [
+  { href: './french/', cls: 'circ-launch voice-launch mots-launch', icon: '🐸', title: 'Mots', sub: 'French words: hear it, say it, spell it!', badge: '🔊 NEW' },
+  { href: './riddles/', cls: 'circ-launch voice-launch riddles-launch', icon: '🤷', title: 'Riddles', sub: 'Hear a joke, shout the answer!', badge: '🔊 NEW' },
+  { key: 'circuits', cls: 'circ-launch circuits-launch', icon: '🔌', title: 'Circuits', sub: 'Tap switches, light the bulb!' },
   { key: 'memory', cls: 'circ-launch mem-launch', icon: '🃏', title: 'Memory Match', sub: 'Find the matching pairs!', badge: 'NEW' },
   { key: 'sort', cls: 'circ-launch sort-launch', icon: '🗂️', title: 'Sort', sub: 'Put each thing in its bin!', badge: 'NEW' },
   { key: 'tapall', cls: 'circ-launch tap-launch', icon: '🎯', title: 'Find', sub: 'Tap all the matching ones!', badge: 'NEW' },
@@ -102,7 +106,8 @@ export function mountHome(app: HTMLElement, onPlay: (subject: SubjectId) => void
     );
     bar.onclick = () => {
       sfx.tap();
-      modes[L.key]();
+      if (L.href) location.href = L.href;
+      else if (L.key) modes[L.key]();
     };
     return bar;
   });
