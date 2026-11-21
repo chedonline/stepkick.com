@@ -935,7 +935,7 @@ const boxOf = w => (prog[w.fr] || {}).box || 0;
 const INTERVAL = [0, 1, 2, 4, 7, 12]; // games until a word comes back, by box (5 = learned)
 const themeOn = k => settings.themes[k] !== false;
 
-const VERSION = "2026-11-21i"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-21j"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -1077,6 +1077,7 @@ if (fakeSay) {
 let micBlocked = false, micWorked = false, cancelListen = null;
 let heardAlts = []; // the recognizer's other guesses during the current listen
 const MIC_SETTLE = 850; // ms after the mic closes before talking (the iPhone's closing chime)
+const REVEAL_PAUSE = 800; // then a beat before "Bravo !", same as Riddles' pause before the punchline
 function listen(seconds, { earlyStop, silenceMs } = {}) {
   heardAlts = [];
   return new Promise(resolve => {
@@ -1390,10 +1391,10 @@ async function playQ(q) {
     } else {
       // Like Riddles: the mic opens by itself with a countdown. Saying the word ends it early;
       // "je sais pas" / "passe" (or 🤷) gives the answer and moves on. A wrong word gets one more try.
-      let tries = 0;
+      let tries = 0, tapped = null;
       for (;;) {
         setPrompt('<span class="mic-dot"></span>Dis le mot !');
-        const ans = waitAnswer(); let tapped = null; ans.then(v => { tapped = v; });
+        const ans = waitAnswer(); tapped = null; ans.then(v => { tapped = v; });
         const said = (t, alts = []) => [t, ...alts].some(x => saidWord(x, w)); // what she said, or any of the recognizer's other guesses
         const heard = await listen(settings.think, { earlyStop: (t, alts) => said(t, alts) || gaveUp(t), silenceMs: 1500 }); if (!alive()) return;
         if (answerRes) answerRes = null; // nothing tapped
@@ -1402,8 +1403,11 @@ async function playQ(q) {
         if (gaveUp(heard)) { how = "give"; break; }
         if (!heard) { how = "silent"; break; }
         if (++tries >= 2) { how = "no"; break; }
+        await sleep(REVEAL_PAUSE); if (!alive()) return;
         await speak(pick(LINES.AGAIN)); if (!alive()) return;
       }
+      // like Riddles: a short beat after the mic closes before Jeanne answers (not after a 🤷 tap)
+      if (tapped !== "dunno") { await sleep(REVEAL_PAUSE); if (!alive()) return; }
     }
     if (!w.emoji && w.sentence) showSentence(w, true); // fill the blank
   } else { // Épelle (letter tiles) / Écris (type it; Ma dictée types too, with no picture)
