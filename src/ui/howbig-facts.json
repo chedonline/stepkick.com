@@ -1,0 +1,371 @@
+[
+ {
+  "q": "REFERENCE",
+  "emoji": "🧒",
+  "kind": "height",
+  "value": 1.3,
+  "unit": "m",
+  "note": "An 8-year-old is about 1.3 m tall and about 26 kg.",
+  "source": "https://www.ncbi.nlm.nih.gov/books/NBK36419/figure/ch1.f2/"
+ },
+ {
+  "q": "How tall is a giraffe?",
+  "emoji": "🦒",
+  "kind": "height",
+  "value": 5.5,
+  "unit": "m",
+  "note": "Big males reach 5.5 m; females grow up to about 4.3 m.",
+  "source": "https://animals.sandiegozoo.org/animals/giraffe"
+ },
+ {
+  "q": "How tall is an African elephant at the shoulder?",
+  "emoji": "🐘",
+  "kind": "height",
+  "value": 3.3,
+  "unit": "m",
+  "note": "Adult males are 2.9 to 3.7 m at the shoulder; females are shorter.",
+  "source": "https://ielc.libguides.com/sdzg/factsheets/african_elephant/characteristics"
+ },
+ {
+  "q": "How long is a blue whale?",
+  "emoji": "🐋",
+  "kind": "length",
+  "value": 30,
+  "unit": "m",
+  "note": "Most are 24 to 30 m long, about as long as two and a half school buses.",
+  "source": "https://www.fisheries.noaa.gov/species/blue-whale"
+ },
+ {
+  "q": "How long was a T. rex?",
+  "emoji": "🦖",
+  "kind": "length",
+  "value": 12,
+  "unit": "m",
+  "note": "SUE, the biggest T. rex skeleton ever found, is over 12 m long.",
+  "source": "https://www.nhm.ac.uk/discover/dino-directory/tyrannosaurus.html"
+ },
+ {
+  "q": "How tall is a polar bear standing on its back legs?",
+  "emoji": "🐻‍❄️",
+  "kind": "height",
+  "value": 3,
+  "unit": "m",
+  "note": "A big male can stand 3 m tall, more than twice as tall as you.",
+  "source": "https://www.polarbearsinternational.org/polar-bears/polar-bear-facts/"
+ },
+ {
+  "q": "How tall is an ostrich?",
+  "emoji": "🐦",
+  "kind": "height",
+  "value": 2.7,
+  "unit": "m",
+  "note": "Males are 2.1 to 2.7 m tall. It is the tallest bird in the world.",
+  "source": "https://animals.sandiegozoo.org/animals/ostrich"
+ },
+ {
+  "q": "How long is a saltwater crocodile?",
+  "emoji": "🐊",
+  "kind": "length",
+  "value": 5,
+  "unit": "m",
+  "note": "Big males are 4.5 to 5 m long; rare giants grow past 6 m.",
+  "source": "https://australian.museum/learn/animals/reptiles/estuarine-crocodile/"
+ },
+ {
+  "q": "How tall is a moose at the shoulder?",
+  "emoji": "🦌",
+  "kind": "height",
+  "value": 2,
+  "unit": "m",
+  "note": "A big bull can stand 2 m at the shoulder, taller than a horse, and its antlers stick up even higher.",
+  "source": "https://www.canadiangeographic.ca/article/animal-facts-moose"
+ },
+ {
+  "q": "How long is a green anaconda?",
+  "emoji": "🐍",
+  "kind": "length",
+  "value": 5,
+  "unit": "m",
+  "note": "Most adults are up to 5 m long, and the females are much bigger than the males.",
+  "source": "https://www.britannica.com/animal/anaconda"
+ },
+ {
+  "q": "How tall is a grizzly bear standing on its back legs?",
+  "emoji": "🐻",
+  "kind": "height",
+  "value": 2.4,
+  "unit": "m",
+  "note": "On all four legs it is only about 1 m tall at the shoulder.",
+  "source": "https://www.nps.gov/noca/learn/nature/grizzly-bears.htm"
+ },
+ {
+  "q": "How long is a great white shark?",
+  "emoji": "🦈",
+  "kind": "length",
+  "value": 4.5,
+  "unit": "m",
+  "note": "Grown-up females are about 4.5 m long; males are smaller, and the biggest reach about 6 m.",
+  "source": "https://ocean.si.edu/node/108412"
+ },
+ {
+  "q": "How tall is a red kangaroo standing up?",
+  "emoji": "🦘",
+  "kind": "height",
+  "value": 1.8,
+  "unit": "m",
+  "note": "A big male stands about 1.8 m tall; females are much smaller.",
+  "source": "https://animaldiversity.org/accounts/Macropus_rufus/"
+ },
+ {
+  "q": "How tall is a gorilla standing on two legs?",
+  "emoji": "🦍",
+  "kind": "height",
+  "value": 1.7,
+  "unit": "m",
+  "note": "Big males stand up to about 1.8 m, as tall as a grown man.",
+  "source": "https://nationalzoo.si.edu/animals/western-lowland-gorilla"
+ },
+ {
+  "q": "How wide are a Canada goose's wings, tip to tip?",
+  "emoji": "🦆",
+  "kind": "length",
+  "value": 1.5,
+  "unit": "m",
+  "note": "Wingspans run from about 1.3 to 1.7 m, wider than you are tall.",
+  "source": "https://www.allaboutbirds.org/guide/Canada_Goose/id"
+ },
+ {
+  "q": "How heavy is an African elephant?",
+  "emoji": "🐘",
+  "kind": "weight",
+  "value": 6000,
+  "unit": "kg",
+  "note": "Adult males average about 6,000 kg; females average about 2,800 kg.",
+  "source": "https://ielc.libguides.com/sdzg/factsheets/african_elephant/characteristics"
+ },
+ {
+  "q": "How heavy is a blue whale?",
+  "emoji": "🐋",
+  "kind": "weight",
+  "value": 150,
+  "unit": "t",
+  "note": "The biggest weigh over 150 tonnes, as much as 25 African elephants.",
+  "source": "https://www.fisheries.noaa.gov/species/blue-whale/science"
+ },
+ {
+  "q": "How heavy is a hippo?",
+  "emoji": "🦛",
+  "kind": "weight",
+  "value": 1500,
+  "unit": "kg",
+  "note": "Adult males average about 1,500 kg, and big ones top 2,000 kg.",
+  "source": "https://ielc.libguides.com/sdzg/factsheets/hippopotamus/characteristics"
+ },
+ {
+  "q": "How heavy is a giraffe?",
+  "emoji": "🦒",
+  "kind": "weight",
+  "value": 1200,
+  "unit": "kg",
+  "note": "Males average about 1,200 kg; females average about 830 kg.",
+  "source": "https://ielc.libguides.com/sdzg/factsheets/giraffes/characteristics"
+ },
+ {
+  "q": "How heavy is a polar bear?",
+  "emoji": "🐻‍❄️",
+  "kind": "weight",
+  "value": 450,
+  "unit": "kg",
+  "note": "Adult males weigh 350 to 590 kg; females are about half that.",
+  "source": "https://www.polarbearsinternational.org/polar-bears/polar-bear-facts/"
+ },
+ {
+  "q": "How heavy is a moose?",
+  "emoji": "🦌",
+  "kind": "weight",
+  "value": 600,
+  "unit": "kg",
+  "note": "Big bulls weigh up to 600 kg in most of Canada; Alaska moose can reach 800 kg.",
+  "source": "https://www.hww.ca/wildlife/mammals/moose/"
+ },
+ {
+  "q": "How heavy is a gorilla?",
+  "emoji": "🦍",
+  "kind": "weight",
+  "value": 140,
+  "unit": "kg",
+  "note": "Adult males average about 140 kg, as heavy as 5 kids your age, and big ones top 200 kg.",
+  "source": "https://nationalzoo.si.edu/animals/western-lowland-gorilla"
+ },
+ {
+  "q": "How heavy is an ostrich?",
+  "emoji": "🐦",
+  "kind": "weight",
+  "value": 120,
+  "unit": "kg",
+  "note": "Males weigh 100 to 130 kg. It is the heaviest bird alive.",
+  "source": "https://animals.sandiegozoo.org/animals/ostrich"
+ },
+ {
+  "q": "How heavy was a T. rex?",
+  "emoji": "🦖",
+  "kind": "weight",
+  "value": 8000,
+  "unit": "kg",
+  "note": "Scientists estimate 7,000 to 9,000 kg, heavier than an African elephant.",
+  "source": "https://www.nhm.ac.uk/discover/dino-directory/tyrannosaurus.html"
+ },
+ {
+  "q": "How heavy is a beaver?",
+  "emoji": "🦫",
+  "kind": "weight",
+  "value": 20,
+  "unit": "kg",
+  "note": "Adults weigh 16 to 32 kg, close to what you weigh! The beaver is a symbol of Canada.",
+  "source": "https://www.hww.ca/wildlife/mammals/beaver/"
+ },
+ {
+  "q": "How tall is the CN Tower?",
+  "emoji": "🗼",
+  "kind": "height",
+  "value": 553,
+  "unit": "m",
+  "note": "553 m to the tip of its antenna. It was the world's tallest free-standing structure for over 30 years.",
+  "source": "https://www.thecanadianencyclopedia.ca/en/article/cn-tower"
+ },
+ {
+  "q": "How tall is the Eiffel Tower?",
+  "emoji": "🗼",
+  "kind": "height",
+  "value": 330,
+  "unit": "m",
+  "note": "330 m with its antennas. It grew 6 m in 2022 when a new antenna was added.",
+  "source": "https://www.toureiffel.paris/en/the-monument/key-figures"
+ },
+ {
+  "q": "How tall is the Statue of Liberty, from the ground to the torch?",
+  "emoji": "🗽",
+  "kind": "height",
+  "value": 93,
+  "unit": "m",
+  "note": "The statue is 46 m and stands on a pedestal that is just as tall.",
+  "source": "https://www.nps.gov/stli/learn/historyculture/statue-statistics.htm"
+ },
+ {
+  "q": "How tall is the Burj Khalifa?",
+  "emoji": "🏙️",
+  "kind": "height",
+  "value": 828,
+  "unit": "m",
+  "note": "The world's tallest building, about one and a half CN Towers tall.",
+  "source": "https://www.skyscrapercenter.com/building/burj-khalifa/3"
+ },
+ {
+  "q": "How tall is the Great Pyramid of Giza today?",
+  "emoji": "🔺",
+  "kind": "height",
+  "value": 139,
+  "unit": "m",
+  "note": "It was about 147 m tall when it was built 4,500 years ago, but it lost its top stones.",
+  "source": "https://en.wikipedia.org/wiki/Great_Pyramid_of_Giza"
+ },
+ {
+  "q": "How high is the drop at Niagara's Horseshoe Falls?",
+  "emoji": "🌊",
+  "kind": "height",
+  "value": 57,
+  "unit": "m",
+  "note": "The water falls about 57 m, as high as a 19-storey building.",
+  "source": "https://www.britannica.com/place/Niagara-Falls-waterfall-North-America"
+ },
+ {
+  "q": "How tall is Mount Everest?",
+  "emoji": "🏔️",
+  "kind": "height",
+  "value": 8849,
+  "unit": "m",
+  "note": "The highest mountain on Earth. It was measured again in 2020 at 8,848.86 m.",
+  "source": "https://www.britannica.com/place/Mount-Everest/The-height-of-Everest"
+ },
+ {
+  "q": "How long is a school bus?",
+  "emoji": "🚌",
+  "kind": "length",
+  "value": 12,
+  "unit": "m",
+  "note": "A full-size school bus is about 12 m long, as long as 9 kids lying head to toe.",
+  "source": "https://californiahvip.org/wp-content/uploads/2020/09/AL-MY25-LionC-SpecSheet-241018.pdf"
+ },
+ {
+  "q": "How long is an NHL hockey rink?",
+  "emoji": "🏒",
+  "kind": "length",
+  "value": 61,
+  "unit": "m",
+  "note": "An NHL rink is 200 feet long and 85 feet wide, about 61 m by 26 m.",
+  "source": "https://www.nhl.com/kraken/news/dimensions-and-markings-of-regulation-ice-sheets-322765100"
+ },
+ {
+  "q": "How long is a Boeing 747 jumbo jet?",
+  "emoji": "✈️",
+  "kind": "length",
+  "value": 71,
+  "unit": "m",
+  "note": "The 747-400 is about 71 m long, longer than a hockey rink. The newer 747-8 is about 76 m.",
+  "source": "https://aerospaceweb.org/aircraft/jetliner/b747/"
+ },
+ {
+  "q": "How long was the Titanic?",
+  "emoji": "🚢",
+  "kind": "length",
+  "value": 269,
+  "unit": "m",
+  "note": "About 269 m long, more than 4 hockey rinks end to end.",
+  "source": "https://www.britannica.com/topic/Titanic"
+ },
+ {
+  "q": "How tall is Hyperion, the world's tallest tree?",
+  "emoji": "🌲",
+  "kind": "height",
+  "value": 116,
+  "unit": "m",
+  "note": "A coast redwood in California, taller than the Statue of Liberty.",
+  "source": "https://www.guinnessworldrecords.com/world-records/tallest-tree-living"
+ },
+ {
+  "q": "How heavy is the Statue of Liberty?",
+  "emoji": "🗽",
+  "kind": "weight",
+  "value": 250,
+  "unit": "t",
+  "note": "It is made of copper and steel and weighs about 250 tonnes, as much as 40 elephants.",
+  "source": "https://www.nps.gov/stli/learn/statue-of-liberty-facts.htm"
+ },
+ {
+  "q": "How heavy is the Eiffel Tower?",
+  "emoji": "🗼",
+  "kind": "weight",
+  "value": 10100,
+  "unit": "t",
+  "note": "The iron frame weighs 7,300 tonnes; lifts, shops and antennas bring it to about 10,100.",
+  "source": "https://www.toureiffel.paris/en/the-monument/key-figures"
+ },
+ {
+  "q": "How heavy is a school bus?",
+  "emoji": "🚌",
+  "kind": "weight",
+  "value": 9000,
+  "unit": "kg",
+  "note": "An empty full-size bus weighs about 7,000 to 10,000 kg, as much as 350 kids your age.",
+  "source": "https://www.busesforsale.com/knowledge-center/blog/understanding-school-bus-weight-limits-regulations"
+ },
+ {
+  "q": "How heavy is a car?",
+  "emoji": "🚗",
+  "kind": "weight",
+  "value": 1500,
+  "unit": "kg",
+  "note": "A family car weighs about 1,500 kg; big SUVs and pickups weigh 2,000 kg or more.",
+  "source": "https://www.capitalone.com/cars/learn/finding-the-right-car/how-much-does-a-car-weigh/1248"
+ }
+]

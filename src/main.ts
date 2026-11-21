@@ -10,6 +10,7 @@ import { mountStickers } from './ui/stickers';
 import { mountCircuits } from './ui/circuits';
 import { mountMemory } from './ui/memory';
 import { mountGroups } from './ui/groups';
+import { mountSlide } from './ui/slide';
 import { mountSort } from './ui/sort';
 import { mountTapAll } from './ui/tapall';
 import { mountOrder } from './ui/order';
@@ -69,6 +70,7 @@ function goHome(): void {
     circuits: showCircuits,
     memory: showMemory,
     groups: () => mountGroups(app, goHome),
+    slide: () => mountSlide(app, goHome),
     sort: () => mountSort(app, goHome),
     tapall: () => mountTapAll(app, goHome),
     order: () => mountOrder(app, goHome),

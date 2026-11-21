@@ -156,7 +156,7 @@ export const SET_COUNT = STICKER_SETS.length;
 // already earned stay; Farm and Ocean (whose games left) are now filled by Groups and Money.
 export const GROUP_OF: Record<string, number> = {
   groups: 0,
-  money: 1,
+  money: 1, slide: 1,
   math: 2, fractions: 2, skipcount: 2,
   spelling: 3, vocab: 3,
   patterns: 4, prints: 4,
@@ -170,7 +170,7 @@ export const GROUP_OF: Record<string, number> = {
 /** Pretty source names per set (aligned to STICKER_SETS order) — for book labels. */
 export const GROUP_SOURCES: string[][] = [
   ['Groups'],
-  ['Money'],
+  ['Money', 'Slide'],
   ['Math'],
   ['Spelling'],
   ['Patterns', 'Prints'],

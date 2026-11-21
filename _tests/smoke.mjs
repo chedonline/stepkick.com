@@ -215,6 +215,7 @@ await page.click('.memory .icon-btn'); // back home from memory
 await page.waitForSelector('.subject-grid', { timeout: 3000 });
 const MODES = [
   { launch: '.groups-launch', screen: '.groupsgame', sel: '.grp-tile', min: 6 },
+  { launch: '.slide-launch', screen: '.slidegame', sel: '.sl-pick', min: 4 },
   { launch: '.tap-launch', screen: '.tapgame', sel: '.tap-cell', min: 8 },
   { launch: '.maze-launch', screen: '.mazegame', sel: '.maze-cell', min: 20 },
   { launch: '.mensa-launch', screen: '.mensagame', sel: '.mensa-choice', min: 4 },

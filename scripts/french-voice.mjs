@@ -20,10 +20,12 @@ const grab = (re, what) => { const m = html.match(re); if (!m) throw new Error("
 const WORDS = Function(`"use strict";return (${grab(/const WORDS = (\[[\s\S]*?\n\]);/, "WORDS")})`)();
 const LISTES = Function(`"use strict";return (${grab(/const LISTES = (\[[\s\S]*?\n\]);/, "LISTES")})`)();
 const LINES = Function(`"use strict";return (${grab(/const LINES = (\{[\s\S]*?\n\});/, "LINES")})`)();
-const SAY = Function(`"use strict";${grab(/\/\* SAY-BEGIN[^*]*\*\/([\s\S]*?)\/\* SAY-END \*\//, "SAY block")};return { buildWords, sayBare, sayInd };`)();
+const SAY = Function(`"use strict";${grab(/\/\* SAY-BEGIN[^*]*\*\/([\s\S]*?)\/\* SAY-END \*\//, "SAY block")};return { buildWords, sayBare, sayInd, frNum };`)();
 
 const lines = new Set(Object.values(LINES).flat());
 for (const w of SAY.buildWords(WORDS, LISTES)) { lines.add(SAY.sayBare(w)); lines.add(SAY.sayInd(w)); if (w.sentence) lines.add(w.sentence); }
+// Les nombres: 0 to 100, said as the page says them ("Soixante-dix-sept.")
+for (let n = 0; n <= 100; n++) lines.add(SAY.sayBare({ fr: SAY.frNum(n) }));
 const list = [...lines];
 const chars = list.reduce((n, t) => n + t.length, 0);
 console.log(`${list.length} lines, ${chars} characters`);

@@ -10,6 +10,7 @@ export interface HomeModes {
   circuits: () => void;
   memory: () => void;
   groups: () => void;
+  slide: () => void;
   sort: () => void;
   tapall: () => void;
   order: () => void;
@@ -27,6 +28,7 @@ const LAUNCHERS: { key?: keyof HomeModes; href?: string; cls: string; icon: stri
   { key: 'memory', cls: 'circ-launch mem-launch', icon: '🃏', title: 'Memory Match', sub: 'Find the matching pairs!', badge: 'NEW' },
   // Sort and Put in Order left the home screen in the 2026-11-21 clean-up (Find covers Sort;
   // ordering small numbers was too easy at 8). Their screens still exist in ui/.
+  { key: 'slide', cls: 'circ-launch slide-launch', icon: '🎚️', title: 'Slide', sub: 'Number line, how many, clock, how big!', badge: 'NEW' },
   { key: 'groups', cls: 'circ-launch groups-launch', icon: '🧩', title: 'Groups', sub: 'Find the sums that are equal!', badge: 'NEW' },
   { key: 'tapall', cls: 'circ-launch tap-launch', icon: '🎯', title: 'Find', sub: 'Tap all the matching ones!' },
   { key: 'maze', cls: 'circ-launch maze-launch', icon: '🧭', title: 'Maze', sub: 'Find your way to the star!', badge: 'NEW' },
