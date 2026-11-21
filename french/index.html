@@ -89,6 +89,10 @@ nav button.on{background:#fff;color:var(--bg1)}
 .tiles button:disabled{opacity:.18;box-shadow:none}
 .tiles button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
 .tiles .back{background:var(--soft);font-size:24px}
+/* the sentence she hears, with a blank for the word (Épelle / Écris) */
+.sent{font-size:clamp(22px,3.6vw,38px);font-weight:500;line-height:1.35;max-width:26ch;color:var(--ink)}
+.sent .blank{display:inline-block;min-width:3em;border-bottom:4px solid var(--teal);margin:0 .15em;transform:translateY(-.15em)}
+.sent .fill{color:#0f766e;font-weight:700;background:#dcfce7;border-radius:8px;padding:0 .15em}
 /* typing (Écris) */
 .typer{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:560px}
 .typer input{width:100%;font:inherit;font-size:clamp(28px,6vw,44px);font-weight:600;text-align:center;letter-spacing:2px;border:3px solid var(--line);border-radius:18px;padding:8px 12px;color:var(--ink);background:#fbfffe}
@@ -190,6 +194,9 @@ nav button.on{background:#fff;color:var(--bg1)}
 .logbox summary{cursor:pointer;font-weight:700}
 .logbox pre{max-height:180px;overflow:auto;background:#f3fbf9;border-radius:10px;padding:8px;font-size:11px;line-height:1.4;white-space:pre-wrap;margin:8px 0}
 
+/* English under a French heading, in grey */
+.en-line{display:block;color:var(--muted);font-size:14px;font-weight:400;line-height:1.35;margin-top:2px}
+.mthead h2 .en-line{font-size:14px}
 /* English translation next to the French: lighter and smaller */
 .en{color:var(--muted);font-weight:400;font-size:.85em}
 .btn .en{color:rgba(255,255,255,.72)}
@@ -247,6 +254,7 @@ body.playing nav{opacity:.35}
     <div><span class="badge" id="badge"></span></div>
     <div class="pic" id="pic"></div>
     <div class="word" id="word"></div>
+    <div class="sent hidden" id="sent"></div>
     <div class="prompt" id="prompt"></div>
     <div class="choices hidden" id="choices"></div>
     <div class="spell hidden" id="spell"><div class="slots" id="slots"></div><div class="tiles" id="tiles"></div>
@@ -280,36 +288,37 @@ body.playing nav{opacity:.35}
   <h2>📖 Mon carnet</h2>
   <div id="bookBody"></div>
   <div class="card">
-    <b>💾 Code de sauvegarde <span class="en">(Backup code)</span></b>
-    <p class="note">Tes progrès sont gardés sur ce téléphone. Copie le code et garde-le en lieu sûr ; colle-le sur un autre téléphone pour tout retrouver.
-      <span class="en">(Progress lives on this phone. Copy the code somewhere safe; paste it on any phone to restore it.)</span></p>
-    <div class="row"><button class="btn" id="bkCopy">📋 Copier le code <span class="en">(Copy)</span></button><button class="btn" id="bkRestore">📥 Coller un code <span class="en">(Paste)</span></button></div>
+    <b>💾 Code de sauvegarde</b>
+    <small class="en-line">Backup code. Progress lives on this phone: copy the code somewhere safe, and paste it on any phone to restore it.</small>
+    <div class="row" style="margin-top:10px"><button class="btn" id="bkCopy">📋 Copier le code</button><button class="btn" id="bkRestore">📥 Coller un code</button></div>
   </div>
 </section>
 
-<!-- Settings: French first, the English in lighter text in parentheses -->
+<!-- Settings: each heading in French, what it means in English underneath in grey -->
 <div id="set" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="setTitle">
   <div class="sheet">
-    <div class="mthead"><h2 id="setTitle">⚙️ Réglages <span class="en">(Settings)</span></h2><button class="x" id="setClose" aria-label="Fermer (Close)">✕</button></div>
-    <div class="step"><div><b>Questions par partie <span class="en">(Questions per game)</span></b></div>
+    <div class="mthead"><h2 id="setTitle">⚙️ Réglages<small class="en-line">Settings &amp; sound</small></h2><button class="x" id="setClose" aria-label="Fermer">✕</button></div>
+    <div class="step"><div><b>Vitesse de la voix</b><small>Voice speed. Normale is a little slower than Rapide.</small></div>
+      <select class="sel" id="sVoice"><option value="normal">Normale</option><option value="fast">Rapide</option></select></div>
+    <div class="step"><div><b>Questions par partie</b><small>Questions per game.</small></div>
       <select class="sel" id="sN"><option>5</option><option>10</option><option>15</option><option>20</option></select></div>
-    <div class="step"><div><b>Mots nouveaux par partie <span class="en">(New words per game)</span></b><small>Les autres sont des mots à revoir, qui reviennent au bon moment. <span class="en">(The rest are words being learned, brought back on a schedule.)</span></small></div>
+    <div class="step"><div><b>Mots nouveaux par partie</b><small>New words per game. The rest are words she's learning, brought back on a schedule.</small></div>
       <select class="sel" id="sNew"><option>2</option><option>3</option><option>5</option><option>8</option></select></div>
-    <div class="step"><div><b>Temps pour répondre <span class="en">(Time to answer)</span></b><small>Dans « Dis-le », le micro écoute pendant ce temps. <span class="en">(How long the mic listens in Dis-le.)</span></small></div>
+    <div class="step"><div><b>Temps pour répondre</b><small>Time to answer: how long the mic listens in Dis-le.</small></div>
       <select class="sel" id="sThink"><option value="5">5 s</option><option value="7">7 s</option><option value="10">10 s</option><option value="15">15 s</option></select></div>
-    <div class="step"><div><b>Aide pour écrire <span class="en">(Typing help)</span></b><small>Dans « Écris », la première lettre est déjà là. <span class="en">(In Écris, the first letter is filled in.)</span></small></div>
-      <select class="sel" id="sHelp"><option value="first">1re lettre (first letter)</option><option value="none">Aucune (none)</option></select></div>
-    <div class="step"><div><b>Question suivante toute seule <span class="en">(Next question by itself)</span></b><small>Compte 2 secondes après chaque réponse. <span class="en">(Counts down 2 seconds after each answer.)</span></small></div>
-      <select class="sel" id="sAuto"><option value="on">Oui (on)</option><option value="off">Non (off)</option></select></div>
-    <div class="step"><div><b>Son neuf après le micro <span class="en">(Fresh audio after listening)</span></b><small>iPhone : le son grésille après le micro ? Essaie « Oui ». <span class="en">(iPhone: crackly after the mic? Try On.)</span></small></div>
-      <select class="sel" id="sFresh"><option value="off">Non (off)</option><option value="on">Oui (on)</option></select></div>
-    <div class="step"><div><b>1. Haut-parleur <span class="en">(Speaker)</span></b><small>Joue une phrase avec la voix de Jeanne. <span class="en">(Plays one line in Jeanne's voice.)</span></small></div>
-      <button class="btn" id="tSpeak">🔊 Jouer <span class="en">(Play)</span></button><div class="res" id="tSpeakRes"></div></div>
-    <div class="step"><div><b>2. Micro <span class="en">(Microphone)</span></b><small>Touche, puis dis <b>« grenouille »</b>. <span class="en">(Tap, then say « grenouille ».)</span></small></div>
-      <button class="btn" id="tListen">🎤 Écouter <span class="en">(Listen)</span></button><div class="res" id="tListenRes"></div></div>
+    <div class="step"><div><b>Aide pour écrire</b><small>Typing help: in Écris, the first letter is filled in.</small></div>
+      <select class="sel" id="sHelp"><option value="first">1re lettre</option><option value="none">Aucune</option></select></div>
+    <div class="step"><div><b>Question suivante toute seule</b><small>Next question by itself: counts down 2 seconds after each answer.</small></div>
+      <select class="sel" id="sAuto"><option value="on">Oui</option><option value="off">Non</option></select></div>
+    <div class="step"><div><b>Son neuf après le micro</b><small>Fresh audio after listening. iPhone sounds crackly after the mic? Try Oui.</small></div>
+      <select class="sel" id="sFresh"><option value="off">Non</option><option value="on">Oui</option></select></div>
+    <div class="step"><div><b>1. Haut-parleur</b><small>Speaker test: plays one line in Jeanne's voice.</small></div>
+      <button class="btn" id="tSpeak">🔊 Jouer</button><div class="res" id="tSpeakRes"></div></div>
+    <div class="step"><div><b>2. Micro</b><small>Microphone test: tap, then say « grenouille ».</small></div>
+      <button class="btn" id="tListen">🎤 Écouter</button><div class="res" id="tListenRes"></div></div>
     <div class="logbox">
-      <details><summary>Journal audio <span class="en">(Audio log, for troubleshooting)</span></summary><pre id="log"></pre>
-        <button class="btn teal" id="logCopy" style="font-size:14px;padding:8px 12px">📋 Copier <span class="en">(Copy log)</span></button></details>
+      <details><summary>Journal audio</summary><small class="en-line">Audio log, for troubleshooting.</small><pre id="log"></pre>
+        <button class="btn teal" id="logCopy" style="font-size:14px;padding:8px 12px">📋 Copier</button></details>
       <p id="verLine"></p>
     </div>
   </div>
@@ -561,57 +570,62 @@ const WORDS = [
 // [fr, kind (m/f noun, v verb, adj, adv, x = no article), English, sentence, emoji?]
 const LISTES = [
 { n: 5, title: "Voyage de rêve", words: [
-["nuage","m","cloud","Il y a un gros nuage dans le ciel.","☁️"],
-["genre","m","kind, type","Quel genre de film aimes-tu ?"],
-["voyage","m","trip","Nous partons en voyage cet été.","🧳"],
-["argent","m","money","J'ai mis mon argent dans ma tirelire.","💰"],
-["protéger","v","to protect","Le casque sert à protéger ta tête."],
-["village","m","village","Mes grands-parents habitent dans un petit village.","🏘️"],
-["danger","m","danger","Attention, il y a un danger sur la route !","⚠️"],
-["gorge","f","throat","J'ai mal à la gorge."],
-["gagner","v","to win","Mon équipe veut gagner la partie."],
-["guerre","f","war","Le dragon et le chevalier font la guerre."],
-["goutte","f","drop","Une goutte de pluie tombe sur mon nez.","💧"],
-["langue","f","tongue, language","Je sais parler une autre langue.","👅"],
-["âge","m","age","Quel âge as-tu ?"]
+["nuage","m","cloud","J’aime partir sur un nuage, c’est le genre de voyage qui ne coute pas beaucoup d’argent.","☁️"],
+["genre","m","kind, type","J’aime partir sur un nuage, c’est le genre de voyage qui ne coute pas beaucoup d’argent."],
+["voyage","m","trip","J’aime partir sur un nuage, c’est le genre de voyage qui ne coute pas beaucoup d’argent.","🧳"],
+["argent","m","money","J’aime partir sur un nuage, c’est le genre de voyage qui ne coute pas beaucoup d’argent.","💰"],
+["protèges","v","(you) protect","En imagination, tu protèges ton village de tous les dangers, tu sautes à la gorge d’un dragon et tu gagnes la guerre !"],
+["village","m","village","En imagination, tu protèges ton village de tous les dangers, tu sautes à la gorge d’un dragon et tu gagnes la guerre !","🏘️"],
+["dangers","pl","dangers","En imagination, tu protèges ton village de tous les dangers, tu sautes à la gorge d’un dragon et tu gagnes la guerre !"],
+["gorge","f","throat","Vous aimez avaler la goutte de ce sirop qui va protéger votre langue et votre gorge contre les microbes."],
+["gagnes","v","(you) win","En imagination, tu protèges ton village de tous les dangers, tu sautes à la gorge d’un dragon et tu gagnes la guerre !"],
+["guerre","f","war","En imagination, tu protèges ton village de tous les dangers, tu sautes à la gorge d’un dragon et tu gagnes la guerre !"],
+["goutte","f","drop","Tu t’imagines avaler une goutte d’une potion magique, puis soudain tu parles une autre langue !","💧"],
+["langue","f","tongue, language","Tu t’imagines avaler une goutte d’une potion magique, puis soudain tu parles une autre langue !","👅"],
+["âge","m","age","Sais-tu qu’il n’y a pas d’âge pour rêver ?"],
+["protéger","v","to protect","Vous aimez avaler la goutte de ce sirop qui va protéger votre langue et votre gorge contre les microbes."]
 ]},
 { n: 6, title: "Ma cousine et moi", words: [
-["pousser","v","to push","Il ne faut pas pousser les amis."],
-["consoler","v","to comfort","Je vais consoler mon ami qui pleure."],
-["présenter","v","to introduce","Je vais te présenter ma cousine."],
-["course","f","race","Je gagne la course !","🏃"],
-["cousine","f","cousin (girl)","Ma cousine vient jouer chez moi."],
-["poser","v","to put, to ask","Je veux poser une question."],
-["choisir","v","to choose","Tu peux choisir un livre."],
-["glisser","v","to slide","On aime glisser sur la neige."],
-["danser","v","to dance","J'aime danser sur la musique."],
-["laisser","v","to leave, to let","Peux-tu laisser la porte ouverte ?"],
-["danse","f","dance","Je vais au cours de danse.","💃"],
-["visite","f","visit, visitors","Nous avons de la visite ce soir."],
-["vitesse","f","speed","La voiture roule à toute vitesse."],
-["église","f","church","Il y a une grande église dans le village.","⛪"],
-["trésor","m","treasure","Le pirate cache son trésor.","💎"],
-["descendre","v","to go down","Je vais descendre la montagne en luge."],
-["cousin","m","cousin (boy)","Mon cousin a huit ans."],
-["passage","m","passage, way","Le chat trouve un passage sous la clôture."],
-["réussir","v","to succeed","Je vais réussir ma dictée !"]
+["pousser","v","to push","À la fin de la journée, je me suis fait pousser à l’école."],
+["consoler","v","to comfort","Pour me consoler, je me présente à la course chez ma cousine."],
+["présente","v","(I) go to, show up","Pour me consoler, je me présente à la course chez ma cousine."],
+["course","f","race","Pour me consoler, je me présente à la course chez ma cousine.","🏃"],
+["cousine","f","cousin (girl)","Ma cousine finit son dessin et me pose une question."],
+["pose","v","(she) asks, puts","Ma cousine finit son dessin et me pose une question."],
+["choisir","v","to choose","Elle me propose de choisir entre aller glisser ou danser."],
+["glisser","v","to slide","Elle me propose de choisir entre aller glisser ou danser."],
+["danser","v","to dance","Elle me propose de choisir entre aller glisser ou danser."],
+["laisser","v","to let","Je finis par me laisser attirer par la danse."],
+["danse","f","dance","Je finis par me laisser attirer par la danse.","💃"],
+["visite","f","visit, visitors","Pendant le cours, il y a de la visite qui arrive à toute vitesse."],
+["vitesse","f","speed","Pendant le cours, il y a de la visite qui arrive à toute vitesse."],
+["église","f","church","Elle nous dit que si nous finissons de faire le ménage de l’église, nous allons voir de nombreux trésors.","⛪"],
+["trésors","pl","treasures","Lors des visites dans les églises, je finis par trouver des trésors précieux."],
+["visites","pl","visits","Lors des visites dans les églises, je finis par trouver des trésors précieux."],
+["églises","pl","churches","Lors des visites dans les églises, je finis par trouver des trésors précieux."],
+["glissent","v","(they) slide","Il ne faut pas pousser les amis quand ils glissent, car ils finissent par prendre trop de vitesse pour descendre la montagne."],
+["descendre","v","to go down","Il ne faut pas pousser les amis quand ils glissent, car ils finissent par prendre trop de vitesse pour descendre la montagne."],
+["cousin","m","cousin (boy)","Mon cousin finit par choisir le passage le plus rapide pour réussir la course."],
+["passage","m","passage, way","Mon cousin finit par choisir le passage le plus rapide pour réussir la course."],
+["réussir","v","to succeed","Mon cousin finit par choisir le passage le plus rapide pour réussir la course."]
 ]},
-{ n: 7, title: "L'automne", words: [
-["aussitôt","adv","right away, as soon as","Je viens aussitôt que possible."],
-["octobre","x","October","Mon anniversaire est en octobre.","🎃"],
-["faute","f","mistake","Il n'y a pas de faute dans ma dictée."],
-["nouveau","adj","new","J'ai un nouveau sac d'école."],
-["restaurant","m","restaurant","Nous mangeons au restaurant.","🍽️"],
-["radio","f","radio","J'écoute la radio dans l'auto.","📻"],
-["offrir","v","to give (a gift)","Je vais offrir un cadeau à maman."],
-["promener","v","to walk (a dog)","Je vais promener mon chien."],
-["vélo","m","bike","Je fais du vélo au parc.","🚲"],
-["hauteur","f","height","L'oiseau vole à une grande hauteur."],
-["beau","adj","beautiful, nice","Il fait beau aujourd'hui."],
-["oiseau","m","bird","Un oiseau chante dans l'arbre.","🐦"],
-["poche","f","pocket","J'ai un caillou dans ma poche."],
-["automne","m","autumn, fall","Les feuilles tombent en automne.","🍂"],
-["promettre","v","to promise","Peux-tu promettre d'être sage ?"]
+{ n: 7, title: "L’automne", words: [
+["aussitôt","adv","as soon as","Aussitôt le mois d’octobre arrivé, je vais aller sans faute au nouveau restaurant."],
+["octobre","x","October","Aussitôt le mois d’octobre arrivé, je vais aller sans faute au nouveau restaurant.","🎃"],
+["faute","f","mistake","Aussitôt le mois d’octobre arrivé, je vais aller sans faute au nouveau restaurant."],
+["nouveau","adj","new","Aussitôt le mois d’octobre arrivé, je vais aller sans faute au nouveau restaurant."],
+["restaurant","m","restaurant","Aussitôt le mois d’octobre arrivé, je vais aller sans faute au nouveau restaurant.","🍽️"],
+["radio","f","radio","C’est en écoutant la radio que je l’ai appris.","📻"],
+["offrir","v","to offer, give","Je vais offrir à mon ami qui va venir avec moi, de prendre l’autobus."],
+["promener","v","to walk","Après, on va aller se promener en vélo, en hauteur sur les montagnes."],
+["vélo","m","bike","Après, on va aller se promener en vélo, en hauteur sur les montagnes.","🚲"],
+["hauteur","f","height","Après, on va aller se promener en vélo, en hauteur sur les montagnes."],
+["beaux","adj","beautiful (plural)","Nous allons aussi aller regarder les beaux oiseaux et mettre plein de cailloux dans nos poches."],
+["oiseaux","pl","birds","Nous allons aussi aller regarder les beaux oiseaux et mettre plein de cailloux dans nos poches."],
+["poches","pl","pockets","Nous allons aussi aller regarder les beaux oiseaux et mettre plein de cailloux dans nos poches."],
+["automne","m","autumn, fall","Comme j’ai hâte à l’automne !","🍂"],
+["promettre","v","to promise","Madame Barbara va nous promettre de remettre notre récitation aussitôt que qu’il n’y aura plus de fautes."],
+["fautes","pl","mistakes","Nos fautes vont être corrigées."]
 ]}
 ];
 const THEMES = [
@@ -687,7 +701,7 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 };
-const DEFAULT_SETTINGS = { n: 10, fresh: 3, auto: true, next: 2, think: 7, help: "first", mode: "melange", themes: {}, freshAudio: false };
+const DEFAULT_SETTINGS = { n: 10, fresh: 3, auto: true, next: 2, think: 7, help: "first", voice: "normal", mode: "melange", themes: {}, freshAudio: false };
 let settings = Object.assign({}, DEFAULT_SETTINGS, store.get("mots_settings", {}));
 const saveSettings = () => store.set("mots_settings", settings);
 // progress per word: { box 0-5, next = game number it's due, right, tries }
@@ -699,7 +713,7 @@ const boxOf = w => (prog[w.fr] || {}).box || 0;
 const INTERVAL = [0, 1, 2, 4, 7, 12]; // games until a word comes back, by box (5 = learned)
 const themeOn = k => settings.themes[k] !== false;
 
-const VERSION = "2026-11-21b"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-21c"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -751,12 +765,13 @@ async function freshCtx() {
     dlog("fresh audio: new player, " + c.sampleRate + " Hz" + (old.sampleRate !== c.sampleRate ? " (old one was " + old.sampleRate + " Hz)" : ""));
   } catch (e) { dlog("fresh audio failed: " + e.message); try { c && c.close(); } catch (x) {} }
 }
-const BUILTIN = { voice: "", lines: {}, gain: {} };
+// lines = recorded at the fast speed (Rapide), slow = the Normale set (default); see ⚙️ Vitesse de la voix
+const BUILTIN = { voice: "", lines: {}, slow: {}, gain: {} };
 fetch("audio/manifest.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null)
   .then(j => { if (j && j.lines) Object.assign(BUILTIN, j); noteStart(); }).catch(() => {});
 const mem = new Map(), clipGain = new WeakMap();
 async function getClip(text) {
-  const f = BUILTIN.lines[text]; if (!f) return null;
+  const f = (settings.voice !== "fast" && BUILTIN.slow && BUILTIN.slow[text]) || BUILTIN.lines[text]; if (!f) return null;
   const url = "audio/" + f;
   if (mem.has(url)) return mem.get(url);
   const p = fetch(url).then(r => { if (!r.ok) throw new Error("audio " + r.status); return r.arrayBuffer(); })
@@ -998,13 +1013,26 @@ function confetti() {
   }
 }
 function clearStage() {
-  ["choices", "spell", "ring", "selfcheck", "answer"].forEach(id => $(id).classList.add("hidden"));
+  ["choices", "spell", "ring", "selfcheck", "answer", "sent"].forEach(id => $(id).classList.add("hidden"));
   $("pic").textContent = ""; $("word").textContent = ""; $("heard").textContent = "";
   $("verdict").textContent = ""; $("verdict").className = "verdict"; setPrompt("", false);
 }
 function showAnswer(w) {
   const a = $("answer"); a.classList.add("hidden"); void a.offsetWidth;
   a.innerHTML = `${esc(sayInd(w).replace(/\.$/, ""))}<small>${esc(w.en)}</small>`; a.classList.remove("hidden");
+}
+/* Show what Jeanne reads, with a blank where the word goes: her sheet's sentence for dictée
+   words (so she sees the verb as conjugated there), "Une ____" for picture words. After the
+   answer the word fills the blank. */
+function showSentence(w, reveal) {
+  const base = w.sentence || sayInd(w).replace(/\.$/, "");
+  const re = new RegExp(`(^|[^\\p{L}])(${w.fr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})(?![\\p{L}])`, "iu");
+  const m = re.exec(base);
+  const html = !m ? (reveal ? `<b class="fill">${esc(w.fr)}</b>` : `<span class="blank" style="min-width:${Math.max(3, w.fr.length * 0.62)}em"></span>`) :
+    esc(base.slice(0, m.index + m[1].length)) +
+    (reveal ? `<b class="fill">${esc(m[2])}</b>` : `<span class="blank" style="min-width:${Math.max(3, w.fr.length * 0.62)}em"></span>`) +
+    esc(base.slice(m.index + m[1].length + m[2].length));
+  $("sent").innerHTML = html; $("sent").classList.remove("hidden");
 }
 function verdict(ok, txt) { const v = $("verdict"); v.className = "verdict " + (ok ? "yes" : "no"); v.textContent = txt; }
 function renderDots() {
@@ -1103,6 +1131,7 @@ async function playQ(q) {
     const typing = q.mode === "ecris";
     if (settings.mode !== "dictee") $("pic").textContent = w.emoji || "";
     if (typing) renderType(w); else renderSpell(w);
+    showSentence(w, false);
     const ans = waitAnswer(); let early = false; ans.then(() => early = true);
     await prompt1(typing ? "P_ECRIS" : "P_EPELLE"); if (!alive()) return;
     await hear(q, () => early || !alive()); if (!alive()) return;
@@ -1111,7 +1140,7 @@ async function playQ(q) {
     ok = v === w.fr; const accents = !ok && v !== "dunno" && strip(v) === strip(w.fr);
     how = v === "dunno" ? "give" : ok ? "yes" : accents ? "accents" : "spell";
     if (typing) { $("typeIn").disabled = true; $("typeIn").blur(); hints = spell.hints; }
-    showSpellResult(w, v === "dunno" ? "" : v);
+    showSpellResult(w, v === "dunno" ? "" : v); showSentence(w, true);
   }
   if (!alive()) return;
   setControls(false); $("nextBtn").disabled = true;
@@ -1385,7 +1414,7 @@ $("bkRestore").onclick = () => { const c = prompt("Colle ton code Mots (Paste yo
 /* ---------------- settings + sound test ---------------- */
 function openSet() {
   if (game && !paused) pauseGame("opened settings");
-  $("sN").value = String(settings.n); $("sNew").value = String(settings.fresh); $("sAuto").value = settings.auto ? "on" : "off"; $("sThink").value = String(settings.think); $("sHelp").value = settings.help; $("sFresh").value = settings.freshAudio ? "on" : "off";
+  $("sN").value = String(settings.n); $("sNew").value = String(settings.fresh); $("sAuto").value = settings.auto ? "on" : "off"; $("sThink").value = String(settings.think); $("sHelp").value = settings.help; $("sVoice").value = settings.voice; $("sFresh").value = settings.freshAudio ? "on" : "off";
   ["tSpeakRes", "tListenRes"].forEach(id => { $(id).textContent = ""; $(id).className = "res"; });
   $("verLine").textContent = `Version ${VERSION} · voix (voice) : ${BUILTIN.voice || "?"} · ${Object.keys(BUILTIN.lines).length} phrases enregistrées (recorded lines) · ${ALL.length} mots (words)`;
   $("set").classList.remove("hidden"); $("log").textContent = LOG.slice(-40).join("\n"); unlockAudio();
@@ -1397,6 +1426,7 @@ $("sN").onchange = e => { settings.n = +e.target.value; saveSettings(); };
 $("sNew").onchange = e => { settings.fresh = +e.target.value; saveSettings(); };
 $("sThink").onchange = e => { settings.think = +e.target.value; saveSettings(); };
 $("sHelp").onchange = e => { settings.help = e.target.value; saveSettings(); };
+$("sVoice").onchange = e => { settings.voice = e.target.value; saveSettings(); stopAudio(); unlockAudio(); speak(LINES.TEST[0]); }; // play a line so she hears the new speed
 $("sAuto").onchange = e => { settings.auto = e.target.value === "on"; saveSettings(); };
 $("sFresh").onchange = e => { settings.freshAudio = e.target.value === "on"; saveSettings(); dlog("--- fresh audio after listening: " + e.target.value + " ---"); unlockAudio(); };
 const res = (id, msg, cls) => { $(id).innerHTML = msg; $(id).className = "res" + (cls ? " " + cls : ""); };
@@ -1409,10 +1439,10 @@ $("tListen").onclick = async () => {
   unlockAudio(); stopAudio();
   if (!SR) return res("tListenRes", fe("Ce navigateur ne peut pas écouter. Sur iPhone, ouvre-le dans Safari.", "This browser can't listen. On iPhone, open it in Safari"), "bad");
   if (cancelListen) return cancelListen();
-  res("tListenRes", fe("J'écoute… dis « grenouille »", "listening, say « grenouille »")); $("tListen").innerHTML = fe("⏹ Arrêter", "Stop");
+  res("tListenRes", fe("J'écoute… dis « grenouille »", "listening, say « grenouille »")); $("tListen").textContent = "⏹ Arrêter";
   const heardEl = $("heard"), keep = heardEl.textContent;
   const t = await listen(6, { earlyStop: x => saidWord(x, { fr: "grenouille", alt: [] }), silenceMs: 1500 });
-  heardEl.textContent = keep; $("tListen").innerHTML = fe("🎤 Écouter", "Listen");
+  heardEl.textContent = keep; $("tListen").textContent = "🎤 Écouter";
   if (micBlocked) res("tListenRes", fe("Le micro est bloqué. Safari aA → Réglages du site → Micro → Autoriser, puis recharge la page.", "Mic blocked. Safari aA → Website Settings → Microphone → Allow, then reload"), "bad");
   else if (!t) res("tListenRes", fe("Je n'ai rien entendu. Approche-toi et essaie encore.", "Didn't hear anything. Get closer and try again"), "bad");
   else if (saidWord(t, { fr: "grenouille", alt: [] })) res("tListenRes", fe(`✅ J'ai entendu « ${esc(t)} » : ça compte pour grenouille !`, "heard it, and that counts"), "ok");
