@@ -30,6 +30,13 @@ const META = {
   "nouveau": ["adj", "new"], "restaurant": ["m", "restaurant", "🍽️"], "radio": ["f", "radio", "📻"], "offrir": ["v", "to offer, give"],
   "promener": ["v", "to walk"], "vélo": ["m", "bike", "🚲"], "hauteur": ["f", "height"], "beaux": ["adj", "beautiful (plural)"],
   "oiseaux": ["pl", "birds"], "poches": ["pl", "pockets"], "automne": ["m", "autumn, fall", "🍂"], "promettre": ["v", "to promise"],
+  // Liste 8 (le son [an])
+  "enfants": ["pl", "children"], "entrer": ["v", "to go in"], "appartement": ["m", "apartment", "🏢"],
+  "grand-maman": ["f", "grandma", "👵"], "courant": ["v", "running (en courant)"], "souvent": ["adv", "often"],
+  "penchée": ["adj", "leaning over (she)"], "demande": ["f", "request"], "apprendre": ["v", "to learn"],
+  "attention": ["x", "attention, care"], "reprendre": ["v", "to start again"], "lentement": ["adv", "slowly"],
+  "sentiers": ["pl", "paths, trails"], "sentier": ["m", "path, trail"], "environ": ["adv", "about, around"],
+  "santé": ["x", "health"], "rendre": ["v", "to give back"], "pantalon": ["m", "pants", "👖"], "bande": ["f", "stripe"],
 };
 
 const clean = s => s.replace(/\s*\((?:[^)]*)\)/g, "").replace(/\*/g, "").replace(/[[\]]/g, "").replace(/\s+/g, " ").trim();
