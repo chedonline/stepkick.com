@@ -806,6 +806,27 @@ const LISTES = [
 ["automne","m","autumn, fall","Comme j’ai hâte à l’automne !","🍂"],
 ["promettre","v","to promise","Madame Barbara va nous promettre de remettre notre récitation aussitôt que qu’il n’y aura plus de fautes."],
 ["fautes","pl","mistakes","Nos fautes vont être corrigées."]
+]},
+{ n: 8, title: "Une belle richesse", words: [
+["enfants","pl","children","Les enfants aiment entrer dans l’appartement de leur grand-maman en courant."],
+["entrer","v","to go in","Les enfants aiment entrer dans l’appartement de leur grand-maman en courant."],
+["appartement","m","apartment","Les enfants aiment entrer dans l’appartement de leur grand-maman en courant.","🏢"],
+["grand-maman","f","grandma","Les enfants aiment entrer dans l’appartement de leur grand-maman en courant.","👵"],
+["courant","v","running (en courant)","Les enfants aiment entrer dans l’appartement de leur grand-maman en courant."],
+["souvent","adv","often","Ils la trouvent souvent penchée sur un livre."],
+["penchée","adj","leaning over (she)","Ils la trouvent souvent penchée sur un livre."],
+["demande","f","request","Ils lui font toujours la même demande."],
+["apprendre","v","to learn","Ils aiment apprendre à lire."],
+["attention","x","attention, care","Alors, elle fait attention de reprendre son histoire en tournant les pages lentement."],
+["reprendre","v","to start again","Alors, elle fait attention de reprendre son histoire en tournant les pages lentement."],
+["lentement","adv","slowly","Alors, elle fait attention de reprendre son histoire en tournant les pages lentement."],
+["sentiers","pl","paths, trails","Merci grand-maman de nous avoir emmenés avec toi sur les sentiers de la lecture !"],
+["sentier","m","path, trail","Suis le sentier, compte environ cent mètres et tu arrives à mon appartement."],
+["environ","adv","about, around","Suis le sentier, compte environ cent mètres et tu arrives à mon appartement."],
+["santé","x","health","Faire attention à sa santé, c’est apprendre à manger correctement et faire environ 30 minutes d’exercice."],
+["rendre","v","to give back","J’ai une demande à te faire : « Peux-tu venir chez-moi pour me rendre mon pantalon avec la bande rouge ?"],
+["pantalon","m","pants","J’ai une demande à te faire : « Peux-tu venir chez-moi pour me rendre mon pantalon avec la bande rouge ?","👖"],
+["bande","f","stripe","J’ai une demande à te faire : « Peux-tu venir chez-moi pour me rendre mon pantalon avec la bande rouge ?"]
 ]}
 ];
 const THEMES = [
@@ -913,7 +934,7 @@ const boxOf = w => (prog[w.fr] || {}).box || 0;
 const INTERVAL = [0, 1, 2, 4, 7, 12]; // games until a word comes back, by box (5 = learned)
 const themeOn = k => settings.themes[k] !== false;
 
-const VERSION = "2026-11-21g"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-21h"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const pick = a => a[Math.floor(Math.random() * a.length)];
