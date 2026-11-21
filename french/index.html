@@ -89,6 +89,17 @@ nav button.on{background:#fff;color:var(--bg1)}
 .tiles button:disabled{opacity:.18;box-shadow:none}
 .tiles button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
 .tiles .back{background:var(--soft);font-size:24px}
+.hintword{display:block;font-size:.45em;color:var(--muted);font-weight:600}
+/* Les nombres: big readout, a fat slider, − / + to land exactly */
+.numpick{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:620px}
+.numread{font-size:clamp(56px,14vw,110px);font-weight:700;color:#0f766e;line-height:1;font-variant-numeric:tabular-nums}
+.numread.good{color:var(--green)} .numread.bad{color:var(--orange);font-size:clamp(40px,10vw,80px)}
+.numrow{display:flex;align-items:center;gap:10px;width:100%}
+.numstep{flex:none;width:56px;height:56px;border-radius:50%;background:var(--soft);border:3px solid var(--line);font-size:30px;font-weight:700;color:var(--ink)}
+#numRange{flex:1;-webkit-appearance:none;appearance:none;height:16px;border-radius:99px;background:linear-gradient(90deg,#99f6e4,#2dd4bf);outline:none}
+#numRange::-webkit-slider-thumb{-webkit-appearance:none;width:44px;height:44px;border-radius:50%;background:#0f766e;border:5px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+#numRange::-moz-range-thumb{width:44px;height:44px;border-radius:50%;background:#0f766e;border:5px solid #fff}
+.numends{display:flex;justify-content:space-between;width:calc(100% - 132px);color:var(--muted);font-weight:600}
 /* the sentence she hears, with a blank for the word (Épelle / Écris) */
 .sent{font-size:clamp(22px,3.6vw,38px);font-weight:500;line-height:1.35;max-width:26ch;color:var(--ink)}
 .sent .blank{display:inline-block;min-width:3em;border-bottom:4px solid var(--teal);margin:0 .15em;transform:translateY(-.15em)}
@@ -267,6 +278,14 @@ body.playing nav{opacity:.35}
     <div class="ring hidden" id="ring">
       <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="52"/><circle class="bar" id="ringBar" cx="60" cy="60" r="52"/></svg>
       <div class="num" id="ringNum"></div>
+    </div>
+    <div class="numpick hidden" id="numpick">
+      <div class="numread" id="numRead">50</div>
+      <div class="numrow"><button class="numstep" id="numMinus" aria-label="moins un">−</button>
+        <input type="range" id="numRange" min="0" max="100" step="1" value="50" aria-label="Le nombre">
+        <button class="numstep" id="numPlus" aria-label="plus un">+</button></div>
+      <div class="numends"><span>0</span><span>50</span><span>100</span></div>
+      <button class="btn big" id="numOk">✓ Vérifier</button>
     </div>
     <div class="heard" id="heard"></div>
     <div class="selfcheck hidden" id="selfcheck">
@@ -655,7 +674,22 @@ const sayBare = w => cap(w.fr) + ".";
 const sayInd = w => !w.g || w.theme === "couleurs" ? sayBare(w) :
   w.mass ? (/^[aeiouyhâéèêîôû]/i.test(w.fr) ? "L'" : w.g === "m" ? "Le " : "La ") + w.fr + "." :
   (w.g === "m" ? "Un " : "Une ") + w.fr + ".";
+// French number words 0–100 (soixante et onze, quatre-vingts, quatre-vingt-onze…) for "Les nombres"
+function frNum(n) {
+  const u = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze", "treize",
+    "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"];
+  if (n < 20) return u[n];
+  if (n === 100) return "cent";
+  const t = ["", "", "vingt", "trente", "quarante", "cinquante", "soixante", "soixante", "quatre-vingt", "quatre-vingt"];
+  const d = Math.floor(n / 10), r = n % 10;
+  if (d === 7 || d === 9) return t[d] + (d === 7 && r === 1 ? " et " : "-") + u[10 + r];
+  if (d === 8) return r === 0 ? "quatre-vingts" : "quatre-vingt-" + u[r];
+  if (r === 0) return t[d];
+  return t[d] + (r === 1 ? " et un" : "-" + u[r]);
+}
 /* SAY-END */
+// a number as a pseudo-word, so the game loop can say it, show it and check it like a word
+const numWord = n => ({ fr: frNum(n), num: n, en: String(n), emoji: "", theme: "nombres", alt: [], lists: [], sentence: "", g: "" });
 const ALL = buildWords(WORDS, LISTES);
 const BY = new Map(ALL.map(w => [w.fr, w]));
 const inTheme = (w, k) => w.theme === k || (k.startsWith("liste") && w.lists.includes(+k.slice(5)));
@@ -674,6 +708,7 @@ const LINES = {
   P_DISLE: ["Comment dit-on ça en français ?"],
   P_EPELLE: ["Épelle le mot."],
   P_ECRIS: ["Écris le mot."],
+  P_NOMBRES: ["Écoute le nombre, et glisse jusqu'à lui."],
   P_UNUNE: ["Un ou une ?"],
   END: ["Fini ! Bravo pour ta partie !", "Fini ! Tu travailles fort !"],
   LEVEL_UP: ["Bravo ! Tu montes de niveau !"],
@@ -688,10 +723,12 @@ const MODES = [
   { k: "ecris", ic: "⌨️", fr: "Écris", en: "Type the word you hear" },
   { k: "epelle", ic: "✏️", fr: "Épelle", en: "Spell it with letter tiles" },
   { k: "unune", ic: "🎩", fr: "Un ou une ?", en: "Which article?" },
-  { k: "dictee", ic: "📝", fr: "Ma dictée", en: "Type her school list words" }
+  { k: "dictee", ic: "📝", fr: "Ma dictée", en: "Type her school list words" },
+  { k: "nombres", ic: "🔢", fr: "Les nombres", en: "Hear a number, slide to it" }
 ];
 const canDo = (w, m) =>
-  m === "ecoute" || m === "disle" ? !!w.emoji :
+  m === "ecoute" ? !!w.emoji :
+  m === "disle" ? !!w.emoji || (w.lists.length > 0 && !!w.sentence) : // dictée words: say the blank in her sentence
   m === "unune" ? !!w.g && !w.mass && w.theme !== "couleurs" :
   m === "epelle" ? true :
   m === "dictee" ? w.lists.length > 0 : true;
@@ -713,7 +750,7 @@ const boxOf = w => (prog[w.fr] || {}).box || 0;
 const INTERVAL = [0, 1, 2, 4, 7, 12]; // games until a word comes back, by box (5 = learned)
 const themeOn = k => settings.themes[k] !== false;
 
-const VERSION = "2026-11-21c"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-21e"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -847,8 +884,10 @@ if (fakeSay) {
     stop() { clearTimeout(this._t); setTimeout(() => this.onend && this.onend(), 200); } abort() { this.stop(); } };
 }
 let micBlocked = false, micWorked = false, cancelListen = null;
+let heardAlts = []; // the recognizer's other guesses during the current listen
 const MIC_SETTLE = 850; // ms after the mic closes before talking (the iPhone's closing chime)
 function listen(seconds, { earlyStop, silenceMs } = {}) {
+  heardAlts = [];
   return new Promise(resolve => {
     let text = "", done = false, rec = null, lastChange = Date.now(), restarts = 0, micEnded = null;
     const end = Date.now() + seconds * 1000;
@@ -868,16 +907,21 @@ function listen(seconds, { earlyStop, silenceMs } = {}) {
     let prior = "", stopping = false;
     const startRec = () => {
       const r = new SR(); rec = r;
-      r.lang = "fr-CA"; r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
+      // ask for the recognizer's other guesses too: a short word like "poing" often comes back as
+      // "point" first and the right word second
+      r.lang = "fr-CA"; r.continuous = true; r.interimResults = true; r.maxAlternatives = 5;
       r.onstart = () => { micLive = true; if (!restarts) dlog("mic on"); };
       r.onresult = e => {
         if (rec !== r) return;
         let t = "", fin = "";
-        for (let i = 0; i < e.results.length; i++) { t += e.results[i][0].transcript + " "; if (e.results[i].isFinal) fin += e.results[i][0].transcript + " "; }
+        for (let i = 0; i < e.results.length; i++) {
+          t += e.results[i][0].transcript + " "; if (e.results[i].isFinal) fin += e.results[i][0].transcript + " ";
+          for (let j = 1; j < e.results[i].length; j++) { const a = e.results[i][j].transcript.trim(); if (a && !heardAlts.includes(a)) heardAlts.push(a); }
+        }
         micWorked = true;
         text = (prior + " " + t).replace(/\s+/g, " ").trim(); lastChange = Date.now(); $("heard").textContent = text || "j'écoute…";
-        if (fin.trim()) dlog(`heard "${fin.trim().slice(0, 50)}"`);
-        if (!done && !stopping && earlyStop && earlyStop(text)) { stopping = true; setTimeout(finish, 300); }
+        if (fin.trim()) dlog(`heard "${fin.trim().slice(0, 50)}"` + (heardAlts.length ? ` (or ${heardAlts.slice(-3).map(a => `"${a}"`).join(", ")})` : ""));
+        if (!done && !stopping && earlyStop && earlyStop(text, heardAlts)) { stopping = true; setTimeout(finish, 300); }
       };
       r.onerror = e => {
         if (e.error === "aborted" || e.error === "no-speech") return;
@@ -914,11 +958,12 @@ const toks = s => strip(String(s).toLowerCase()).replace(/[’']/g, " ").replace
 // rough "how it sounds" key so homophones (vert/verre/ver) and recognizer near-misses count
 function fkey(s) {
   return strip(s.toLowerCase()).replace(/[^a-z]/g, "")
+    .replace(/([^aeiouy])ent$/, "$1e") // silent verb ending: glissent = glisse
     .replace(/ch/g, "S").replace(/ph/g, "f").replace(/qu/g, "k").replace(/gu(?=[eiy])/g, "g").replace(/c(?=[eiy])/g, "s").replace(/g(?=[eiy])/g, "j")
     .replace(/h/g, "").replace(/(eaux|eau|aux|au)/g, "o").replace(/(ai|ei)/g, "e").replace(/(er|ez|et)$/, "e")
     .replace(/([a-z])\1+/g, "$1")
     .replace(/(an|am|en|em)(?![aeiouy])/g, "A").replace(/(ain|ein|in|im|un|um)(?![aeiouy])/g, "I").replace(/(on|om)(?![aeiouy])/g, "O")
-    .replace(/y/g, "i").replace(/w/g, "v").replace(/c/g, "k").replace(/[sxtdpe]+$/, "");
+    .replace(/y/g, "i").replace(/w/g, "v").replace(/c/g, "k").replace(/[sxtdpeg]+$/, ""); // silent endings (poing = point)
 }
 function lev(a, b) {
   const m = a.length, n = b.length; if (!m || !n) return m + n;
@@ -965,7 +1010,17 @@ function modeFor(w, mode) {
   return say && Math.random() < 0.5 ? "disle" : "ecris";
 }
 const isSpell = m => m === "epelle" || m === "ecris";
+// Les nombres: 0–100, leaning on the tricky ones (60–99: soixante-dix, quatre-vingt-dix…)
+function buildNumbers(n) {
+  const picked = new Set();
+  while (picked.size < n) {
+    const r = Math.random();
+    picked.add(r < 0.5 ? 60 + Math.floor(Math.random() * 40) : r < 0.8 ? 11 + Math.floor(Math.random() * 49) : r < 0.95 ? Math.floor(Math.random() * 11) : 100);
+  }
+  return shuffle([...picked]).map(v => ({ w: numWord(v), mode: "nombres", retry: false }));
+}
 function buildGame() {
+  if (settings.mode === "nombres") return buildNumbers(settings.n);
   const mode = settings.mode, p = pool(mode), n = settings.n;
   const seen = p.filter(w => prog[w.fr] && prog[w.fr].tries);
   const due = shuffle(seen.filter(w => P(w).next <= games && P(w).box < 5)).sort((a, b) => P(a).box - P(b).box);
@@ -1013,7 +1068,7 @@ function confetti() {
   }
 }
 function clearStage() {
-  ["choices", "spell", "ring", "selfcheck", "answer", "sent"].forEach(id => $(id).classList.add("hidden"));
+  ["choices", "spell", "ring", "selfcheck", "answer", "sent", "numpick"].forEach(id => $(id).classList.add("hidden"));
   $("pic").textContent = ""; $("word").textContent = ""; $("heard").textContent = "";
   $("verdict").textContent = ""; $("verdict").className = "verdict"; setPrompt("", false);
 }
@@ -1070,7 +1125,20 @@ async function playQ(q) {
   const m = MODES.find(x => x.k === q.mode) || MODES[0];
   $("badge").textContent = `${m.ic} ${m.fr}` + (q.retry ? " · on réessaie" : "");
   let ok = false, how = "no", hints = 0;
-  if (q.mode === "ecoute") {
+  if (q.mode === "nombres") {
+    // hear it, slide to it (− / + to land exactly), ✓
+    const box = $("numpick"), range = $("numRange"), read = $("numRead");
+    box.classList.remove("hidden"); range.disabled = false; range.value = "50"; read.textContent = "50"; read.className = "numread";
+    const ans = waitAnswer();
+    await prompt1("P_NOMBRES"); if (!alive()) return;
+    await speak(sayBare(w)); if (!alive()) return;
+    setPrompt("Glisse jusqu'au nombre, puis ✓");
+    const v = await ans; if (!alive()) return;
+    range.disabled = true;
+    ok = v !== "dunno" && +v === w.num; how = v === "dunno" ? "give" : ok ? "yes" : "no";
+    read.className = "numread " + (ok ? "good" : "bad");
+    if (!ok && v !== "dunno") read.textContent = `${v} → ${w.num}`;
+  } else if (q.mode === "ecoute") {
     // distractors: same theme first, never one that could also be right (ballon / ballon de soccer)
     const clash = (a, b) => a.fr.includes(b.fr) || b.fr.includes(a.fr) || a.alt.includes(b.fr) || b.alt.includes(a.fr);
     const opts = shuffle([w, ...shuffle(ALL.filter(x => x !== w && x.emoji && x.emoji !== w.emoji && canDo(x, "ecoute") && !clash(x, w)))
@@ -1097,7 +1165,10 @@ async function playQ(q) {
     ok = v === w.g; how = v === "dunno" ? "give" : ok ? "yes" : "no";
     c.querySelectorAll("button").forEach(b => { b.disabled = true; if (b.dataset.v === w.g) b.classList.add("right"); else if (b.dataset.v === v) b.classList.add("wrong"); });
   } else if (q.mode === "disle") {
-    $("pic").textContent = w.emoji;
+    // picture words: the picture. Dictée words (verbs, ideas): her sheet sentence with a blank,
+    // plus what the word means in English; she says the missing word.
+    if (w.emoji) $("pic").textContent = w.emoji;
+    else { showSentence(w, false); $("word").innerHTML = `<span class="hintword">${esc(w.en)}</span>`; }
     await prompt1("P_DISLE"); if (!alive()) return;
     const mic = SR && !micBlocked;
     if (!mic) { // no mic: show it, she checks herself
@@ -1117,16 +1188,18 @@ async function playQ(q) {
       for (;;) {
         setPrompt('<span class="mic-dot"></span>Dis le mot !');
         const ans = waitAnswer(); let tapped = null; ans.then(v => { tapped = v; });
-        const heard = await listen(settings.think, { earlyStop: t => saidWord(t, w) || gaveUp(t), silenceMs: 1500 }); if (!alive()) return;
+        const said = (t, alts = []) => [t, ...alts].some(x => saidWord(x, w)); // what she said, or any of the recognizer's other guesses
+        const heard = await listen(settings.think, { earlyStop: (t, alts) => said(t, alts) || gaveUp(t), silenceMs: 1500 }); if (!alive()) return;
         if (answerRes) answerRes = null; // nothing tapped
         if (tapped === "dunno") { how = "give"; break; }
-        if (saidWord(heard, w)) { ok = true; how = "yes"; break; }
+        if (said(heard, heardAlts)) { ok = true; how = "yes"; break; }
         if (gaveUp(heard)) { how = "give"; break; }
         if (!heard) { how = "silent"; break; }
         if (++tries >= 2) { how = "no"; break; }
         await speak(pick(LINES.AGAIN)); if (!alive()) return;
       }
     }
+    if (!w.emoji && w.sentence) showSentence(w, true); // fill the blank
   } else { // Épelle (letter tiles) / Écris (type it; Ma dictée types too, with no picture)
     const typing = q.mode === "ecris";
     if (settings.mode !== "dictee") $("pic").textContent = w.emoji || "";
@@ -1146,7 +1219,7 @@ async function playQ(q) {
   setControls(false); $("nextBtn").disabled = true;
   // grade the first try only; a miss comes back once at the end of the game
   // right with a 💡 hint = "almost": it doesn't move up, and comes back next game
-  if (!q.retry) { grade(w, ok, ok && hints > 0); if (ok) score++; q.res = ok; if (!ok) game.push({ w, mode: q.mode === "disle" && !SR ? "ecoute" : q.mode, retry: true }); }
+  if (!q.retry) { if (w.num == null) grade(w, ok, ok && hints > 0); if (ok) score++; q.res = ok; if (!ok) game.push({ w, mode: q.mode === "disle" && !SR ? (w.emoji ? "ecoute" : "ecris") : q.mode, retry: true }); }
   else q.res = ok;
   renderDots();
   // feedback: verdict + Jeanne says it
@@ -1298,6 +1371,13 @@ document.addEventListener("keydown", e => {
   if (i >= 0) spellPut(i);
 });
 
+/* ---------------- Les nombres: the slider ---------------- */
+const numSet = v => { const r = $("numRange"); if (r.disabled) return; r.value = String(Math.max(0, Math.min(100, v))); $("numRead").textContent = r.value; };
+$("numRange").addEventListener("input", e => { $("numRead").textContent = e.target.value; });
+$("numMinus").onclick = () => numSet(+$("numRange").value - 1);
+$("numPlus").onclick = () => numSet(+$("numRange").value + 1);
+$("numOk").onclick = () => { if (!$("numRange").disabled) answer($("numRange").value); };
+
 /* ---------------- buttons ---------------- */
 $("choices").addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (b && !b.disabled) answer(b.dataset.v); });
 $("scYes").onclick = () => { unlockAudio(); answer("yes"); };
@@ -1349,6 +1429,7 @@ document.addEventListener("visibilitychange", () => {
 function renderStart() {
   $("modes").innerHTML = MODES.map(m => `<button data-m="${m.k}" class="${settings.mode === m.k ? "on" : ""}"><i>${m.ic}</i><b>${m.fr}</b><small>${m.en}</small></button>`).join("");
   const dict = settings.mode === "dictee";
+  $("themes").classList.toggle("hidden", settings.mode === "nombres"); // numbers don't use themes
   $("themes").innerHTML = THEMES.filter(t => dict ? t.liste : true).map(t => {
     const n = ALL.filter(w => inTheme(w, t.k)).length; if (!n) return "";
     return `<button data-k="${t.k}" class="${themeOn(t.k) ? "on" : ""}" title="${n} mots">${t.label}</button>`;
@@ -1357,7 +1438,7 @@ function renderStart() {
 }
 function noteStart() {
   const p = pool(settings.mode).length, rec = Object.keys(BUILTIN.lines).length;
-  $("startNote").textContent = `${p} mots · ${learned()} appris` + (rec ? "" : " · (la voix charge… voice loading)");
+  $("startNote").textContent = (settings.mode === "nombres" ? "Les nombres de 0 à 100" : `${p} mots · ${learned()} appris`) + (rec ? "" : " · (la voix charge… voice loading)");
 }
 $("modes").onclick = e => { const b = e.target.closest("button[data-m]"); if (!b) return; settings.mode = b.dataset.m; saveSettings(); renderStart(); };
 $("themes").onclick = e => {
