@@ -232,6 +232,7 @@ body.playing nav{opacity:.35}
 <body>
 <header>
   <div class="hleft">
+    <a class="hbtn" href="/" aria-label="Retour à StepKick (back to StepKick)" title="StepKick">🦶</a>
     <button class="hbtn" id="setBtn" aria-label="Settings and sound test" title="Settings and sound test">⚙️</button>
     <div class="logo"><span>🐸</span><b>Mots</b></div>
   </div>
@@ -912,7 +913,7 @@ const boxOf = w => (prog[w.fr] || {}).box || 0;
 const INTERVAL = [0, 1, 2, 4, 7, 12]; // games until a word comes back, by box (5 = learned)
 const themeOn = k => settings.themes[k] !== false;
 
-const VERSION = "2026-11-21f"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-21g"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -921,6 +922,12 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;",
 // fe("Bonjour", "Hello") -> French, then the English lighter in parentheses (HTML)
 const fe = (fr, en) => `${fr} <span class="en">(${en})</span>`;
 function toast(msg, ms = 3200) { const t = $("toast"); t.innerHTML = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
+
+/* StepKick stars: every word right on the first try is a star in StepKick's Sticker Book
+   (Français page). Same site, so they share storage: add to the inbox StepKick empties on home. */
+function sendStars(n) {
+  try { const k = "stepkick.inbox", box = JSON.parse(localStorage.getItem(k) || "{}") || {}; box.mots = (box.mots || 0) + n; localStorage.setItem(k, JSON.stringify(box)); } catch (e) {}
+}
 
 /* ---------------- audio log ---------------- */
 const T0 = performance.now(), LOG = [];
@@ -1396,7 +1403,7 @@ async function playQ(q) {
   setControls(false); $("nextBtn").disabled = true;
   // grade the first try only; a miss comes back once at the end of the game
   // right with a 💡 hint = "almost": it doesn't move up, and comes back next game
-  if (!q.retry) { if (w.num == null) grade(w, ok, ok && hints > 0); if (ok) score++; q.res = ok; if (!ok) game.push({ w, mode: q.mode === "disle" && !SR ? (w.emoji ? "ecoute" : "ecris") : q.mode, retry: true }); }
+  if (!q.retry) { if (w.num == null) grade(w, ok, ok && hints > 0); if (ok) { score++; sendStars(1); } q.res = ok; if (!ok) game.push({ w, mode: q.mode === "disle" && !SR ? (w.emoji ? "ecoute" : "ecris") : q.mode, retry: true }); }
   else q.res = ok;
   renderDots();
   // feedback: verdict + Jeanne says it
