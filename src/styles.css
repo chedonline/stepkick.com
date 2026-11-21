@@ -513,6 +513,32 @@ body.framed[data-view='ipad-l'] #app {
   font-weight: 800;
 }
 
+/* toast: stars arriving from Mots / Riddles */
+.sk-toast {
+  position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+  z-index: 99; max-width: min(92vw, 520px); padding: 12px 18px; border-radius: 16px; text-align: center;
+  background: #0f1226; color: #fff; font-weight: 800; border: 2px solid var(--gold, #fbbf24);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); animation: pop 0.4s cubic-bezier(0.2, 2, 0.4, 1); transition: opacity 0.5s;
+  pointer-events: none; /* never block a tap on the game under it */
+}
+.sk-toast.out { opacity: 0; }
+
+/* big games (own pages: Mots, Riddles) — bigger cards at the top of home */
+.big-games { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.big-card {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left;
+  padding: 14px 14px 12px; border-radius: var(--radius); border: 2px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  min-height: 112px; transition: transform 0.09s ease, box-shadow 0.15s ease;
+}
+.big-card:active { transform: scale(0.97); }
+.big-card:hover { box-shadow: 0 0 26px color-mix(in srgb, var(--accent) 30%, transparent); }
+.big-card.mots { --accent: #2dd4bf; background: linear-gradient(160deg, #0b5560, #174a8f); }
+.big-card.riddles { --accent: #b18cff; background: linear-gradient(160deg, #3b1c7a, #1b3f8f); }
+.big-icon { font-size: 38px; line-height: 1; margin-bottom: 4px; }
+.big-title { font-size: 19px; font-weight: 900; }
+.big-sub { font-size: 12.5px; font-weight: 700; color: rgba(255, 255, 255, 0.8); line-height: 1.25; }
+.big-tag { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 900; letter-spacing: 0.08em; background: rgba(255, 255, 255, 0.16); padding: 3px 8px; border-radius: 99px; }
+
 /* ---------- groups (find the equal tiles) ---------- */
 .groupsgame { display: flex; flex-direction: column; }
 .grp-ask { text-align: center; font-weight: 900; font-size: 17px; color: var(--ink-dim); margin: 2px 0 8px; }

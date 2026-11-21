@@ -152,11 +152,11 @@ await tappable.click();
 await new Promise((r) => setTimeout(r, 150));
 console.log('  ✓ tapped a sticker (chime + pop), no error');
 await shot('sticker-collected');
-// switch to All -> full 72-slot book
+// switch to All -> full 88-slot book (11 pages: 9 StepKick + Français + Rigolo)
 await page.evaluate(() => [...document.querySelectorAll('.seg-btn')].find((b) => b.textContent.includes('All'))?.click());
 await new Promise((r) => setTimeout(r, 200));
 const all = await page.evaluate(() => document.querySelectorAll('.sticker').length);
-if (all !== 72) throw new Error(`book All: expected 72 cells, got ${all}`);
+if (all !== 88) throw new Error(`book All: expected 88 cells, got ${all}`);
 console.log(`  ✓ All view: ${all} slots`);
 await shot('sticker-book');
 // backup: open the panel, confirm a code is generated, close it
@@ -172,10 +172,20 @@ await page.waitForSelector('.subject-grid', { timeout: 3000 });
 
 // circuits mode: open, solve puzzle 1 (OR, both off, goal ON -> flip one switch)
 console.log('▶ Circuits');
-// voice apps (Mots, Riddles) are links to their own pages: check they're there, don't open them
-const voice = await page.$$eval('.voice-launch .circ-launch-title', (els) => els.map((e) => e.textContent));
-if (voice.join('|') !== 'Mots|Riddles') throw new Error('voice app launchers missing: ' + voice.join('|'));
-console.log('  ✓ voice apps on home: ' + voice.join(', '));
+// big games (Mots, Riddles) are cards linking to their own pages: check they're there, don't open them
+const voice = await page.$$eval('.big-card .big-title', (els) => els.map((e) => e.textContent));
+if (voice.join('|') !== 'Mots|Riddles') throw new Error('big game cards missing: ' + voice.join('|'));
+console.log('  ✓ big games on home: ' + voice.join(', '));
+// stars they leave in the shared inbox land in the Sticker Book when home opens (and keep old stars)
+const before = await page.evaluate(() => JSON.parse(localStorage.getItem('stepkick.v1') || '{}').groupStars || []);
+await page.evaluate(() => localStorage.setItem('stepkick.inbox', JSON.stringify({ mots: 7, riddles: 2 })));
+await page.reload();
+await page.waitForSelector('.sk-toast', { timeout: 4000 });
+const inbox = await page.evaluate(() => ({ toast: document.querySelector('.sk-toast').textContent, gs: JSON.parse(localStorage.getItem('stepkick.v1')).groupStars, left: localStorage.getItem('stepkick.inbox') }));
+if (inbox.gs[9] !== (before[9] || 0) + 7 || inbox.gs[10] !== (before[10] || 0) + 2 || inbox.left) throw new Error('inbox not collected: ' + JSON.stringify(inbox));
+if (before.slice(0, 9).some((v, i) => inbox.gs[i] !== v)) throw new Error('inbox: earlier pages changed ' + JSON.stringify({ before, after: inbox.gs }));
+console.log(`  ✓ inbox stars collected: "${inbox.toast}"`);
+await page.waitForSelector('.subject-grid', { timeout: 3000 });
 await page.waitForSelector('.circuits-launch', { timeout: 3000 });
 await page.click('.circuits-launch');
 await page.waitForSelector('.circuits .circ-switch', { timeout: 3000 });

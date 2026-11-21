@@ -37,9 +37,10 @@ function load(): Save {
       ...parsed,
       settings: { ...DEFAULTS.settings, ...(parsed.settings ?? {}) },
     };
-    if (!Array.isArray(merged.groupStars) || merged.groupStars.length !== SET_COUNT) {
-      merged.groupStars = Array.from({ length: SET_COUNT }, () => 0);
-    }
+    // Keep earned stars when sticker pages are added: pad new pages with 0 (never reset).
+    // (Before 2026-11-21 a length change zeroed everything.)
+    if (!Array.isArray(merged.groupStars)) merged.groupStars = [];
+    merged.groupStars = Array.from({ length: SET_COUNT }, (_, i) => Number(merged.groupStars[i]) || 0);
     cache = merged;
   } catch {
     cache = structuredClone(DEFAULTS);
@@ -98,6 +99,24 @@ export function addStars(n: number, source: string): { stars: number; newSticker
   const newStickers: number[] = [];
   for (let i = before; i < after; i++) newStickers.push(base + i);
   return { stars: s.stars, newStickers };
+}
+
+/**
+ * Stars earned in the big games that live on their own pages (Mots at /french, Riddles at
+ * /riddles). Same site, so they share localStorage: they add to `stepkick.inbox`
+ * ({ mots: 3, riddles: 1 }), and StepKick moves them into the Sticker Book when it opens.
+ */
+export const INBOX_KEY = 'stepkick.inbox';
+export function collectInbox(): { source: string; n: number; newStickers: number[] }[] {
+  let box: Record<string, number> = {};
+  try { box = JSON.parse(localStorage.getItem(INBOX_KEY) || '{}') || {}; localStorage.removeItem(INBOX_KEY); } catch { return []; }
+  const out: { source: string; n: number; newStickers: number[] }[] = [];
+  for (const [source, raw] of Object.entries(box)) {
+    const n = Math.floor(Number(raw));
+    if (!(n > 0) || !(source in GROUP_OF)) continue;
+    out.push({ source, n, newStickers: addStars(n, source).newStickers });
+  }
+  return out;
 }
 
 export function gamesPlayed(): number {

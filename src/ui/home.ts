@@ -18,12 +18,16 @@ export interface HomeModes {
   mensa: () => void;
 }
 
+// Big games: voice apps on their own pages under stepkick.com (left alone by the service
+// worker), with their own progress inside. Their stars come back here through the shared
+// inbox (storage.ts collectInbox) and fill their own Sticker Book pages. Bigger cards, on top.
+const BIG_GAMES = [
+  { href: './french/', cls: 'mots', icon: '🐸', title: 'Mots', sub: 'French words: hear it, say it, spell it!' },
+  { href: './riddles/', cls: 'riddles', icon: '🤷', title: 'Riddles', sub: 'Hear a joke, shout the answer!' },
+];
+
 // The non-quiz play modes, rendered as launcher bars below the subject tiles.
-// `href` ones are the standalone voice apps (their own pages under stepkick.com, left alone by
-// the service worker): they open as a page, not a screen inside this app.
 const LAUNCHERS: { key?: keyof HomeModes; href?: string; cls: string; icon: string; title: string; sub: string; badge?: string }[] = [
-  { href: './french/', cls: 'circ-launch voice-launch mots-launch', icon: '🐸', title: 'Mots', sub: 'French words: hear it, say it, spell it!', badge: '🔊 NEW' },
-  { href: './riddles/', cls: 'circ-launch voice-launch riddles-launch', icon: '🤷', title: 'Riddles', sub: 'Hear a joke, shout the answer!', badge: '🔊 NEW' },
   { key: 'circuits', cls: 'circ-launch circuits-launch', icon: '🔌', title: 'Circuits', sub: 'Tap switches, light the bulb!' },
   { key: 'memory', cls: 'circ-launch mem-launch', icon: '🃏', title: 'Memory Match', sub: 'Find the matching pairs!', badge: 'NEW' },
   // Sort and Put in Order left the home screen in the 2026-11-21 clean-up (Find covers Sort;
@@ -100,6 +104,13 @@ export function mountHome(app: HTMLElement, onPlay: (subject: SubjectId) => void
     modes.book();
   };
 
+  const bigGames = h('div', 'big-games', ...BIG_GAMES.map((g) => {
+    const card = h('button', `big-card ${g.cls}`, h('span', 'big-tag', '🔊 VOICE'), h('span', 'big-icon', g.icon),
+      h('span', 'big-title', g.title), h('span', 'big-sub', g.sub));
+    card.onclick = () => { sfx.tap(); location.href = g.href; };
+    return card;
+  }));
+
   const launcherBars = LAUNCHERS.map((L) => {
     const bar = h(
       'button',
@@ -129,7 +140,7 @@ export function mountHome(app: HTMLElement, onPlay: (subject: SubjectId) => void
         h('p', 'tagline', 'Pick one. Learn by playing!'),
       ),
       // scrolls when there are more tiles than fit (folders come later)
-      h('div', 'home-scroll', h('div', 'subject-grid', ...tiles), ...launcherBars, bookBtn),
+      h('div', 'home-scroll', bigGames, h('div', 'subject-grid', ...tiles), ...launcherBars, bookBtn),
       h('footer', 'home-footer', h('p', 'credit', 'CROOKED PIXELS')),
     ),
   );

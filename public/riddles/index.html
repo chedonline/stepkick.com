@@ -202,6 +202,7 @@ body.playing header nav{opacity:.35}
 <body>
 <header>
   <div class="hleft">
+    <a class="mtbtn" href="/" aria-label="Back to StepKick" title="StepKick" style="text-decoration:none">🦶</a>
     <button class="mtbtn" id="micTestBtn" aria-label="Sound and mic test" title="Sound and mic test">🎤</button>
     <div class="logo"><span>🤪</span><b class="lt">Riddles</b></div>
   </div>
@@ -968,7 +969,7 @@ let saveT = null;
 const saveItems = () => { clearTimeout(saveT); saveT = setTimeout(() => store.set("gb_items", items), 300); };
 const saveSettings = () => store.set("gb_settings", settings);
 
-const VERSION = "2026-11-20f"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-21a"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 function toast(msg, ms = 3200) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), ms); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -1582,7 +1583,12 @@ const points = () => Object.values(book).reduce((n, v) => n + (v === 2 ? 3 : 1),
 const rankOf = p => RANKS.filter(r => p >= r.at).pop();
 const catUnlocked = k => { const c = CATS.find(c => c.k === k); return !c || !c.bonus || starCount() >= c.bonus; };
 function markHeard(it) { cycle.add(it.setup); if (!book[it.setup]) book[it.setup] = 1; saveBook(); }
-function markStar(it) { book[it.setup] = 2; saveBook(); }
+function markStar(it) { book[it.setup] = 2; saveBook(); sendStars(1); }
+/* StepKick stars: every joke she guesses is a star in StepKick's Sticker Book (Rigolo page).
+   Same site, so they share storage: add to the inbox StepKick empties on its home screen. */
+function sendStars(n) {
+  try { const k = "stepkick.inbox", box = JSON.parse(localStorage.getItem(k) || "{}") || {}; box.riddles = (box.riddles || 0) + n; localStorage.setItem(k, JSON.stringify(box)); } catch (e) {}
+}
 const LEVEL_UP = ["Level up! You're getting so funny!", "Whoa, you leveled up!"];
 const UNLOCK = ["Whoa! You unlocked a bonus pack!"];
 // After a round: celebrate a new rank or a newly unlocked bonus pack (roundStart = rank and stars before it).

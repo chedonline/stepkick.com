@@ -2,7 +2,7 @@ import './styles.css';
 import { registerSW } from 'virtual:pwa-register';
 import type { RunResult, SubjectId } from './engine/types';
 import { SUBJECT_BY_ID } from './subjects';
-import { addStars, recordRun, setView, view, type ViewId } from './storage';
+import { addStars, collectInbox, recordRun, setView, view, type ViewId } from './storage';
 import { mountGame } from './ui/game';
 import { mountHome } from './ui/home';
 import { mountResults } from './ui/results';
@@ -64,7 +64,24 @@ if (!isStandalone && !isTouchDevice && !isSmallScreen) {
 }
 
 // --- screen routing -----------------------------------------------------
+// Stars from Mots / Riddles (their own pages) wait in a shared inbox; pick them up on home.
+const INBOX_NAMES: Record<string, string> = { mots: '🐸 Mots', riddles: '🤷 Riddles' };
+function showToast(text: string): void {
+  const t = h('div', 'sk-toast', text);
+  document.body.append(t);
+  setTimeout(() => t.classList.add('out'), 3600);
+  setTimeout(() => t.remove(), 4200);
+}
+function collectBigGameStars(): void {
+  const got = collectInbox();
+  if (!got.length) return;
+  const parts = got.map((g) => `+${g.n} ⭐ from ${INBOX_NAMES[g.source] ?? g.source}`);
+  const stickers = got.reduce((s, g) => s + g.newStickers.length, 0);
+  showToast(`🎉 ${parts.join(' · ')}` + (stickers ? ` · ${stickers} new sticker${stickers > 1 ? 's' : ''}!` : ''));
+}
+
 function goHome(): void {
+  collectBigGameStars();
   mountHome(app, startGame, {
     book: showStickers,
     circuits: showCircuits,

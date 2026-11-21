@@ -143,6 +143,37 @@ export const STICKER_SETS: StickerSet[] = [
       { emoji: '🌪️', name: 'Tornado' },
     ],
   },
+  // The two "big games" that live on their own pages (stepkick.com/french, /riddles) fill these
+  // through the shared star inbox (storage.ts collectInbox). Added 2026-11-21; always append new
+  // pages at the END so the stars already earned on earlier pages stay where they are.
+  {
+    name: 'Français',
+    emoji: '🥐',
+    stickers: [
+      { emoji: '🥐', name: 'Croissant' },
+      { emoji: '🥖', name: 'Baguette' },
+      { emoji: '🧀', name: 'Fromage' },
+      { emoji: '🐸', name: 'Grenouille' },
+      { emoji: '🍁', name: 'Feuille d’érable' },
+      { emoji: '⚜️', name: 'Fleur de lys' },
+      { emoji: '🗼', name: 'Tour Eiffel' },
+      { emoji: '🎨', name: 'Peinture' },
+    ],
+  },
+  {
+    name: 'Rigolo',
+    emoji: '😂',
+    stickers: [
+      { emoji: '🤷', name: 'Shrug' },
+      { emoji: '😂', name: 'Laughing' },
+      { emoji: '🤪', name: 'Silly' },
+      { emoji: '😜', name: 'Wink' },
+      { emoji: '🙃', name: 'Upside Down' },
+      { emoji: '🥸', name: 'Disguise' },
+      { emoji: '🎭', name: 'Masks' },
+      { emoji: '🎉', name: 'Party' },
+    ],
+  },
 ];
 
 /** Flattened unlock order — stickers unlock set by set, in this order. */
@@ -165,6 +196,7 @@ export const GROUP_OF: Record<string, number> = {
   tapall: 7, sort: 7, order: 7,
   memory: 8, mensa: 8, surprise: 8,
   animals: 0, compare: 0, counting: 1,
+  mots: 9, riddles: 10,
 };
 
 /** Pretty source names per set (aligned to STICKER_SETS order) — for book labels. */
@@ -178,6 +210,8 @@ export const GROUP_SOURCES: string[][] = [
   ['Circuits', 'Maze'],
   ['Find'],
   ['Memory', 'Shapes', 'Surprise'],
+  ['Mots'],
+  ['Riddles'],
 ];
 
 /** Global index where a set's stickers begin in ALL_STICKERS. */
