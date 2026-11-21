@@ -294,10 +294,12 @@ body.framed[data-view='ipad-l'] #app {
   font-size: 14px;
 }
 
+/* Compact subject tiles: one short row each (emoji left, name + line right) so the whole
+   list fits on a screen. */
 .subject-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 10px;
 }
 
 .subject-tile {
@@ -305,24 +307,27 @@ body.framed[data-view='ipad-l'] #app {
   background: linear-gradient(160deg, var(--panel-2), var(--panel));
   border: 2px solid color-mix(in srgb, var(--accent) 45%, var(--line));
   border-radius: var(--radius);
-  padding: clamp(14px, 3cqh, 26px) 12px;
-  display: flex;
-  flex-direction: column;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 10px;
   align-items: center;
-  gap: 4px;
+  justify-items: start;
+  text-align: left;
+  min-height: 64px;
   transition: transform 0.09s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .tile-badge {
   position: absolute;
-  top: 8px;
+  top: -7px;
   right: 8px;
   background: linear-gradient(135deg, var(--gold), #fcd34d);
   color: #3a2c00;
-  font-size: 11px;
+  font-size: 9.5px;
   font-weight: 900;
   letter-spacing: 0.01em;
-  padding: 4px 9px;
+  padding: 2px 7px;
   border-radius: 999px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.32);
   transform: rotate(3deg);
@@ -338,24 +343,27 @@ body.framed[data-view='ipad-l'] #app {
 }
 
 .tile-emoji {
-  font-size: clamp(34px, 6cqh, 52px);
+  font-size: 32px;
+  grid-row: 1 / span 3;
+  line-height: 1;
 }
 
 .tile-name {
-  font-size: 21px;
+  font-size: 16.5px;
   font-weight: 900;
   letter-spacing: 0.02em;
+  line-height: 1.15;
 }
 
 .tile-blurb {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--ink-dim);
   font-weight: 600;
+  line-height: 1.2;
 }
 
 .tile-best {
-  margin-top: 6px;
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 800;
   color: var(--accent);
 }

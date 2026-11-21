@@ -42,7 +42,7 @@ export function mountHome(app: HTMLElement, onPlay: (subject: SubjectId) => void
       h('span', 'tile-emoji', pack.meta.emoji),
       h('span', 'tile-name', pack.meta.name),
       h('span', 'tile-blurb', pack.meta.blurb),
-      h('span', 'tile-best', b > 0 ? `Best ${b}` : 'Tap to play'),
+      b > 0 ? h('span', 'tile-best', `Best ${b}`) : null,
     );
     tile.style.setProperty('--accent', pack.meta.accent);
     tile.onclick = () => {
