@@ -12,7 +12,7 @@ import os from "node:os";
 
 const VOICE = { id: "K7gx0ylJdff0yjM2uVQS", name: "Jeanne Mance" };
 const MODEL = "eleven_turbo_v2_5";
-const VOICE_SETTINGS = { stability: 0.5, similarity_boost: 0.75, style: 0.25, use_speaker_boost: true, speed: 0.95 };
+const VOICE_SETTINGS = { stability: 0.5, similarity_boost: 0.75, style: 0.25, use_speaker_boost: true }; // speed: per set, below
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/(\w:)/, "$1")), "..");
 const html = fs.readFileSync(path.join(root, "public/french/index.html"), "utf8");
@@ -35,18 +35,24 @@ if (!key) { console.error("No ElevenLabs key found"); process.exit(1); }
 
 const outDir = path.join(root, "public/french/audio");
 fs.mkdirSync(outDir, { recursive: true });
-const file = t => crypto.createHash("sha1").update(t).digest("hex").slice(0, 12) + ".mp3";
+// Two speeds, each its own recordings (slowing a clip down in the player would drop her pitch).
+// "lines" = Rapide (fast, the first set), "slow" = Normale (the default in the app).
+const SETS = [
+  { key: "lines", speed: 0.95, prefix: "" },
+  { key: "slow", speed: 0.82, prefix: "slow|" },
+];
+const file = (t, set) => crypto.createHash("sha1").update(set.prefix + t).digest("hex").slice(0, 12) + ".mp3";
 let oldGain = {};
 try { oldGain = JSON.parse(fs.readFileSync(path.join(outDir, "manifest.json"), "utf8")).gain || {}; } catch {}
-const manifest = { voice: VOICE.name, voiceId: VOICE.id, model: MODEL, lines: {}, gain: oldGain };
-const existsOk = t => { const d = path.join(outDir, file(t)); return fs.existsSync(d) && fs.statSync(d).size > 1000; };
+const manifest = { voice: VOICE.name, voiceId: VOICE.id, model: MODEL, lines: {}, slow: {}, gain: oldGain };
+const existsOk = (t, set) => { const d = path.join(outDir, file(t, set)); return fs.existsSync(d) && fs.statSync(d).size > 1000; };
 let made = 0, skipped = 0, failed = 0;
 
 // ElevenLabs sometimes garbles a take (a 3-second sentence came back as 9 seconds of mush, a
-// line had a 3-second hole in it). Check every new take: speech length for the letters in it,
-// and the longest silence inside. A bad take is recorded again (up to 3 tries).
+// line had a 3-second hole in it). Check every new take: speech length for the letters in it
+// (allowing for the speed), and the longest silence inside. A bad take is recorded again (3 tries).
 import { spawnSync } from "node:child_process";
-function takeLooksBad(file, text) {
+function takeLooksBad(file, text, speed) {
   const b = spawnSync("ffmpeg", ["-hide_banner", "-loglevel", "error", "-i", file, "-f", "f32le", "-ac", "1", "-ar", "16000", "-"], { maxBuffer: 1 << 26 }).stdout;
   const x = new Float32Array(b.buffer.slice(b.byteOffset, b.byteOffset + b.length));
   let first = -1, last = -1, gap = 0, longest = 0;
@@ -54,37 +60,38 @@ function takeLooksBad(file, text) {
     let s = 0; for (let j = i; j < i + 320; j++) s += x[j] * x[j];
     if (10 * Math.log10(s / 320 + 1e-12) > -40) { if (first >= 0 && gap > longest) longest = gap; if (first < 0) first = i; last = i; gap = 0; } else if (first >= 0) gap++;
   }
-  const speech = first < 0 ? 0 : (last - first) / 16000, letters = text.replace(/[^\p{L}]/gu, "").length;
-  const why = speech === 0 ? "silent" : speech > Math.max(1.2, letters * 0.12) ? `too long (${speech.toFixed(1)}s for ${letters} letters)` : longest * 0.02 > 1.0 ? `a ${(longest * 0.02).toFixed(1)}s hole` : "";
-  return why;
+  const slow = 0.95 / speed, speech = first < 0 ? 0 : (last - first) / 16000, letters = text.replace(/[^\p{L}]/gu, "").length;
+  return speech === 0 ? "silent" : speech > Math.max(1.2, letters * 0.12) * slow ? `too long (${speech.toFixed(1)}s for ${letters} letters)` :
+    longest * 0.02 > 1.0 * slow ? `a ${(longest * 0.02).toFixed(1)}s hole` : "";
 }
 
-async function record(text) {
-  const f = file(text), dest = path.join(outDir, f);
-  manifest.lines[text] = f;
-  if (existsOk(text)) { skipped++; return; }
+async function record(text, set) {
+  const f = file(text, set), dest = path.join(outDir, f);
+  manifest[set.key][text] = f;
+  if (existsOk(text, set)) { skipped++; return; }
   for (let attempt = 1; attempt <= 3; attempt++) {
     const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE.id}?output_format=mp3_44100_64`, {
       method: "POST", headers: { "xi-api-key": key, "Content-Type": "application/json", Accept: "audio/mpeg" },
-      body: JSON.stringify({ text, model_id: MODEL, language_code: "fr", voice_settings: VOICE_SETTINGS }) });
+      body: JSON.stringify({ text, model_id: MODEL, language_code: "fr", voice_settings: { ...VOICE_SETTINGS, speed: set.speed } }) });
     if (r.ok) {
       fs.writeFileSync(dest, Buffer.from(await r.arrayBuffer()));
-      const bad = takeLooksBad(dest, text);
-      if (bad && attempt < 3) { console.log(`take ${attempt} of "${text}" sounds wrong (${bad}), recording again`); continue; }
-      if (bad) console.log(`⚠️ "${text}" still sounds wrong after 3 takes (${bad}); listen to ${f}`);
+      const bad = takeLooksBad(dest, text, set.speed);
+      if (bad && attempt < 3) { console.log(`take ${attempt} of "${text}" (${set.key}) sounds wrong (${bad}), recording again`); continue; }
+      if (bad) console.log(`⚠️ "${text}" (${set.key}) still sounds wrong after 3 takes (${bad}); listen to ${f}`);
       made++; return;
     }
     const msg = (await r.text()).slice(0, 200);
     if (r.status === 429 || r.status >= 500) { await new Promise(s => setTimeout(s, 1500 * attempt)); continue; }
-    console.error(`FAILED ${r.status} "${text}": ${msg}`); failed++; delete manifest.lines[text]; return;
+    console.error(`FAILED ${r.status} "${text}": ${msg}`); failed++; delete manifest[set.key][text]; return;
   }
-  console.error(`FAILED after retries "${text}"`); failed++; delete manifest.lines[text];
+  console.error(`FAILED after retries "${text}"`); failed++; delete manifest[set.key][text];
 }
 const maxArg = process.argv.indexOf("--max"), maxNew = maxArg > 0 ? +process.argv[maxArg + 1] : Infinity;
 let budget = maxNew;
-const queue = list.filter(t => existsOk(t) || budget-- > 0);
-for (const t of list) if (!queue.includes(t) && existsOk(t)) manifest.lines[t] = file(t);
-await Promise.all(Array.from({ length: 3 }, async () => { while (queue.length) await record(queue.shift()); }));
+const jobs = SETS.flatMap(set => list.map(t => ({ t, set })));
+const queue = jobs.filter(j => existsOk(j.t, j.set) || budget-- > 0);
+for (const j of jobs) if (!queue.includes(j) && existsOk(j.t, j.set)) manifest[j.set.key][j.t] = file(j.t, j.set);
+await Promise.all(Array.from({ length: 3 }, async () => { while (queue.length) { const j = queue.shift(); await record(j.t, j.set); } }));
 fs.writeFileSync(path.join(outDir, "manifest.json"), JSON.stringify(manifest, null, 1));
 console.log(`made ${made}, already had ${skipped}, failed ${failed}`);
 if (made) console.log("Now set the volume per clip (files stay untouched): node scripts/riddles-loudness.mjs public/french/audio");

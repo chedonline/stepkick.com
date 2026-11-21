@@ -15,7 +15,8 @@ const dirArg = process.argv.slice(2).find(a => !a.startsWith("--"));
 const dir = path.resolve(root, dirArg || "public/riddles/audio");
 const mpath = path.join(dir, "manifest.json");
 const manifest = JSON.parse(fs.readFileSync(mpath, "utf8"));
-const files = [...new Set(Object.values(manifest.lines))];
+// every recording set in the manifest (Mots has "lines" = fast and "slow")
+const files = [...new Set([...Object.values(manifest.lines), ...Object.values(manifest.slow || {})])];
 
 function stats(file) {
   const r = spawnSync("ffmpeg", ["-hide_banner", "-nostats", "-i", file, "-af", "loudnorm=print_format=json", "-f", "null", "-"], { encoding: "utf8" });
