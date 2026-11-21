@@ -8,6 +8,7 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace
 const page = path.join(root, "public/french/index.html");
 const MASS = new Set(["lait", "miel", "maïs soufflé", "pluie", "neige", "maïs"]);
 const words = JSON.parse(fs.readFileSync(path.resolve(process.argv[2]), "utf8"));
+for (const w of words) if (w.mass) MASS.add(w.fr); // a word can also say "mass": true itself
 const rows = words.map(w => {
   const r = [w.fr, w.g, w.en, w.emoji, w.theme];
   if ((w.alt && w.alt.length) || MASS.has(w.fr)) r.push(w.alt || []);

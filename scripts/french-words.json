@@ -1,237 +1,3736 @@
 [
-{"fr":"chat","art":"le","g":"m","en":"cat","emoji":"🐱","theme":"animaux","alt":["minou"]},
-{"fr":"chien","art":"le","g":"m","en":"dog","emoji":"🐶","theme":"animaux","alt":["pitou"]},
-{"fr":"cheval","art":"le","g":"m","en":"horse","emoji":"🐴","theme":"animaux"},
-{"fr":"vache","art":"la","g":"f","en":"cow","emoji":"🐮","theme":"animaux"},
-{"fr":"cochon","art":"le","g":"m","en":"pig","emoji":"🐷","theme":"animaux"},
-{"fr":"mouton","art":"le","g":"m","en":"sheep","emoji":"🐑","theme":"animaux"},
-{"fr":"lapin","art":"le","g":"m","en":"rabbit","emoji":"🐰","theme":"animaux"},
-{"fr":"souris","art":"la","g":"f","en":"mouse","emoji":"🐭","theme":"animaux"},
-{"fr":"poule","art":"la","g":"f","en":"hen","emoji":"🐔","theme":"animaux"},
-{"fr":"canard","art":"le","g":"m","en":"duck","emoji":"🦆","theme":"animaux"},
-{"fr":"poisson","art":"le","g":"m","en":"fish","emoji":"🐟","theme":"animaux"},
-{"fr":"oiseau","art":"l'","g":"m","en":"bird","emoji":"🐦","theme":"animaux"},
-{"fr":"lion","art":"le","g":"m","en":"lion","emoji":"🦁","theme":"animaux"},
-{"fr":"ours","art":"l'","g":"m","en":"bear","emoji":"🐻","theme":"animaux"},
-{"fr":"singe","art":"le","g":"m","en":"monkey","emoji":"🐵","theme":"animaux"},
-{"fr":"éléphant","art":"l'","g":"m","en":"elephant","emoji":"🐘","theme":"animaux"},
-{"fr":"girafe","art":"la","g":"f","en":"giraffe","emoji":"🦒","theme":"animaux"},
-{"fr":"grenouille","art":"la","g":"f","en":"frog","emoji":"🐸","theme":"animaux"},
-{"fr":"tortue","art":"la","g":"f","en":"turtle","emoji":"🐢","theme":"animaux"},
-{"fr":"papillon","art":"le","g":"m","en":"butterfly","emoji":"🦋","theme":"animaux"},
-{"fr":"abeille","art":"l'","g":"f","en":"bee","emoji":"🐝","theme":"animaux"},
-{"fr":"castor","art":"le","g":"m","en":"beaver","emoji":"🦫","theme":"animaux"},
-{"fr":"hibou","art":"le","g":"m","en":"owl","emoji":"🦉","theme":"animaux","alt":["chouette"]},
-{"fr":"baleine","art":"la","g":"f","en":"whale","emoji":"🐳","theme":"animaux"},
-{"fr":"dauphin","art":"le","g":"m","en":"dolphin","emoji":"🐬","theme":"animaux"},
-
-{"fr":"pain","art":"le","g":"m","en":"bread","emoji":"🍞","theme":"nourriture"},
-{"fr":"fromage","art":"le","g":"m","en":"cheese","emoji":"🧀","theme":"nourriture"},
-{"fr":"œuf","art":"l'","g":"m","en":"egg","emoji":"🥚","theme":"nourriture","alt":["oeuf"]},
-{"fr":"lait","art":"le","g":"m","en":"milk","emoji":"🥛","theme":"nourriture"},
-{"fr":"gâteau","art":"le","g":"m","en":"cake","emoji":"🎂","theme":"nourriture"},
-{"fr":"biscuit","art":"le","g":"m","en":"cookie","emoji":"🍪","theme":"nourriture","alt":["cookie"]},
-{"fr":"pizza","art":"la","g":"f","en":"pizza","emoji":"🍕","theme":"nourriture"},
-{"fr":"hamburger","art":"le","g":"m","en":"hamburger","emoji":"🍔","theme":"nourriture","alt":["burger"]},
-{"fr":"frite","art":"la","g":"f","en":"French fry","emoji":"🍟","theme":"nourriture"},
-{"fr":"hot-dog","art":"le","g":"m","en":"hot dog","emoji":"🌭","theme":"nourriture","alt":["hot dog","chien chaud"]},
-{"fr":"crème glacée","art":"la","g":"f","en":"ice cream","emoji":"🍦","theme":"nourriture","alt":["glace"]},
-{"fr":"bonbon","art":"le","g":"m","en":"candy","emoji":"🍬","theme":"nourriture"},
-{"fr":"suçon","art":"le","g":"m","en":"lollipop","emoji":"🍭","theme":"nourriture","alt":["sucette"]},
-{"fr":"chocolat","art":"le","g":"m","en":"chocolate","emoji":"🍫","theme":"nourriture"},
-{"fr":"sandwich","art":"le","g":"m","en":"sandwich","emoji":"🥪","theme":"nourriture"},
-{"fr":"beigne","art":"le","g":"m","en":"doughnut","emoji":"🍩","theme":"nourriture","alt":["beignet"]},
-{"fr":"crêpe","art":"la","g":"f","en":"pancake","emoji":"🥞","theme":"nourriture","alt":["pancake"]},
-{"fr":"poulet","art":"le","g":"m","en":"chicken (food)","emoji":"🍗","theme":"nourriture"},
-{"fr":"miel","art":"le","g":"m","en":"honey","emoji":"🍯","theme":"nourriture"},
-{"fr":"maïs soufflé","art":"le","g":"m","en":"popcorn","emoji":"🍿","theme":"nourriture","alt":["popcorn"]},
-{"fr":"jus","art":"le","g":"m","en":"juice","emoji":"🧃","theme":"nourriture"},
-{"fr":"gaufre","art":"la","g":"f","en":"waffle","emoji":"🧇","theme":"nourriture"},
-{"fr":"tarte","art":"la","g":"f","en":"pie","emoji":"🥧","theme":"nourriture"},
-{"fr":"taco","art":"le","g":"m","en":"taco","emoji":"🌮","theme":"nourriture"},
-
-{"fr":"pomme","art":"la","g":"f","en":"apple","emoji":"🍎","theme":"fruits-legumes"},
-{"fr":"banane","art":"la","g":"f","en":"banana","emoji":"🍌","theme":"fruits-legumes"},
-{"fr":"mandarine","art":"la","g":"f","en":"mandarin orange","emoji":"🍊","theme":"fruits-legumes","alt":["clémentine","orange"]},
-{"fr":"raisin","art":"le","g":"m","en":"grape","emoji":"🍇","theme":"fruits-legumes"},
-{"fr":"fraise","art":"la","g":"f","en":"strawberry","emoji":"🍓","theme":"fruits-legumes"},
-{"fr":"cerise","art":"la","g":"f","en":"cherry","emoji":"🍒","theme":"fruits-legumes"},
-{"fr":"citron","art":"le","g":"m","en":"lemon","emoji":"🍋","theme":"fruits-legumes"},
-{"fr":"melon d'eau","art":"le","g":"m","en":"watermelon","emoji":"🍉","theme":"fruits-legumes","alt":["pastèque"]},
-{"fr":"ananas","art":"l'","g":"m","en":"pineapple","emoji":"🍍","theme":"fruits-legumes"},
-{"fr":"poire","art":"la","g":"f","en":"pear","emoji":"🍐","theme":"fruits-legumes"},
-{"fr":"kiwi","art":"le","g":"m","en":"kiwi","emoji":"🥝","theme":"fruits-legumes"},
-{"fr":"noix de coco","art":"la","g":"f","en":"coconut","emoji":"🥥","theme":"fruits-legumes"},
-{"fr":"bleuet","art":"le","g":"m","en":"blueberry","emoji":"🫐","theme":"fruits-legumes","alt":["myrtille"]},
-{"fr":"carotte","art":"la","g":"f","en":"carrot","emoji":"🥕","theme":"fruits-legumes"},
-{"fr":"tomate","art":"la","g":"f","en":"tomato","emoji":"🍅","theme":"fruits-legumes"},
-{"fr":"maïs","art":"le","g":"m","en":"corn","emoji":"🌽","theme":"fruits-legumes","alt":["épi de maïs"]},
-{"fr":"brocoli","art":"le","g":"m","en":"broccoli","emoji":"🥦","theme":"fruits-legumes"},
-{"fr":"patate","art":"la","g":"f","en":"potato","emoji":"🥔","theme":"fruits-legumes","alt":["pomme de terre"]},
-{"fr":"champignon","art":"le","g":"m","en":"mushroom","emoji":"🍄","theme":"fruits-legumes"},
-{"fr":"poivron","art":"le","g":"m","en":"bell pepper","emoji":"🫑","theme":"fruits-legumes"},
-{"fr":"avocat","art":"l'","g":"m","en":"avocado","emoji":"🥑","theme":"fruits-legumes"},
-{"fr":"oignon","art":"l'","g":"m","en":"onion","emoji":"🧅","theme":"fruits-legumes"},
-{"fr":"arachide","art":"l'","g":"f","en":"peanut","emoji":"🥜","theme":"fruits-legumes","alt":["cacahuète","cacahouète"]},
-
-{"fr":"crayon","art":"le","g":"m","en":"pencil","emoji":"✏️","theme":"ecole","alt":["crayon à mine"]},
-{"fr":"livre","art":"le","g":"m","en":"book","emoji":"📖","theme":"ecole"},
-{"fr":"cahier","art":"le","g":"m","en":"notebook","emoji":"📓","theme":"ecole"},
-{"fr":"règle","art":"la","g":"f","en":"ruler","emoji":"📏","theme":"ecole"},
-{"fr":"sac à dos","art":"le","g":"m","en":"backpack","emoji":"🎒","theme":"ecole"},
-{"fr":"stylo","art":"le","g":"m","en":"pen","emoji":"🖊️","theme":"ecole"},
-{"fr":"crayon de cire","art":"le","g":"m","en":"crayon","emoji":"🖍️","theme":"ecole","alt":["crayon de couleur","pastel"]},
-{"fr":"pinceau","art":"le","g":"m","en":"paintbrush","emoji":"🖌️","theme":"ecole"},
-{"fr":"ordinateur","art":"l'","g":"m","en":"computer","emoji":"💻","theme":"ecole","alt":["ordi","portable"]},
-{"fr":"école","art":"l'","g":"f","en":"school","emoji":"🏫","theme":"ecole"},
-{"fr":"trombone","art":"le","g":"m","en":"paper clip","emoji":"📎","theme":"ecole"},
-{"fr":"punaise","art":"la","g":"f","en":"pushpin","emoji":"📌","theme":"ecole"},
-{"fr":"loupe","art":"la","g":"f","en":"magnifying glass","emoji":"🔍","theme":"ecole"},
-{"fr":"calendrier","art":"le","g":"m","en":"calendar","emoji":"📅","theme":"ecole"},
-{"fr":"carte","art":"la","g":"f","en":"map","emoji":"🗺️","theme":"ecole"},
-{"fr":"cloche","art":"la","g":"f","en":"bell","emoji":"🔔","theme":"ecole"},
-{"fr":"microscope","art":"le","g":"m","en":"microscope","emoji":"🔬","theme":"ecole"},
-
-{"fr":"œil","art":"l'","g":"m","en":"eye","emoji":"👁️","theme":"corps","alt":["oeil"]},
-{"fr":"nez","art":"le","g":"m","en":"nose","emoji":"👃","theme":"corps"},
-{"fr":"bouche","art":"la","g":"f","en":"mouth","emoji":"👄","theme":"corps"},
-{"fr":"oreille","art":"l'","g":"f","en":"ear","emoji":"👂","theme":"corps"},
-{"fr":"main","art":"la","g":"f","en":"hand","emoji":"✋","theme":"corps"},
-{"fr":"pied","art":"le","g":"m","en":"foot","emoji":"🦶","theme":"corps"},
-{"fr":"jambe","art":"la","g":"f","en":"leg","emoji":"🦵","theme":"corps"},
-{"fr":"bras","art":"le","g":"m","en":"arm","emoji":"💪","theme":"corps","alt":["muscle"]},
-{"fr":"dent","art":"la","g":"f","en":"tooth","emoji":"🦷","theme":"corps"},
-{"fr":"langue","art":"la","g":"f","en":"tongue","emoji":"👅","theme":"corps"},
-{"fr":"cerveau","art":"le","g":"m","en":"brain","emoji":"🧠","theme":"corps"},
-{"fr":"cœur","art":"le","g":"m","en":"heart","emoji":"❤️","theme":"corps","alt":["coeur"]},
-{"fr":"doigt","art":"le","g":"m","en":"finger","emoji":"☝️","theme":"corps","alt":["index"]},
-{"fr":"os","art":"l'","g":"m","en":"bone","emoji":"🦴","theme":"corps"},
-{"fr":"pouce","art":"le","g":"m","en":"thumb","emoji":"👍","theme":"corps"},
-{"fr":"poing","art":"le","g":"m","en":"fist","emoji":"👊","theme":"corps"},
-
-{"fr":"chandail","art":"le","g":"m","en":"sweater / T-shirt","emoji":"👕","theme":"vetements","alt":["pull","t-shirt","gilet"]},
-{"fr":"pantalon","art":"le","g":"m","en":"pants","emoji":"👖","theme":"vetements","alt":["jeans","jean"]},
-{"fr":"robe","art":"la","g":"f","en":"dress","emoji":"👗","theme":"vetements"},
-{"fr":"manteau","art":"le","g":"m","en":"coat","emoji":"🧥","theme":"vetements"},
-{"fr":"chapeau","art":"le","g":"m","en":"hat","emoji":"🎩","theme":"vetements"},
-{"fr":"casquette","art":"la","g":"f","en":"cap","emoji":"🧢","theme":"vetements"},
-{"fr":"foulard","art":"le","g":"m","en":"scarf","emoji":"🧣","theme":"vetements","alt":["écharpe"]},
-{"fr":"mitaine","art":"la","g":"f","en":"mitten / glove","emoji":"🧤","theme":"vetements","alt":["gant"]},
-{"fr":"bas","art":"le","g":"m","en":"sock","emoji":"🧦","theme":"vetements","alt":["chaussette"]},
-{"fr":"soulier","art":"le","g":"m","en":"shoe","emoji":"👞","theme":"vetements","alt":["chaussure"]},
-{"fr":"espadrille","art":"l'","g":"f","en":"running shoe","emoji":"👟","theme":"vetements","alt":["soulier de course","basket"]},
-{"fr":"botte","art":"la","g":"f","en":"boot","emoji":"👢","theme":"vetements"},
-{"fr":"chemise","art":"la","g":"f","en":"shirt","emoji":"👔","theme":"vetements","alt":["cravate"]},
-{"fr":"maillot de bain","art":"le","g":"m","en":"swimsuit","emoji":"🩱","theme":"vetements","alt":["costume de bain"]},
-{"fr":"sandale","art":"la","g":"f","en":"sandal","emoji":"👡","theme":"vetements"},
-{"fr":"bague","art":"la","g":"f","en":"ring","emoji":"💍","theme":"vetements"},
-{"fr":"couronne","art":"la","g":"f","en":"crown","emoji":"👑","theme":"vetements"},
-
-{"fr":"maison","art":"la","g":"f","en":"house","emoji":"🏠","theme":"maison"},
-{"fr":"lit","art":"le","g":"m","en":"bed","emoji":"🛏️","theme":"maison"},
-{"fr":"chaise","art":"la","g":"f","en":"chair","emoji":"🪑","theme":"maison"},
-{"fr":"porte","art":"la","g":"f","en":"door","emoji":"🚪","theme":"maison"},
-{"fr":"fenêtre","art":"la","g":"f","en":"window","emoji":"🪟","theme":"maison"},
-{"fr":"ampoule","art":"l'","g":"f","en":"light bulb","emoji":"💡","theme":"maison","alt":["lumière","lampe"]},
-{"fr":"clé","art":"la","g":"f","en":"key","emoji":"🔑","theme":"maison","alt":["clef"]},
-{"fr":"téléphone","art":"le","g":"m","en":"phone","emoji":"📱","theme":"maison","alt":["cellulaire","cell"]},
-{"fr":"télévision","art":"la","g":"f","en":"television","emoji":"📺","theme":"maison","alt":["télé"]},
-{"fr":"cadran","art":"le","g":"m","en":"alarm clock","emoji":"⏰","theme":"maison","alt":["réveil","réveille-matin","horloge"]},
-{"fr":"baignoire","art":"la","g":"f","en":"bathtub","emoji":"🛁","theme":"maison","alt":["bain"]},
-{"fr":"toilette","art":"la","g":"f","en":"toilet","emoji":"🚽","theme":"maison"},
-{"fr":"douche","art":"la","g":"f","en":"shower","emoji":"🚿","theme":"maison"},
-{"fr":"savon","art":"le","g":"m","en":"soap","emoji":"🧼","theme":"maison"},
-{"fr":"brosse à dents","art":"la","g":"f","en":"toothbrush","emoji":"🪥","theme":"maison"},
-{"fr":"divan","art":"le","g":"m","en":"couch","emoji":"🛋️","theme":"maison","alt":["sofa","canapé"]},
-{"fr":"miroir","art":"le","g":"m","en":"mirror","emoji":"🪞","theme":"maison"},
-{"fr":"balai","art":"le","g":"m","en":"broom","emoji":"🧹","theme":"maison"},
-{"fr":"chandelle","art":"la","g":"f","en":"candle","emoji":"🕯️","theme":"maison","alt":["bougie"]},
-{"fr":"cuillère","art":"la","g":"f","en":"spoon","emoji":"🥄","theme":"maison","alt":["cuiller"]},
-{"fr":"poubelle","art":"la","g":"f","en":"garbage can","emoji":"🗑️","theme":"maison"},
-{"fr":"marteau","art":"le","g":"m","en":"hammer","emoji":"🔨","theme":"maison"},
-
-{"fr":"soleil","art":"le","g":"m","en":"sun","emoji":"☀️","theme":"nature-meteo"},
-{"fr":"lune","art":"la","g":"f","en":"moon","emoji":"🌙","theme":"nature-meteo"},
-{"fr":"étoile","art":"l'","g":"f","en":"star","emoji":"⭐","theme":"nature-meteo"},
-{"fr":"nuage","art":"le","g":"m","en":"cloud","emoji":"☁️","theme":"nature-meteo"},
-{"fr":"pluie","art":"la","g":"f","en":"rain","emoji":"🌧️","theme":"nature-meteo"},
-{"fr":"neige","art":"la","g":"f","en":"snow","emoji":"❄️","theme":"nature-meteo","alt":["flocon","flocon de neige"]},
-{"fr":"bonhomme de neige","art":"le","g":"m","en":"snowman","emoji":"⛄","theme":"nature-meteo"},
-{"fr":"arc-en-ciel","art":"l'","g":"m","en":"rainbow","emoji":"🌈","theme":"nature-meteo"},
-{"fr":"éclair","art":"l'","g":"m","en":"lightning","emoji":"⚡","theme":"nature-meteo","alt":["foudre"]},
-{"fr":"arbre","art":"l'","g":"m","en":"tree","emoji":"🌳","theme":"nature-meteo"},
-{"fr":"sapin","art":"le","g":"m","en":"fir tree","emoji":"🌲","theme":"nature-meteo"},
-{"fr":"fleur","art":"la","g":"f","en":"flower","emoji":"🌼","theme":"nature-meteo"},
-{"fr":"tournesol","art":"le","g":"m","en":"sunflower","emoji":"🌻","theme":"nature-meteo"},
-{"fr":"feuille","art":"la","g":"f","en":"leaf","emoji":"🍁","theme":"nature-meteo","alt":["feuille d'érable"]},
-{"fr":"montagne","art":"la","g":"f","en":"mountain","emoji":"🏔️","theme":"nature-meteo"},
-{"fr":"volcan","art":"le","g":"m","en":"volcano","emoji":"🌋","theme":"nature-meteo"},
-{"fr":"plage","art":"la","g":"f","en":"beach","emoji":"🏖️","theme":"nature-meteo"},
-{"fr":"vague","art":"la","g":"f","en":"wave","emoji":"🌊","theme":"nature-meteo"},
-{"fr":"feu","art":"le","g":"m","en":"fire","emoji":"🔥","theme":"nature-meteo"},
-{"fr":"cactus","art":"le","g":"m","en":"cactus","emoji":"🌵","theme":"nature-meteo"},
-{"fr":"roche","art":"la","g":"f","en":"rock","emoji":"🪨","theme":"nature-meteo","alt":["pierre","caillou"]},
-{"fr":"parapluie","art":"le","g":"m","en":"umbrella","emoji":"☂️","theme":"nature-meteo"},
-{"fr":"coquillage","art":"le","g":"m","en":"seashell","emoji":"🐚","theme":"nature-meteo","alt":["coquille"]},
-
-{"fr":"voiture","art":"la","g":"f","en":"car","emoji":"🚗","theme":"transports","alt":["auto","char"]},
-{"fr":"autobus","art":"l'","g":"m","en":"bus","emoji":"🚌","theme":"transports","alt":["bus"]},
-{"fr":"camion","art":"le","g":"m","en":"truck","emoji":"🚚","theme":"transports"},
-{"fr":"vélo","art":"le","g":"m","en":"bike","emoji":"🚲","theme":"transports","alt":["bicyclette","bicycle"]},
-{"fr":"train","art":"le","g":"m","en":"train","emoji":"🚂","theme":"transports","alt":["locomotive"]},
-{"fr":"avion","art":"l'","g":"m","en":"airplane","emoji":"✈️","theme":"transports"},
-{"fr":"bateau","art":"le","g":"m","en":"boat","emoji":"⛵","theme":"transports","alt":["voilier"]},
-{"fr":"hélicoptère","art":"l'","g":"m","en":"helicopter","emoji":"🚁","theme":"transports"},
-{"fr":"fusée","art":"la","g":"f","en":"rocket","emoji":"🚀","theme":"transports"},
-{"fr":"moto","art":"la","g":"f","en":"motorcycle","emoji":"🏍️","theme":"transports","alt":["motocyclette"]},
-{"fr":"taxi","art":"le","g":"m","en":"taxi","emoji":"🚕","theme":"transports"},
-{"fr":"ambulance","art":"l'","g":"f","en":"ambulance","emoji":"🚑","theme":"transports"},
-{"fr":"camion de pompiers","art":"le","g":"m","en":"fire truck","emoji":"🚒","theme":"transports","alt":["camion de pompier","camion à incendie"]},
-{"fr":"voiture de police","art":"la","g":"f","en":"police car","emoji":"🚓","theme":"transports","alt":["auto de police"]},
-{"fr":"tracteur","art":"le","g":"m","en":"tractor","emoji":"🚜","theme":"transports"},
-{"fr":"canot","art":"le","g":"m","en":"canoe","emoji":"🛶","theme":"transports","alt":["canoë"]},
-
-{"fr":"ballon","art":"le","g":"m","en":"balloon","emoji":"🎈","theme":"jouets-sports","alt":["ballon gonflable"]},
-{"fr":"ballon de soccer","art":"le","g":"m","en":"soccer ball","emoji":"⚽","theme":"jouets-sports","alt":["ballon","ballon de foot"]},
-{"fr":"bâton de hockey","art":"le","g":"m","en":"hockey stick","emoji":"🏒","theme":"jouets-sports","alt":["hockey"]},
-{"fr":"patin","art":"le","g":"m","en":"skate","emoji":"⛸️","theme":"jouets-sports","alt":["patin à glace"]},
-{"fr":"ski","art":"le","g":"m","en":"ski","emoji":"🎿","theme":"jouets-sports"},
-{"fr":"cerf-volant","art":"le","g":"m","en":"kite","emoji":"🪁","theme":"jouets-sports"},
-{"fr":"toutou","art":"le","g":"m","en":"teddy bear / stuffed animal","emoji":"🧸","theme":"jouets-sports","alt":["ourson","nounours","ours en peluche"]},
-{"fr":"dé","art":"le","g":"m","en":"die (dice)","emoji":"🎲","theme":"jouets-sports"},
-{"fr":"casse-tête","art":"le","g":"m","en":"puzzle","emoji":"🧩","theme":"jouets-sports","alt":["puzzle"]},
-{"fr":"cadeau","art":"le","g":"m","en":"present","emoji":"🎁","theme":"jouets-sports"},
-{"fr":"trophée","art":"le","g":"m","en":"trophy","emoji":"🏆","theme":"jouets-sports"},
-{"fr":"médaille","art":"la","g":"f","en":"medal","emoji":"🏅","theme":"jouets-sports"},
-{"fr":"yo-yo","art":"le","g":"m","en":"yo-yo","emoji":"🪀","theme":"jouets-sports"},
-{"fr":"planche à roulettes","art":"la","g":"f","en":"skateboard","emoji":"🛹","theme":"jouets-sports","alt":["skate","skateboard"]},
-{"fr":"trottinette","art":"la","g":"f","en":"kick scooter","emoji":"🛴","theme":"jouets-sports","alt":["scooter"]},
-{"fr":"traîneau","art":"le","g":"m","en":"sled","emoji":"🛷","theme":"jouets-sports","alt":["luge"]},
-{"fr":"guitare","art":"la","g":"f","en":"guitar","emoji":"🎸","theme":"jouets-sports"},
-{"fr":"tambour","art":"le","g":"m","en":"drum","emoji":"🥁","theme":"jouets-sports","alt":["batterie"]},
-{"fr":"robot","art":"le","g":"m","en":"robot","emoji":"🤖","theme":"jouets-sports"},
-
-{"fr":"pompier","art":"le","g":"m","en":"firefighter","emoji":"👨‍🚒","theme":"metiers"},
-{"fr":"médecin","art":"le","g":"m","en":"doctor","emoji":"👨‍⚕️","theme":"metiers","alt":["docteur"]},
-{"fr":"policier","art":"le","g":"m","en":"police officer","emoji":"👮‍♂️","theme":"metiers","alt":["police"]},
-{"fr":"cuisinier","art":"le","g":"m","en":"cook","emoji":"👨‍🍳","theme":"metiers","alt":["chef"]},
-{"fr":"enseignant","art":"l'","g":"m","en":"teacher","emoji":"👨‍🏫","theme":"metiers","alt":["professeur","prof"]},
-{"fr":"fermier","art":"le","g":"m","en":"farmer","emoji":"👨‍🌾","theme":"metiers","alt":["agriculteur"]},
-{"fr":"astronaute","art":"l'","g":"m","en":"astronaut","emoji":"👨‍🚀","theme":"metiers"},
-{"fr":"pilote","art":"le","g":"m","en":"pilot","emoji":"👨‍✈️","theme":"metiers"},
-{"fr":"artiste","art":"l'","g":"m","en":"artist","emoji":"👨‍🎨","theme":"metiers","alt":["peintre"]},
-{"fr":"chanteur","art":"le","g":"m","en":"singer","emoji":"👨‍🎤","theme":"metiers"},
-{"fr":"mécanicien","art":"le","g":"m","en":"mechanic","emoji":"👨‍🔧","theme":"metiers"},
-{"fr":"scientifique","art":"le","g":"m","en":"scientist","emoji":"👨‍🔬","theme":"metiers"},
-
-{"fr":"rouge","art":"le","g":"m","en":"red","emoji":"🔴","theme":"couleurs"},
-{"fr":"bleu","art":"le","g":"m","en":"blue","emoji":"🔵","theme":"couleurs"},
-{"fr":"vert","art":"le","g":"m","en":"green","emoji":"🟢","theme":"couleurs"},
-{"fr":"jaune","art":"le","g":"m","en":"yellow","emoji":"🟡","theme":"couleurs"},
-{"fr":"orange","art":"l'","g":"m","en":"orange","emoji":"🟠","theme":"couleurs"},
-{"fr":"violet","art":"le","g":"m","en":"purple","emoji":"🟣","theme":"couleurs","alt":["mauve"]},
-{"fr":"brun","art":"le","g":"m","en":"brown","emoji":"🟤","theme":"couleurs","alt":["marron"]},
-{"fr":"noir","art":"le","g":"m","en":"black","emoji":"⚫","theme":"couleurs"},
-{"fr":"blanc","art":"le","g":"m","en":"white","emoji":"⚪","theme":"couleurs"},
-{"fr":"rose","art":"le","g":"m","en":"pink","emoji":"💗","theme":"couleurs"}
+ {
+  "fr": "chat",
+  "art": "le",
+  "g": "m",
+  "en": "cat",
+  "emoji": "🐱",
+  "theme": "animaux",
+  "alt": [
+   "minou"
+  ]
+ },
+ {
+  "fr": "chien",
+  "art": "le",
+  "g": "m",
+  "en": "dog",
+  "emoji": "🐶",
+  "theme": "animaux",
+  "alt": [
+   "pitou"
+  ]
+ },
+ {
+  "fr": "cheval",
+  "art": "le",
+  "g": "m",
+  "en": "horse",
+  "emoji": "🐴",
+  "theme": "animaux"
+ },
+ {
+  "fr": "vache",
+  "art": "la",
+  "g": "f",
+  "en": "cow",
+  "emoji": "🐮",
+  "theme": "animaux"
+ },
+ {
+  "fr": "cochon",
+  "art": "le",
+  "g": "m",
+  "en": "pig",
+  "emoji": "🐷",
+  "theme": "animaux"
+ },
+ {
+  "fr": "mouton",
+  "art": "le",
+  "g": "m",
+  "en": "sheep",
+  "emoji": "🐑",
+  "theme": "animaux"
+ },
+ {
+  "fr": "lapin",
+  "art": "le",
+  "g": "m",
+  "en": "rabbit",
+  "emoji": "🐰",
+  "theme": "animaux"
+ },
+ {
+  "fr": "souris",
+  "art": "la",
+  "g": "f",
+  "en": "mouse",
+  "emoji": "🐭",
+  "theme": "animaux"
+ },
+ {
+  "fr": "poule",
+  "art": "la",
+  "g": "f",
+  "en": "hen",
+  "emoji": "🐔",
+  "theme": "animaux"
+ },
+ {
+  "fr": "canard",
+  "art": "le",
+  "g": "m",
+  "en": "duck",
+  "emoji": "🦆",
+  "theme": "animaux"
+ },
+ {
+  "fr": "poisson",
+  "art": "le",
+  "g": "m",
+  "en": "fish",
+  "emoji": "🐟",
+  "theme": "animaux"
+ },
+ {
+  "fr": "oiseau",
+  "art": "l'",
+  "g": "m",
+  "en": "bird",
+  "emoji": "🐦",
+  "theme": "animaux"
+ },
+ {
+  "fr": "lion",
+  "art": "le",
+  "g": "m",
+  "en": "lion",
+  "emoji": "🦁",
+  "theme": "animaux"
+ },
+ {
+  "fr": "ours",
+  "art": "l'",
+  "g": "m",
+  "en": "bear",
+  "emoji": "🐻",
+  "theme": "animaux"
+ },
+ {
+  "fr": "singe",
+  "art": "le",
+  "g": "m",
+  "en": "monkey",
+  "emoji": "🐵",
+  "theme": "animaux"
+ },
+ {
+  "fr": "éléphant",
+  "art": "l'",
+  "g": "m",
+  "en": "elephant",
+  "emoji": "🐘",
+  "theme": "animaux"
+ },
+ {
+  "fr": "girafe",
+  "art": "la",
+  "g": "f",
+  "en": "giraffe",
+  "emoji": "🦒",
+  "theme": "animaux"
+ },
+ {
+  "fr": "grenouille",
+  "art": "la",
+  "g": "f",
+  "en": "frog",
+  "emoji": "🐸",
+  "theme": "animaux"
+ },
+ {
+  "fr": "tortue",
+  "art": "la",
+  "g": "f",
+  "en": "turtle",
+  "emoji": "🐢",
+  "theme": "animaux"
+ },
+ {
+  "fr": "papillon",
+  "art": "le",
+  "g": "m",
+  "en": "butterfly",
+  "emoji": "🦋",
+  "theme": "animaux"
+ },
+ {
+  "fr": "abeille",
+  "art": "l'",
+  "g": "f",
+  "en": "bee",
+  "emoji": "🐝",
+  "theme": "animaux"
+ },
+ {
+  "fr": "castor",
+  "art": "le",
+  "g": "m",
+  "en": "beaver",
+  "emoji": "🦫",
+  "theme": "animaux"
+ },
+ {
+  "fr": "hibou",
+  "art": "le",
+  "g": "m",
+  "en": "owl",
+  "emoji": "🦉",
+  "theme": "animaux",
+  "alt": [
+   "chouette"
+  ]
+ },
+ {
+  "fr": "baleine",
+  "art": "la",
+  "g": "f",
+  "en": "whale",
+  "emoji": "🐳",
+  "theme": "animaux"
+ },
+ {
+  "fr": "dauphin",
+  "art": "le",
+  "g": "m",
+  "en": "dolphin",
+  "emoji": "🐬",
+  "theme": "animaux"
+ },
+ {
+  "fr": "pain",
+  "art": "le",
+  "g": "m",
+  "en": "bread",
+  "emoji": "🍞",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "fromage",
+  "art": "le",
+  "g": "m",
+  "en": "cheese",
+  "emoji": "🧀",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "œuf",
+  "art": "l'",
+  "g": "m",
+  "en": "egg",
+  "emoji": "🥚",
+  "theme": "nourriture",
+  "alt": [
+   "oeuf"
+  ]
+ },
+ {
+  "fr": "lait",
+  "art": "le",
+  "g": "m",
+  "en": "milk",
+  "emoji": "🥛",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "gâteau",
+  "art": "le",
+  "g": "m",
+  "en": "cake",
+  "emoji": "🎂",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "biscuit",
+  "art": "le",
+  "g": "m",
+  "en": "cookie",
+  "emoji": "🍪",
+  "theme": "nourriture",
+  "alt": [
+   "cookie"
+  ]
+ },
+ {
+  "fr": "pizza",
+  "art": "la",
+  "g": "f",
+  "en": "pizza",
+  "emoji": "🍕",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "hamburger",
+  "art": "le",
+  "g": "m",
+  "en": "hamburger",
+  "emoji": "🍔",
+  "theme": "nourriture",
+  "alt": [
+   "burger"
+  ]
+ },
+ {
+  "fr": "frite",
+  "art": "la",
+  "g": "f",
+  "en": "French fry",
+  "emoji": "🍟",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "hot-dog",
+  "art": "le",
+  "g": "m",
+  "en": "hot dog",
+  "emoji": "🌭",
+  "theme": "nourriture",
+  "alt": [
+   "hot dog",
+   "chien chaud"
+  ]
+ },
+ {
+  "fr": "crème glacée",
+  "art": "la",
+  "g": "f",
+  "en": "ice cream",
+  "emoji": "🍦",
+  "theme": "nourriture",
+  "alt": [
+   "glace"
+  ]
+ },
+ {
+  "fr": "bonbon",
+  "art": "le",
+  "g": "m",
+  "en": "candy",
+  "emoji": "🍬",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "suçon",
+  "art": "le",
+  "g": "m",
+  "en": "lollipop",
+  "emoji": "🍭",
+  "theme": "nourriture",
+  "alt": [
+   "sucette"
+  ]
+ },
+ {
+  "fr": "chocolat",
+  "art": "le",
+  "g": "m",
+  "en": "chocolate",
+  "emoji": "🍫",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "sandwich",
+  "art": "le",
+  "g": "m",
+  "en": "sandwich",
+  "emoji": "🥪",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "beigne",
+  "art": "le",
+  "g": "m",
+  "en": "doughnut",
+  "emoji": "🍩",
+  "theme": "nourriture",
+  "alt": [
+   "beignet"
+  ]
+ },
+ {
+  "fr": "crêpe",
+  "art": "la",
+  "g": "f",
+  "en": "pancake",
+  "emoji": "🥞",
+  "theme": "nourriture",
+  "alt": [
+   "pancake"
+  ]
+ },
+ {
+  "fr": "poulet",
+  "art": "le",
+  "g": "m",
+  "en": "chicken (food)",
+  "emoji": "🍗",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "miel",
+  "art": "le",
+  "g": "m",
+  "en": "honey",
+  "emoji": "🍯",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "maïs soufflé",
+  "art": "le",
+  "g": "m",
+  "en": "popcorn",
+  "emoji": "🍿",
+  "theme": "nourriture",
+  "alt": [
+   "popcorn"
+  ]
+ },
+ {
+  "fr": "jus",
+  "art": "le",
+  "g": "m",
+  "en": "juice",
+  "emoji": "🧃",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "gaufre",
+  "art": "la",
+  "g": "f",
+  "en": "waffle",
+  "emoji": "🧇",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "tarte",
+  "art": "la",
+  "g": "f",
+  "en": "pie",
+  "emoji": "🥧",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "taco",
+  "art": "le",
+  "g": "m",
+  "en": "taco",
+  "emoji": "🌮",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "pomme",
+  "art": "la",
+  "g": "f",
+  "en": "apple",
+  "emoji": "🍎",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "banane",
+  "art": "la",
+  "g": "f",
+  "en": "banana",
+  "emoji": "🍌",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "mandarine",
+  "art": "la",
+  "g": "f",
+  "en": "mandarin orange",
+  "emoji": "🍊",
+  "theme": "fruits-legumes",
+  "alt": [
+   "clémentine",
+   "orange"
+  ]
+ },
+ {
+  "fr": "raisin",
+  "art": "le",
+  "g": "m",
+  "en": "grape",
+  "emoji": "🍇",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "fraise",
+  "art": "la",
+  "g": "f",
+  "en": "strawberry",
+  "emoji": "🍓",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "cerise",
+  "art": "la",
+  "g": "f",
+  "en": "cherry",
+  "emoji": "🍒",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "citron",
+  "art": "le",
+  "g": "m",
+  "en": "lemon",
+  "emoji": "🍋",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "melon d'eau",
+  "art": "le",
+  "g": "m",
+  "en": "watermelon",
+  "emoji": "🍉",
+  "theme": "fruits-legumes",
+  "alt": [
+   "pastèque"
+  ]
+ },
+ {
+  "fr": "ananas",
+  "art": "l'",
+  "g": "m",
+  "en": "pineapple",
+  "emoji": "🍍",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "poire",
+  "art": "la",
+  "g": "f",
+  "en": "pear",
+  "emoji": "🍐",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "kiwi",
+  "art": "le",
+  "g": "m",
+  "en": "kiwi",
+  "emoji": "🥝",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "noix de coco",
+  "art": "la",
+  "g": "f",
+  "en": "coconut",
+  "emoji": "🥥",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "bleuet",
+  "art": "le",
+  "g": "m",
+  "en": "blueberry",
+  "emoji": "🫐",
+  "theme": "fruits-legumes",
+  "alt": [
+   "myrtille"
+  ]
+ },
+ {
+  "fr": "carotte",
+  "art": "la",
+  "g": "f",
+  "en": "carrot",
+  "emoji": "🥕",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "tomate",
+  "art": "la",
+  "g": "f",
+  "en": "tomato",
+  "emoji": "🍅",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "maïs",
+  "art": "le",
+  "g": "m",
+  "en": "corn",
+  "emoji": "🌽",
+  "theme": "fruits-legumes",
+  "alt": [
+   "épi de maïs"
+  ]
+ },
+ {
+  "fr": "brocoli",
+  "art": "le",
+  "g": "m",
+  "en": "broccoli",
+  "emoji": "🥦",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "patate",
+  "art": "la",
+  "g": "f",
+  "en": "potato",
+  "emoji": "🥔",
+  "theme": "fruits-legumes",
+  "alt": [
+   "pomme de terre"
+  ]
+ },
+ {
+  "fr": "champignon",
+  "art": "le",
+  "g": "m",
+  "en": "mushroom",
+  "emoji": "🍄",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "poivron",
+  "art": "le",
+  "g": "m",
+  "en": "bell pepper",
+  "emoji": "🫑",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "avocat",
+  "art": "l'",
+  "g": "m",
+  "en": "avocado",
+  "emoji": "🥑",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "oignon",
+  "art": "l'",
+  "g": "m",
+  "en": "onion",
+  "emoji": "🧅",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "arachide",
+  "art": "l'",
+  "g": "f",
+  "en": "peanut",
+  "emoji": "🥜",
+  "theme": "fruits-legumes",
+  "alt": [
+   "cacahuète",
+   "cacahouète"
+  ]
+ },
+ {
+  "fr": "crayon",
+  "art": "le",
+  "g": "m",
+  "en": "pencil",
+  "emoji": "✏️",
+  "theme": "ecole",
+  "alt": [
+   "crayon à mine"
+  ]
+ },
+ {
+  "fr": "livre",
+  "art": "le",
+  "g": "m",
+  "en": "book",
+  "emoji": "📖",
+  "theme": "ecole"
+ },
+ {
+  "fr": "cahier",
+  "art": "le",
+  "g": "m",
+  "en": "notebook",
+  "emoji": "📓",
+  "theme": "ecole"
+ },
+ {
+  "fr": "règle",
+  "art": "la",
+  "g": "f",
+  "en": "ruler",
+  "emoji": "📏",
+  "theme": "ecole"
+ },
+ {
+  "fr": "sac à dos",
+  "art": "le",
+  "g": "m",
+  "en": "backpack",
+  "emoji": "🎒",
+  "theme": "ecole"
+ },
+ {
+  "fr": "stylo",
+  "art": "le",
+  "g": "m",
+  "en": "pen",
+  "emoji": "🖊️",
+  "theme": "ecole"
+ },
+ {
+  "fr": "crayon de cire",
+  "art": "le",
+  "g": "m",
+  "en": "crayon",
+  "emoji": "🖍️",
+  "theme": "ecole",
+  "alt": [
+   "crayon de couleur",
+   "pastel"
+  ]
+ },
+ {
+  "fr": "pinceau",
+  "art": "le",
+  "g": "m",
+  "en": "paintbrush",
+  "emoji": "🖌️",
+  "theme": "ecole"
+ },
+ {
+  "fr": "ordinateur",
+  "art": "l'",
+  "g": "m",
+  "en": "computer",
+  "emoji": "💻",
+  "theme": "ecole",
+  "alt": [
+   "ordi",
+   "portable"
+  ]
+ },
+ {
+  "fr": "école",
+  "art": "l'",
+  "g": "f",
+  "en": "school",
+  "emoji": "🏫",
+  "theme": "ecole"
+ },
+ {
+  "fr": "trombone",
+  "art": "le",
+  "g": "m",
+  "en": "paper clip",
+  "emoji": "📎",
+  "theme": "ecole"
+ },
+ {
+  "fr": "punaise",
+  "art": "la",
+  "g": "f",
+  "en": "pushpin",
+  "emoji": "📌",
+  "theme": "ecole"
+ },
+ {
+  "fr": "loupe",
+  "art": "la",
+  "g": "f",
+  "en": "magnifying glass",
+  "emoji": "🔍",
+  "theme": "ecole"
+ },
+ {
+  "fr": "calendrier",
+  "art": "le",
+  "g": "m",
+  "en": "calendar",
+  "emoji": "📅",
+  "theme": "ecole"
+ },
+ {
+  "fr": "carte",
+  "art": "la",
+  "g": "f",
+  "en": "map",
+  "emoji": "🗺️",
+  "theme": "ecole"
+ },
+ {
+  "fr": "cloche",
+  "art": "la",
+  "g": "f",
+  "en": "bell",
+  "emoji": "🔔",
+  "theme": "ecole"
+ },
+ {
+  "fr": "microscope",
+  "art": "le",
+  "g": "m",
+  "en": "microscope",
+  "emoji": "🔬",
+  "theme": "ecole"
+ },
+ {
+  "fr": "œil",
+  "art": "l'",
+  "g": "m",
+  "en": "eye",
+  "emoji": "👁️",
+  "theme": "corps",
+  "alt": [
+   "oeil"
+  ]
+ },
+ {
+  "fr": "nez",
+  "art": "le",
+  "g": "m",
+  "en": "nose",
+  "emoji": "👃",
+  "theme": "corps"
+ },
+ {
+  "fr": "bouche",
+  "art": "la",
+  "g": "f",
+  "en": "mouth",
+  "emoji": "👄",
+  "theme": "corps"
+ },
+ {
+  "fr": "oreille",
+  "art": "l'",
+  "g": "f",
+  "en": "ear",
+  "emoji": "👂",
+  "theme": "corps"
+ },
+ {
+  "fr": "main",
+  "art": "la",
+  "g": "f",
+  "en": "hand",
+  "emoji": "✋",
+  "theme": "corps"
+ },
+ {
+  "fr": "pied",
+  "art": "le",
+  "g": "m",
+  "en": "foot",
+  "emoji": "🦶",
+  "theme": "corps"
+ },
+ {
+  "fr": "jambe",
+  "art": "la",
+  "g": "f",
+  "en": "leg",
+  "emoji": "🦵",
+  "theme": "corps"
+ },
+ {
+  "fr": "bras",
+  "art": "le",
+  "g": "m",
+  "en": "arm",
+  "emoji": "💪",
+  "theme": "corps",
+  "alt": [
+   "muscle"
+  ]
+ },
+ {
+  "fr": "dent",
+  "art": "la",
+  "g": "f",
+  "en": "tooth",
+  "emoji": "🦷",
+  "theme": "corps"
+ },
+ {
+  "fr": "langue",
+  "art": "la",
+  "g": "f",
+  "en": "tongue",
+  "emoji": "👅",
+  "theme": "corps"
+ },
+ {
+  "fr": "cerveau",
+  "art": "le",
+  "g": "m",
+  "en": "brain",
+  "emoji": "🧠",
+  "theme": "corps"
+ },
+ {
+  "fr": "cœur",
+  "art": "le",
+  "g": "m",
+  "en": "heart",
+  "emoji": "❤️",
+  "theme": "corps",
+  "alt": [
+   "coeur"
+  ]
+ },
+ {
+  "fr": "doigt",
+  "art": "le",
+  "g": "m",
+  "en": "finger",
+  "emoji": "☝️",
+  "theme": "corps",
+  "alt": [
+   "index"
+  ]
+ },
+ {
+  "fr": "os",
+  "art": "l'",
+  "g": "m",
+  "en": "bone",
+  "emoji": "🦴",
+  "theme": "corps"
+ },
+ {
+  "fr": "pouce",
+  "art": "le",
+  "g": "m",
+  "en": "thumb",
+  "emoji": "👍",
+  "theme": "corps"
+ },
+ {
+  "fr": "poing",
+  "art": "le",
+  "g": "m",
+  "en": "fist",
+  "emoji": "👊",
+  "theme": "corps"
+ },
+ {
+  "fr": "chandail",
+  "art": "le",
+  "g": "m",
+  "en": "sweater / T-shirt",
+  "emoji": "👕",
+  "theme": "vetements",
+  "alt": [
+   "pull",
+   "t-shirt",
+   "gilet"
+  ]
+ },
+ {
+  "fr": "pantalon",
+  "art": "le",
+  "g": "m",
+  "en": "pants",
+  "emoji": "👖",
+  "theme": "vetements",
+  "alt": [
+   "jeans",
+   "jean"
+  ]
+ },
+ {
+  "fr": "robe",
+  "art": "la",
+  "g": "f",
+  "en": "dress",
+  "emoji": "👗",
+  "theme": "vetements"
+ },
+ {
+  "fr": "manteau",
+  "art": "le",
+  "g": "m",
+  "en": "coat",
+  "emoji": "🧥",
+  "theme": "vetements"
+ },
+ {
+  "fr": "chapeau",
+  "art": "le",
+  "g": "m",
+  "en": "hat",
+  "emoji": "🎩",
+  "theme": "vetements"
+ },
+ {
+  "fr": "casquette",
+  "art": "la",
+  "g": "f",
+  "en": "cap",
+  "emoji": "🧢",
+  "theme": "vetements"
+ },
+ {
+  "fr": "foulard",
+  "art": "le",
+  "g": "m",
+  "en": "scarf",
+  "emoji": "🧣",
+  "theme": "vetements",
+  "alt": [
+   "écharpe"
+  ]
+ },
+ {
+  "fr": "mitaine",
+  "art": "la",
+  "g": "f",
+  "en": "mitten / glove",
+  "emoji": "🧤",
+  "theme": "vetements",
+  "alt": [
+   "gant"
+  ]
+ },
+ {
+  "fr": "bas",
+  "art": "le",
+  "g": "m",
+  "en": "sock",
+  "emoji": "🧦",
+  "theme": "vetements",
+  "alt": [
+   "chaussette"
+  ]
+ },
+ {
+  "fr": "soulier",
+  "art": "le",
+  "g": "m",
+  "en": "shoe",
+  "emoji": "👞",
+  "theme": "vetements",
+  "alt": [
+   "chaussure"
+  ]
+ },
+ {
+  "fr": "espadrille",
+  "art": "l'",
+  "g": "f",
+  "en": "running shoe",
+  "emoji": "👟",
+  "theme": "vetements",
+  "alt": [
+   "soulier de course",
+   "basket"
+  ]
+ },
+ {
+  "fr": "botte",
+  "art": "la",
+  "g": "f",
+  "en": "boot",
+  "emoji": "👢",
+  "theme": "vetements"
+ },
+ {
+  "fr": "chemise",
+  "art": "la",
+  "g": "f",
+  "en": "shirt",
+  "emoji": "👔",
+  "theme": "vetements",
+  "alt": [
+   "cravate"
+  ]
+ },
+ {
+  "fr": "maillot de bain",
+  "art": "le",
+  "g": "m",
+  "en": "swimsuit",
+  "emoji": "🩱",
+  "theme": "vetements",
+  "alt": [
+   "costume de bain"
+  ]
+ },
+ {
+  "fr": "sandale",
+  "art": "la",
+  "g": "f",
+  "en": "sandal",
+  "emoji": "👡",
+  "theme": "vetements"
+ },
+ {
+  "fr": "bague",
+  "art": "la",
+  "g": "f",
+  "en": "ring",
+  "emoji": "💍",
+  "theme": "vetements"
+ },
+ {
+  "fr": "couronne",
+  "art": "la",
+  "g": "f",
+  "en": "crown",
+  "emoji": "👑",
+  "theme": "vetements"
+ },
+ {
+  "fr": "maison",
+  "art": "la",
+  "g": "f",
+  "en": "house",
+  "emoji": "🏠",
+  "theme": "maison"
+ },
+ {
+  "fr": "lit",
+  "art": "le",
+  "g": "m",
+  "en": "bed",
+  "emoji": "🛏️",
+  "theme": "maison"
+ },
+ {
+  "fr": "chaise",
+  "art": "la",
+  "g": "f",
+  "en": "chair",
+  "emoji": "🪑",
+  "theme": "maison"
+ },
+ {
+  "fr": "porte",
+  "art": "la",
+  "g": "f",
+  "en": "door",
+  "emoji": "🚪",
+  "theme": "maison"
+ },
+ {
+  "fr": "fenêtre",
+  "art": "la",
+  "g": "f",
+  "en": "window",
+  "emoji": "🪟",
+  "theme": "maison"
+ },
+ {
+  "fr": "ampoule",
+  "art": "l'",
+  "g": "f",
+  "en": "light bulb",
+  "emoji": "💡",
+  "theme": "maison",
+  "alt": [
+   "lumière",
+   "lampe"
+  ]
+ },
+ {
+  "fr": "clé",
+  "art": "la",
+  "g": "f",
+  "en": "key",
+  "emoji": "🔑",
+  "theme": "maison",
+  "alt": [
+   "clef"
+  ]
+ },
+ {
+  "fr": "téléphone",
+  "art": "le",
+  "g": "m",
+  "en": "phone",
+  "emoji": "📱",
+  "theme": "maison",
+  "alt": [
+   "cellulaire",
+   "cell"
+  ]
+ },
+ {
+  "fr": "télévision",
+  "art": "la",
+  "g": "f",
+  "en": "television",
+  "emoji": "📺",
+  "theme": "maison",
+  "alt": [
+   "télé"
+  ]
+ },
+ {
+  "fr": "cadran",
+  "art": "le",
+  "g": "m",
+  "en": "alarm clock",
+  "emoji": "⏰",
+  "theme": "maison",
+  "alt": [
+   "réveil",
+   "réveille-matin",
+   "horloge"
+  ]
+ },
+ {
+  "fr": "baignoire",
+  "art": "la",
+  "g": "f",
+  "en": "bathtub",
+  "emoji": "🛁",
+  "theme": "maison",
+  "alt": [
+   "bain"
+  ]
+ },
+ {
+  "fr": "toilette",
+  "art": "la",
+  "g": "f",
+  "en": "toilet",
+  "emoji": "🚽",
+  "theme": "maison"
+ },
+ {
+  "fr": "douche",
+  "art": "la",
+  "g": "f",
+  "en": "shower",
+  "emoji": "🚿",
+  "theme": "maison"
+ },
+ {
+  "fr": "savon",
+  "art": "le",
+  "g": "m",
+  "en": "soap",
+  "emoji": "🧼",
+  "theme": "maison"
+ },
+ {
+  "fr": "brosse à dents",
+  "art": "la",
+  "g": "f",
+  "en": "toothbrush",
+  "emoji": "🪥",
+  "theme": "maison"
+ },
+ {
+  "fr": "divan",
+  "art": "le",
+  "g": "m",
+  "en": "couch",
+  "emoji": "🛋️",
+  "theme": "maison",
+  "alt": [
+   "sofa",
+   "canapé"
+  ]
+ },
+ {
+  "fr": "miroir",
+  "art": "le",
+  "g": "m",
+  "en": "mirror",
+  "emoji": "🪞",
+  "theme": "maison"
+ },
+ {
+  "fr": "balai",
+  "art": "le",
+  "g": "m",
+  "en": "broom",
+  "emoji": "🧹",
+  "theme": "maison"
+ },
+ {
+  "fr": "chandelle",
+  "art": "la",
+  "g": "f",
+  "en": "candle",
+  "emoji": "🕯️",
+  "theme": "maison",
+  "alt": [
+   "bougie"
+  ]
+ },
+ {
+  "fr": "cuillère",
+  "art": "la",
+  "g": "f",
+  "en": "spoon",
+  "emoji": "🥄",
+  "theme": "maison",
+  "alt": [
+   "cuiller"
+  ]
+ },
+ {
+  "fr": "poubelle",
+  "art": "la",
+  "g": "f",
+  "en": "garbage can",
+  "emoji": "🗑️",
+  "theme": "maison"
+ },
+ {
+  "fr": "marteau",
+  "art": "le",
+  "g": "m",
+  "en": "hammer",
+  "emoji": "🔨",
+  "theme": "maison"
+ },
+ {
+  "fr": "soleil",
+  "art": "le",
+  "g": "m",
+  "en": "sun",
+  "emoji": "☀️",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "lune",
+  "art": "la",
+  "g": "f",
+  "en": "moon",
+  "emoji": "🌙",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "étoile",
+  "art": "l'",
+  "g": "f",
+  "en": "star",
+  "emoji": "⭐",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "nuage",
+  "art": "le",
+  "g": "m",
+  "en": "cloud",
+  "emoji": "☁️",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "pluie",
+  "art": "la",
+  "g": "f",
+  "en": "rain",
+  "emoji": "🌧️",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "neige",
+  "art": "la",
+  "g": "f",
+  "en": "snow",
+  "emoji": "❄️",
+  "theme": "nature-meteo",
+  "alt": [
+   "flocon",
+   "flocon de neige"
+  ]
+ },
+ {
+  "fr": "bonhomme de neige",
+  "art": "le",
+  "g": "m",
+  "en": "snowman",
+  "emoji": "⛄",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "arc-en-ciel",
+  "art": "l'",
+  "g": "m",
+  "en": "rainbow",
+  "emoji": "🌈",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "éclair",
+  "art": "l'",
+  "g": "m",
+  "en": "lightning",
+  "emoji": "⚡",
+  "theme": "nature-meteo",
+  "alt": [
+   "foudre"
+  ]
+ },
+ {
+  "fr": "arbre",
+  "art": "l'",
+  "g": "m",
+  "en": "tree",
+  "emoji": "🌳",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "sapin",
+  "art": "le",
+  "g": "m",
+  "en": "fir tree",
+  "emoji": "🌲",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "fleur",
+  "art": "la",
+  "g": "f",
+  "en": "flower",
+  "emoji": "🌼",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "tournesol",
+  "art": "le",
+  "g": "m",
+  "en": "sunflower",
+  "emoji": "🌻",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "feuille",
+  "art": "la",
+  "g": "f",
+  "en": "leaf",
+  "emoji": "🍁",
+  "theme": "nature-meteo",
+  "alt": [
+   "feuille d'érable"
+  ]
+ },
+ {
+  "fr": "montagne",
+  "art": "la",
+  "g": "f",
+  "en": "mountain",
+  "emoji": "🏔️",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "volcan",
+  "art": "le",
+  "g": "m",
+  "en": "volcano",
+  "emoji": "🌋",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "plage",
+  "art": "la",
+  "g": "f",
+  "en": "beach",
+  "emoji": "🏖️",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "vague",
+  "art": "la",
+  "g": "f",
+  "en": "wave",
+  "emoji": "🌊",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "feu",
+  "art": "le",
+  "g": "m",
+  "en": "fire",
+  "emoji": "🔥",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "cactus",
+  "art": "le",
+  "g": "m",
+  "en": "cactus",
+  "emoji": "🌵",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "roche",
+  "art": "la",
+  "g": "f",
+  "en": "rock",
+  "emoji": "🪨",
+  "theme": "nature-meteo",
+  "alt": [
+   "pierre",
+   "caillou"
+  ]
+ },
+ {
+  "fr": "parapluie",
+  "art": "le",
+  "g": "m",
+  "en": "umbrella",
+  "emoji": "☂️",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "coquillage",
+  "art": "le",
+  "g": "m",
+  "en": "seashell",
+  "emoji": "🐚",
+  "theme": "nature-meteo",
+  "alt": [
+   "coquille"
+  ]
+ },
+ {
+  "fr": "voiture",
+  "art": "la",
+  "g": "f",
+  "en": "car",
+  "emoji": "🚗",
+  "theme": "transports",
+  "alt": [
+   "auto",
+   "char"
+  ]
+ },
+ {
+  "fr": "autobus",
+  "art": "l'",
+  "g": "m",
+  "en": "bus",
+  "emoji": "🚌",
+  "theme": "transports",
+  "alt": [
+   "bus"
+  ]
+ },
+ {
+  "fr": "camion",
+  "art": "le",
+  "g": "m",
+  "en": "truck",
+  "emoji": "🚚",
+  "theme": "transports"
+ },
+ {
+  "fr": "vélo",
+  "art": "le",
+  "g": "m",
+  "en": "bike",
+  "emoji": "🚲",
+  "theme": "transports",
+  "alt": [
+   "bicyclette",
+   "bicycle"
+  ]
+ },
+ {
+  "fr": "train",
+  "art": "le",
+  "g": "m",
+  "en": "train",
+  "emoji": "🚂",
+  "theme": "transports",
+  "alt": [
+   "locomotive"
+  ]
+ },
+ {
+  "fr": "avion",
+  "art": "l'",
+  "g": "m",
+  "en": "airplane",
+  "emoji": "✈️",
+  "theme": "transports"
+ },
+ {
+  "fr": "bateau",
+  "art": "le",
+  "g": "m",
+  "en": "boat",
+  "emoji": "⛵",
+  "theme": "transports",
+  "alt": [
+   "voilier"
+  ]
+ },
+ {
+  "fr": "hélicoptère",
+  "art": "l'",
+  "g": "m",
+  "en": "helicopter",
+  "emoji": "🚁",
+  "theme": "transports"
+ },
+ {
+  "fr": "fusée",
+  "art": "la",
+  "g": "f",
+  "en": "rocket",
+  "emoji": "🚀",
+  "theme": "transports"
+ },
+ {
+  "fr": "moto",
+  "art": "la",
+  "g": "f",
+  "en": "motorcycle",
+  "emoji": "🏍️",
+  "theme": "transports",
+  "alt": [
+   "motocyclette"
+  ]
+ },
+ {
+  "fr": "taxi",
+  "art": "le",
+  "g": "m",
+  "en": "taxi",
+  "emoji": "🚕",
+  "theme": "transports"
+ },
+ {
+  "fr": "ambulance",
+  "art": "l'",
+  "g": "f",
+  "en": "ambulance",
+  "emoji": "🚑",
+  "theme": "transports"
+ },
+ {
+  "fr": "camion de pompiers",
+  "art": "le",
+  "g": "m",
+  "en": "fire truck",
+  "emoji": "🚒",
+  "theme": "transports",
+  "alt": [
+   "camion de pompier",
+   "camion à incendie"
+  ]
+ },
+ {
+  "fr": "voiture de police",
+  "art": "la",
+  "g": "f",
+  "en": "police car",
+  "emoji": "🚓",
+  "theme": "transports",
+  "alt": [
+   "auto de police"
+  ]
+ },
+ {
+  "fr": "tracteur",
+  "art": "le",
+  "g": "m",
+  "en": "tractor",
+  "emoji": "🚜",
+  "theme": "transports"
+ },
+ {
+  "fr": "canot",
+  "art": "le",
+  "g": "m",
+  "en": "canoe",
+  "emoji": "🛶",
+  "theme": "transports",
+  "alt": [
+   "canoë"
+  ]
+ },
+ {
+  "fr": "ballon",
+  "art": "le",
+  "g": "m",
+  "en": "balloon",
+  "emoji": "🎈",
+  "theme": "jouets-sports",
+  "alt": [
+   "ballon gonflable"
+  ]
+ },
+ {
+  "fr": "ballon de soccer",
+  "art": "le",
+  "g": "m",
+  "en": "soccer ball",
+  "emoji": "⚽",
+  "theme": "jouets-sports",
+  "alt": [
+   "ballon",
+   "ballon de foot"
+  ]
+ },
+ {
+  "fr": "bâton de hockey",
+  "art": "le",
+  "g": "m",
+  "en": "hockey stick",
+  "emoji": "🏒",
+  "theme": "jouets-sports",
+  "alt": [
+   "hockey"
+  ]
+ },
+ {
+  "fr": "patin",
+  "art": "le",
+  "g": "m",
+  "en": "skate",
+  "emoji": "⛸️",
+  "theme": "jouets-sports",
+  "alt": [
+   "patin à glace"
+  ]
+ },
+ {
+  "fr": "ski",
+  "art": "le",
+  "g": "m",
+  "en": "ski",
+  "emoji": "🎿",
+  "theme": "jouets-sports"
+ },
+ {
+  "fr": "cerf-volant",
+  "art": "le",
+  "g": "m",
+  "en": "kite",
+  "emoji": "🪁",
+  "theme": "jouets-sports"
+ },
+ {
+  "fr": "toutou",
+  "art": "le",
+  "g": "m",
+  "en": "teddy bear / stuffed animal",
+  "emoji": "🧸",
+  "theme": "jouets-sports",
+  "alt": [
+   "ourson",
+   "nounours",
+   "ours en peluche"
+  ]
+ },
+ {
+  "fr": "dé",
+  "art": "le",
+  "g": "m",
+  "en": "die (dice)",
+  "emoji": "🎲",
+  "theme": "jouets-sports"
+ },
+ {
+  "fr": "casse-tête",
+  "art": "le",
+  "g": "m",
+  "en": "puzzle",
+  "emoji": "🧩",
+  "theme": "jouets-sports",
+  "alt": [
+   "puzzle"
+  ]
+ },
+ {
+  "fr": "cadeau",
+  "art": "le",
+  "g": "m",
+  "en": "present",
+  "emoji": "🎁",
+  "theme": "jouets-sports"
+ },
+ {
+  "fr": "trophée",
+  "art": "le",
+  "g": "m",
+  "en": "trophy",
+  "emoji": "🏆",
+  "theme": "jouets-sports"
+ },
+ {
+  "fr": "médaille",
+  "art": "la",
+  "g": "f",
+  "en": "medal",
+  "emoji": "🏅",
+  "theme": "jouets-sports"
+ },
+ {
+  "fr": "yo-yo",
+  "art": "le",
+  "g": "m",
+  "en": "yo-yo",
+  "emoji": "🪀",
+  "theme": "jouets-sports"
+ },
+ {
+  "fr": "planche à roulettes",
+  "art": "la",
+  "g": "f",
+  "en": "skateboard",
+  "emoji": "🛹",
+  "theme": "jouets-sports",
+  "alt": [
+   "skate",
+   "skateboard"
+  ]
+ },
+ {
+  "fr": "trottinette",
+  "art": "la",
+  "g": "f",
+  "en": "kick scooter",
+  "emoji": "🛴",
+  "theme": "jouets-sports",
+  "alt": [
+   "scooter"
+  ]
+ },
+ {
+  "fr": "traîneau",
+  "art": "le",
+  "g": "m",
+  "en": "sled",
+  "emoji": "🛷",
+  "theme": "jouets-sports",
+  "alt": [
+   "luge"
+  ]
+ },
+ {
+  "fr": "guitare",
+  "art": "la",
+  "g": "f",
+  "en": "guitar",
+  "emoji": "🎸",
+  "theme": "jouets-sports"
+ },
+ {
+  "fr": "tambour",
+  "art": "le",
+  "g": "m",
+  "en": "drum",
+  "emoji": "🥁",
+  "theme": "jouets-sports",
+  "alt": [
+   "batterie"
+  ]
+ },
+ {
+  "fr": "robot",
+  "art": "le",
+  "g": "m",
+  "en": "robot",
+  "emoji": "🤖",
+  "theme": "jouets-sports"
+ },
+ {
+  "fr": "pompier",
+  "art": "le",
+  "g": "m",
+  "en": "firefighter",
+  "emoji": "👨‍🚒",
+  "theme": "metiers"
+ },
+ {
+  "fr": "médecin",
+  "art": "le",
+  "g": "m",
+  "en": "doctor",
+  "emoji": "👨‍⚕️",
+  "theme": "metiers",
+  "alt": [
+   "docteur"
+  ]
+ },
+ {
+  "fr": "policier",
+  "art": "le",
+  "g": "m",
+  "en": "police officer",
+  "emoji": "👮‍♂️",
+  "theme": "metiers",
+  "alt": [
+   "police"
+  ]
+ },
+ {
+  "fr": "cuisinier",
+  "art": "le",
+  "g": "m",
+  "en": "cook",
+  "emoji": "👨‍🍳",
+  "theme": "metiers",
+  "alt": [
+   "chef"
+  ]
+ },
+ {
+  "fr": "enseignant",
+  "art": "l'",
+  "g": "m",
+  "en": "teacher",
+  "emoji": "👨‍🏫",
+  "theme": "metiers",
+  "alt": [
+   "professeur",
+   "prof"
+  ]
+ },
+ {
+  "fr": "fermier",
+  "art": "le",
+  "g": "m",
+  "en": "farmer",
+  "emoji": "👨‍🌾",
+  "theme": "metiers",
+  "alt": [
+   "agriculteur"
+  ]
+ },
+ {
+  "fr": "astronaute",
+  "art": "l'",
+  "g": "m",
+  "en": "astronaut",
+  "emoji": "👨‍🚀",
+  "theme": "metiers"
+ },
+ {
+  "fr": "pilote",
+  "art": "le",
+  "g": "m",
+  "en": "pilot",
+  "emoji": "👨‍✈️",
+  "theme": "metiers"
+ },
+ {
+  "fr": "artiste",
+  "art": "l'",
+  "g": "m",
+  "en": "artist",
+  "emoji": "👨‍🎨",
+  "theme": "metiers",
+  "alt": [
+   "peintre"
+  ]
+ },
+ {
+  "fr": "chanteur",
+  "art": "le",
+  "g": "m",
+  "en": "singer",
+  "emoji": "👨‍🎤",
+  "theme": "metiers"
+ },
+ {
+  "fr": "mécanicien",
+  "art": "le",
+  "g": "m",
+  "en": "mechanic",
+  "emoji": "👨‍🔧",
+  "theme": "metiers"
+ },
+ {
+  "fr": "scientifique",
+  "art": "le",
+  "g": "m",
+  "en": "scientist",
+  "emoji": "👨‍🔬",
+  "theme": "metiers"
+ },
+ {
+  "fr": "rouge",
+  "art": "le",
+  "g": "m",
+  "en": "red",
+  "emoji": "🔴",
+  "theme": "couleurs"
+ },
+ {
+  "fr": "bleu",
+  "art": "le",
+  "g": "m",
+  "en": "blue",
+  "emoji": "🔵",
+  "theme": "couleurs"
+ },
+ {
+  "fr": "vert",
+  "art": "le",
+  "g": "m",
+  "en": "green",
+  "emoji": "🟢",
+  "theme": "couleurs"
+ },
+ {
+  "fr": "jaune",
+  "art": "le",
+  "g": "m",
+  "en": "yellow",
+  "emoji": "🟡",
+  "theme": "couleurs"
+ },
+ {
+  "fr": "orange",
+  "art": "l'",
+  "g": "m",
+  "en": "orange",
+  "emoji": "🟠",
+  "theme": "couleurs"
+ },
+ {
+  "fr": "violet",
+  "art": "le",
+  "g": "m",
+  "en": "purple",
+  "emoji": "🟣",
+  "theme": "couleurs",
+  "alt": [
+   "mauve"
+  ]
+ },
+ {
+  "fr": "brun",
+  "art": "le",
+  "g": "m",
+  "en": "brown",
+  "emoji": "🟤",
+  "theme": "couleurs",
+  "alt": [
+   "marron"
+  ]
+ },
+ {
+  "fr": "noir",
+  "art": "le",
+  "g": "m",
+  "en": "black",
+  "emoji": "⚫",
+  "theme": "couleurs"
+ },
+ {
+  "fr": "blanc",
+  "art": "le",
+  "g": "m",
+  "en": "white",
+  "emoji": "⚪",
+  "theme": "couleurs"
+ },
+ {
+  "fr": "rose",
+  "art": "le",
+  "g": "m",
+  "en": "pink",
+  "emoji": "💗",
+  "theme": "couleurs"
+ },
+ {
+  "fr": "courir",
+  "g": "",
+  "en": "to run",
+  "emoji": "🏃",
+  "theme": "actions",
+  "alt": [
+   "cours"
+  ]
+ },
+ {
+  "fr": "nager",
+  "g": "",
+  "en": "to swim",
+  "emoji": "🏊",
+  "theme": "actions",
+  "alt": [
+   "nage"
+  ]
+ },
+ {
+  "fr": "dormir",
+  "g": "",
+  "en": "to sleep",
+  "emoji": "😴",
+  "theme": "actions",
+  "alt": [
+   "dors",
+   "dodo",
+   "faire dodo"
+  ]
+ },
+ {
+  "fr": "manger",
+  "g": "",
+  "en": "to eat",
+  "emoji": "🍽️",
+  "theme": "actions",
+  "alt": [
+   "mange"
+  ]
+ },
+ {
+  "fr": "boire",
+  "g": "",
+  "en": "to drink",
+  "emoji": "🥤",
+  "theme": "actions",
+  "alt": [
+   "bois"
+  ]
+ },
+ {
+  "fr": "écrire",
+  "g": "",
+  "en": "to write",
+  "emoji": "✍️",
+  "theme": "actions",
+  "alt": [
+   "écris"
+  ]
+ },
+ {
+  "fr": "chanter",
+  "g": "",
+  "en": "to sing",
+  "emoji": "🎤",
+  "theme": "actions",
+  "alt": [
+   "chante"
+  ]
+ },
+ {
+  "fr": "pleurer",
+  "g": "",
+  "en": "to cry",
+  "emoji": "😭",
+  "theme": "actions",
+  "alt": [
+   "pleure"
+  ]
+ },
+ {
+  "fr": "rire",
+  "g": "",
+  "en": "to laugh",
+  "emoji": "😂",
+  "theme": "actions",
+  "alt": [
+   "ris",
+   "rigoler"
+  ]
+ },
+ {
+  "fr": "marcher",
+  "g": "",
+  "en": "to walk",
+  "emoji": "🚶",
+  "theme": "actions",
+  "alt": [
+   "marche"
+  ]
+ },
+ {
+  "fr": "peindre",
+  "g": "",
+  "en": "to paint",
+  "emoji": "🎨",
+  "theme": "actions",
+  "alt": [
+   "peins",
+   "peinturer",
+   "peinture"
+  ]
+ },
+ {
+  "fr": "skier",
+  "g": "",
+  "en": "to ski",
+  "emoji": "⛷️",
+  "theme": "actions",
+  "alt": [
+   "skie",
+   "faire du ski"
+  ]
+ },
+ {
+  "fr": "pêcher",
+  "g": "",
+  "en": "to fish",
+  "emoji": "🎣",
+  "theme": "actions",
+  "alt": [
+   "pêche",
+   "aller à la pêche"
+  ]
+ },
+ {
+  "fr": "téléphoner",
+  "g": "",
+  "en": "to phone",
+  "emoji": "📞",
+  "theme": "actions",
+  "alt": [
+   "téléphone",
+   "appeler"
+  ]
+ },
+ {
+  "fr": "surfer",
+  "g": "",
+  "en": "to surf",
+  "emoji": "🏄",
+  "theme": "actions",
+  "alt": [
+   "surfe",
+   "faire du surf"
+  ]
+ },
+ {
+  "fr": "grimper",
+  "g": "",
+  "en": "to climb",
+  "emoji": "🧗",
+  "theme": "actions",
+  "alt": [
+   "grimpe",
+   "escalader"
+  ]
+ },
+ {
+  "fr": "jongler",
+  "g": "",
+  "en": "to juggle",
+  "emoji": "🤹",
+  "theme": "actions",
+  "alt": [
+   "jongle"
+  ]
+ },
+ {
+  "fr": "ramer",
+  "g": "",
+  "en": "to row",
+  "emoji": "🚣",
+  "theme": "actions",
+  "alt": [
+   "rame",
+   "faire de la chaloupe"
+  ]
+ },
+ {
+  "fr": "plonger",
+  "g": "",
+  "en": "to dive",
+  "emoji": "🤿",
+  "theme": "actions",
+  "alt": [
+   "plonge",
+   "faire de la plongée"
+  ]
+ },
+ {
+  "fr": "penser",
+  "g": "",
+  "en": "to think",
+  "emoji": "🤔",
+  "theme": "actions",
+  "alt": [
+   "pense",
+   "réfléchir"
+  ]
+ },
+ {
+  "fr": "embrasser",
+  "g": "",
+  "en": "to kiss",
+  "emoji": "😘",
+  "theme": "actions",
+  "alt": [
+   "embrasse",
+   "donner un bec",
+   "donner un bisou",
+   "bec",
+   "bisou"
+  ]
+ },
+ {
+  "fr": "faire un câlin",
+  "g": "",
+  "en": "to hug",
+  "emoji": "🤗",
+  "theme": "actions",
+  "alt": [
+   "câlin",
+   "faire une colle",
+   "colle"
+  ]
+ },
+ {
+  "fr": "saluer",
+  "g": "",
+  "en": "to wave hello",
+  "emoji": "👋",
+  "theme": "actions",
+  "alt": [
+   "salue",
+   "bonjour",
+   "allô",
+   "salut",
+   "bye"
+  ]
+ },
+ {
+  "fr": "applaudir",
+  "g": "",
+  "en": "to clap",
+  "emoji": "👏",
+  "theme": "actions",
+  "alt": [
+   "applaudis",
+   "taper des mains"
+  ]
+ },
+ {
+  "fr": "parler",
+  "g": "",
+  "en": "to talk",
+  "emoji": "🗣️",
+  "theme": "actions",
+  "alt": [
+   "parle"
+  ]
+ },
+ {
+  "fr": "éternuer",
+  "g": "",
+  "en": "to sneeze",
+  "emoji": "🤧",
+  "theme": "actions",
+  "alt": [
+   "éternue",
+   "atchoum"
+  ]
+ },
+ {
+  "fr": "lever la main",
+  "g": "",
+  "en": "to raise your hand",
+  "emoji": "🙋",
+  "theme": "actions",
+  "alt": [
+   "lève la main"
+  ]
+ },
+ {
+  "fr": "faire du yoga",
+  "g": "",
+  "en": "to do yoga",
+  "emoji": "🧘",
+  "theme": "actions",
+  "alt": [
+   "yoga",
+   "méditer"
+  ]
+ },
+ {
+  "fr": "fêter",
+  "g": "",
+  "en": "to celebrate",
+  "emoji": "🥳",
+  "theme": "actions",
+  "alt": [
+   "fête",
+   "faire la fête"
+  ]
+ },
+ {
+  "fr": "faire un clin d'œil",
+  "g": "",
+  "en": "to wink",
+  "emoji": "😉",
+  "theme": "actions",
+  "alt": [
+   "faire un clin d'oeil",
+   "clin d'œil",
+   "clin d'oeil"
+  ]
+ },
+ {
+  "fr": "regarder",
+  "g": "",
+  "en": "to look",
+  "emoji": "👀",
+  "theme": "actions",
+  "alt": [
+   "regarde",
+   "voir",
+   "yeux"
+  ]
+ },
+ {
+  "fr": "content",
+  "g": "",
+  "en": "happy",
+  "emoji": "😀",
+  "theme": "emotions",
+  "alt": [
+   "contente",
+   "heureux",
+   "heureuse",
+   "joyeux",
+   "joyeuse"
+  ]
+ },
+ {
+  "fr": "triste",
+  "g": "",
+  "en": "sad",
+  "emoji": "😢",
+  "theme": "emotions"
+ },
+ {
+  "fr": "fâché",
+  "g": "",
+  "en": "angry",
+  "emoji": "😠",
+  "theme": "emotions",
+  "alt": [
+   "fâchée",
+   "en colère",
+   "choqué",
+   "choquée"
+  ]
+ },
+ {
+  "fr": "surpris",
+  "g": "",
+  "en": "surprised",
+  "emoji": "😮",
+  "theme": "emotions",
+  "alt": [
+   "surprise"
+  ]
+ },
+ {
+  "fr": "fatigué",
+  "g": "",
+  "en": "tired",
+  "emoji": "🥱",
+  "theme": "emotions",
+  "alt": [
+   "fatiguée"
+  ]
+ },
+ {
+  "fr": "malade",
+  "g": "",
+  "en": "sick",
+  "emoji": "🤒",
+  "theme": "emotions"
+ },
+ {
+  "fr": "effrayé",
+  "g": "",
+  "en": "scared",
+  "emoji": "😱",
+  "theme": "emotions",
+  "alt": [
+   "effrayée",
+   "apeuré",
+   "apeurée",
+   "peur",
+   "j'ai peur"
+  ]
+ },
+ {
+  "fr": "amoureux",
+  "g": "",
+  "en": "in love",
+  "emoji": "😍",
+  "theme": "emotions",
+  "alt": [
+   "amoureuse",
+   "en amour"
+  ]
+ },
+ {
+  "fr": "gêné",
+  "g": "",
+  "en": "embarrassed, shy",
+  "emoji": "😳",
+  "theme": "emotions",
+  "alt": [
+   "gênée",
+   "timide"
+  ]
+ },
+ {
+  "fr": "fou",
+  "g": "",
+  "en": "silly, crazy",
+  "emoji": "🤪",
+  "theme": "emotions",
+  "alt": [
+   "folle",
+   "niaiseux",
+   "niaiseuse"
+  ]
+ },
+ {
+  "fr": "froid",
+  "g": "",
+  "en": "cold",
+  "emoji": "🥶",
+  "theme": "emotions",
+  "alt": [
+   "froide",
+   "gelé",
+   "gelée",
+   "j'ai froid"
+  ]
+ },
+ {
+  "fr": "chaud",
+  "g": "",
+  "en": "hot",
+  "emoji": "🥵",
+  "theme": "emotions",
+  "alt": [
+   "chaude",
+   "j'ai chaud"
+  ]
+ },
+ {
+  "fr": "hôpital",
+  "art": "l'",
+  "g": "m",
+  "en": "hospital",
+  "emoji": "🏥",
+  "theme": "ville"
+ },
+ {
+  "fr": "magasin",
+  "art": "le",
+  "g": "m",
+  "en": "store",
+  "emoji": "🏬",
+  "theme": "ville",
+  "alt": [
+   "centre commercial",
+   "centre d'achats"
+  ]
+ },
+ {
+  "fr": "banque",
+  "art": "la",
+  "g": "f",
+  "en": "bank",
+  "emoji": "🏦",
+  "theme": "ville"
+ },
+ {
+  "fr": "pont",
+  "art": "le",
+  "g": "m",
+  "en": "bridge",
+  "emoji": "🌉",
+  "theme": "ville"
+ },
+ {
+  "fr": "feu de circulation",
+  "art": "le",
+  "g": "m",
+  "en": "traffic light",
+  "emoji": "🚦",
+  "theme": "ville",
+  "alt": [
+   "feu",
+   "feux",
+   "feu rouge",
+   "lumière",
+   "lumières",
+   "feux de circulation"
+  ]
+ },
+ {
+  "fr": "usine",
+  "art": "l'",
+  "g": "f",
+  "en": "factory",
+  "emoji": "🏭",
+  "theme": "ville"
+ },
+ {
+  "fr": "tente",
+  "art": "la",
+  "g": "f",
+  "en": "tent",
+  "emoji": "⛺",
+  "theme": "ville"
+ },
+ {
+  "fr": "château",
+  "art": "le",
+  "g": "m",
+  "en": "castle",
+  "emoji": "🏰",
+  "theme": "ville"
+ },
+ {
+  "fr": "stade",
+  "art": "le",
+  "g": "m",
+  "en": "stadium",
+  "emoji": "🏟️",
+  "theme": "ville"
+ },
+ {
+  "fr": "boîte aux lettres",
+  "art": "la",
+  "g": "f",
+  "en": "mailbox",
+  "emoji": "📬",
+  "theme": "ville",
+  "alt": [
+   "boîte à lettres",
+   "boîte postale"
+  ]
+ },
+ {
+  "fr": "ville",
+  "art": "la",
+  "g": "f",
+  "en": "city",
+  "emoji": "🏙️",
+  "theme": "ville",
+  "alt": [
+   "centre-ville"
+  ]
+ },
+ {
+  "fr": "grande roue",
+  "art": "la",
+  "g": "f",
+  "en": "Ferris wheel",
+  "emoji": "🎡",
+  "theme": "ville"
+ },
+ {
+  "fr": "cirque",
+  "art": "le",
+  "g": "m",
+  "en": "circus",
+  "emoji": "🎪",
+  "theme": "ville"
+ },
+ {
+  "fr": "arrêt",
+  "art": "l'",
+  "g": "m",
+  "en": "stop sign",
+  "emoji": "🛑",
+  "theme": "ville",
+  "alt": [
+   "panneau d'arrêt",
+   "stop",
+   "signe d'arrêt"
+  ]
+ },
+ {
+  "fr": "dépanneur",
+  "art": "le",
+  "g": "m",
+  "en": "corner store",
+  "emoji": "🏪",
+  "theme": "ville",
+  "alt": [
+   "dep",
+   "dépan",
+   "épicerie",
+   "magasin"
+  ]
+ },
+ {
+  "fr": "glaçon",
+  "art": "le",
+  "g": "m",
+  "en": "ice cube",
+  "emoji": "🧊",
+  "theme": "hiver",
+  "alt": [
+   "glace",
+   "cube de glace"
+  ]
+ },
+ {
+  "fr": "chocolat chaud",
+  "art": "le",
+  "g": "m",
+  "en": "hot chocolate",
+  "emoji": "☕",
+  "theme": "hiver",
+  "mass": true,
+  "alt": [
+   "chocolat",
+   "café",
+   "tasse"
+  ]
+ },
+ {
+  "fr": "planche à neige",
+  "art": "la",
+  "g": "f",
+  "en": "snowboard",
+  "emoji": "🏂",
+  "theme": "hiver",
+  "alt": [
+   "snowboard",
+   "surf des neiges"
+  ]
+ },
+ {
+  "fr": "ours polaire",
+  "art": "l'",
+  "g": "m",
+  "en": "polar bear",
+  "emoji": "🐻‍❄️",
+  "theme": "hiver",
+  "alt": [
+   "ours blanc"
+  ]
+ },
+ {
+  "fr": "curling",
+  "art": "le",
+  "g": "m",
+  "en": "curling",
+  "emoji": "🥌",
+  "theme": "hiver",
+  "mass": true,
+  "alt": [
+   "pierre de curling",
+   "jouer au curling"
+  ]
+ },
+ {
+  "fr": "tempête de neige",
+  "art": "la",
+  "g": "f",
+  "en": "snowstorm",
+  "emoji": "🌨️",
+  "theme": "hiver",
+  "alt": [
+   "tempête",
+   "bordée de neige",
+   "il neige"
+  ]
+ },
+ {
+  "fr": "sapin de Noël",
+  "art": "le",
+  "g": "m",
+  "en": "Christmas tree",
+  "emoji": "🎄",
+  "theme": "hiver",
+  "alt": [
+   "arbre de Noël"
+  ]
+ },
+ {
+  "fr": "Père Noël",
+  "art": "le",
+  "g": "m",
+  "en": "Santa Claus",
+  "emoji": "🎅",
+  "theme": "hiver",
+  "mass": true
+ },
+ {
+  "fr": "lutin",
+  "art": "le",
+  "g": "m",
+  "en": "elf",
+  "emoji": "🧝",
+  "theme": "hiver",
+  "alt": [
+   "elfe",
+   "lutin du Père Noël"
+  ]
+ },
+ {
+  "fr": "masque de ski",
+  "art": "le",
+  "g": "m",
+  "en": "ski goggles",
+  "emoji": "🥽",
+  "theme": "hiver",
+  "alt": [
+   "lunettes de ski",
+   "lunettes"
+  ]
+ },
+ {
+  "fr": "renard",
+  "art": "le",
+  "g": "m",
+  "en": "fox",
+  "emoji": "🦊",
+  "theme": "animaux"
+ },
+ {
+  "fr": "loup",
+  "art": "le",
+  "g": "m",
+  "en": "wolf",
+  "emoji": "🐺",
+  "theme": "animaux"
+ },
+ {
+  "fr": "écureuil",
+  "art": "l'",
+  "g": "m",
+  "en": "squirrel",
+  "emoji": "🐿️",
+  "theme": "animaux",
+  "alt": [
+   "suisse"
+  ]
+ },
+ {
+  "fr": "raton laveur",
+  "art": "le",
+  "g": "m",
+  "en": "raccoon",
+  "emoji": "🦝",
+  "theme": "animaux",
+  "alt": [
+   "raton"
+  ]
+ },
+ {
+  "fr": "hérisson",
+  "art": "le",
+  "g": "m",
+  "en": "hedgehog",
+  "emoji": "🦔",
+  "theme": "animaux"
+ },
+ {
+  "fr": "pingouin",
+  "art": "le",
+  "g": "m",
+  "en": "penguin",
+  "emoji": "🐧",
+  "theme": "animaux",
+  "alt": [
+   "manchot"
+  ]
+ },
+ {
+  "fr": "mouffette",
+  "art": "la",
+  "g": "f",
+  "en": "skunk",
+  "emoji": "🦨",
+  "theme": "animaux",
+  "alt": [
+   "moufette",
+   "bête puante"
+  ]
+ },
+ {
+  "fr": "zèbre",
+  "art": "le",
+  "g": "m",
+  "en": "zebra",
+  "emoji": "🦓",
+  "theme": "animaux"
+ },
+ {
+  "fr": "tigre",
+  "art": "le",
+  "g": "m",
+  "en": "tiger",
+  "emoji": "🐯",
+  "theme": "animaux"
+ },
+ {
+  "fr": "koala",
+  "art": "le",
+  "g": "m",
+  "en": "koala",
+  "emoji": "🐨",
+  "theme": "animaux"
+ },
+ {
+  "fr": "panda",
+  "art": "le",
+  "g": "m",
+  "en": "panda",
+  "emoji": "🐼",
+  "theme": "animaux"
+ },
+ {
+  "fr": "pieuvre",
+  "art": "la",
+  "g": "f",
+  "en": "octopus",
+  "emoji": "🐙",
+  "theme": "animaux",
+  "alt": [
+   "poulpe"
+  ]
+ },
+ {
+  "fr": "crabe",
+  "art": "le",
+  "g": "m",
+  "en": "crab",
+  "emoji": "🦀",
+  "theme": "animaux"
+ },
+ {
+  "fr": "escargot",
+  "art": "l'",
+  "g": "m",
+  "en": "snail",
+  "emoji": "🐌",
+  "theme": "animaux"
+ },
+ {
+  "fr": "fourmi",
+  "art": "la",
+  "g": "f",
+  "en": "ant",
+  "emoji": "🐜",
+  "theme": "animaux"
+ },
+ {
+  "fr": "coccinelle",
+  "art": "la",
+  "g": "f",
+  "en": "ladybug",
+  "emoji": "🐞",
+  "theme": "animaux",
+  "alt": [
+   "bête à bon Dieu"
+  ]
+ },
+ {
+  "fr": "dinosaure",
+  "art": "le",
+  "g": "m",
+  "en": "dinosaur",
+  "emoji": "🦕",
+  "theme": "animaux",
+  "alt": [
+   "dino"
+  ]
+ },
+ {
+  "fr": "licorne",
+  "art": "la",
+  "g": "f",
+  "en": "unicorn",
+  "emoji": "🦄",
+  "theme": "animaux"
+ },
+ {
+  "fr": "dragon",
+  "art": "le",
+  "g": "m",
+  "en": "dragon",
+  "emoji": "🐉",
+  "theme": "animaux"
+ },
+ {
+  "fr": "chauve-souris",
+  "art": "la",
+  "g": "f",
+  "en": "bat",
+  "emoji": "🦇",
+  "theme": "animaux"
+ },
+ {
+  "fr": "perroquet",
+  "art": "le",
+  "g": "m",
+  "en": "parrot",
+  "emoji": "🦜",
+  "theme": "animaux"
+ },
+ {
+  "fr": "flamant",
+  "art": "le",
+  "g": "m",
+  "en": "flamingo",
+  "emoji": "🦩",
+  "theme": "animaux",
+  "alt": [
+   "flamant rose",
+   "flamand",
+   "flamand rose"
+  ]
+ },
+ {
+  "fr": "phoque",
+  "art": "le",
+  "g": "m",
+  "en": "seal",
+  "emoji": "🦭",
+  "theme": "animaux"
+ },
+ {
+  "fr": "chevreuil",
+  "art": "le",
+  "g": "m",
+  "en": "deer",
+  "emoji": "🦌",
+  "theme": "animaux",
+  "alt": [
+   "cerf",
+   "renne"
+  ]
+ },
+ {
+  "fr": "requin",
+  "art": "le",
+  "g": "m",
+  "en": "shark",
+  "emoji": "🦈",
+  "theme": "animaux"
+ },
+ {
+  "fr": "spaghetti",
+  "art": "le",
+  "g": "m",
+  "en": "spaghetti",
+  "emoji": "🍝",
+  "theme": "nourriture",
+  "mass": true,
+  "alt": [
+   "spaghettis",
+   "pâtes",
+   "spag"
+  ]
+ },
+ {
+  "fr": "soupe",
+  "art": "la",
+  "g": "f",
+  "en": "soup",
+  "emoji": "🍲",
+  "theme": "nourriture",
+  "mass": true,
+  "alt": [
+   "potage",
+   "ragoût"
+  ]
+ },
+ {
+  "fr": "riz",
+  "art": "le",
+  "g": "m",
+  "en": "rice",
+  "emoji": "🍚",
+  "theme": "nourriture",
+  "mass": true
+ },
+ {
+  "fr": "sushi",
+  "art": "le",
+  "g": "m",
+  "en": "sushi",
+  "emoji": "🍣",
+  "theme": "nourriture",
+  "alt": [
+   "sushis"
+  ]
+ },
+ {
+  "fr": "bacon",
+  "art": "le",
+  "g": "m",
+  "en": "bacon",
+  "emoji": "🥓",
+  "theme": "nourriture",
+  "mass": true
+ },
+ {
+  "fr": "viande",
+  "art": "la",
+  "g": "f",
+  "en": "meat",
+  "emoji": "🥩",
+  "theme": "nourriture",
+  "mass": true,
+  "alt": [
+   "steak",
+   "bifteck"
+  ]
+ },
+ {
+  "fr": "bretzel",
+  "art": "le",
+  "g": "m",
+  "en": "pretzel",
+  "emoji": "🥨",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "croissant",
+  "art": "le",
+  "g": "m",
+  "en": "croissant",
+  "emoji": "🥐",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "bagel",
+  "art": "le",
+  "g": "m",
+  "en": "bagel",
+  "emoji": "🥯",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "salade",
+  "art": "la",
+  "g": "f",
+  "en": "salad",
+  "emoji": "🥗",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "petit gâteau",
+  "art": "le",
+  "g": "m",
+  "en": "cupcake",
+  "emoji": "🧁",
+  "theme": "nourriture",
+  "alt": [
+   "cupcake",
+   "gâteau"
+  ]
+ },
+ {
+  "fr": "burrito",
+  "art": "le",
+  "g": "m",
+  "en": "burrito",
+  "emoji": "🌯",
+  "theme": "nourriture"
+ },
+ {
+  "fr": "sel",
+  "art": "le",
+  "g": "m",
+  "en": "salt",
+  "emoji": "🧂",
+  "theme": "nourriture",
+  "mass": true
+ },
+ {
+  "fr": "beurre",
+  "art": "le",
+  "g": "m",
+  "en": "butter",
+  "emoji": "🧈",
+  "theme": "nourriture",
+  "mass": true
+ },
+ {
+  "fr": "pêche",
+  "art": "la",
+  "g": "f",
+  "en": "peach",
+  "emoji": "🍑",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "mangue",
+  "art": "la",
+  "g": "f",
+  "en": "mango",
+  "emoji": "🥭",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "concombre",
+  "art": "le",
+  "g": "m",
+  "en": "cucumber",
+  "emoji": "🥒",
+  "theme": "fruits-legumes",
+  "alt": [
+   "cornichon"
+  ]
+ },
+ {
+  "fr": "ail",
+  "art": "l'",
+  "g": "m",
+  "en": "garlic",
+  "emoji": "🧄",
+  "theme": "fruits-legumes",
+  "mass": true,
+  "alt": [
+   "gousse d'ail"
+  ]
+ },
+ {
+  "fr": "melon",
+  "art": "le",
+  "g": "m",
+  "en": "melon",
+  "emoji": "🍈",
+  "theme": "fruits-legumes",
+  "alt": [
+   "cantaloup"
+  ]
+ },
+ {
+  "fr": "laitue",
+  "art": "la",
+  "g": "f",
+  "en": "lettuce",
+  "emoji": "🥬",
+  "theme": "fruits-legumes",
+  "alt": [
+   "salade",
+   "chou"
+  ]
+ },
+ {
+  "fr": "olive",
+  "art": "l'",
+  "g": "f",
+  "en": "olive",
+  "emoji": "🫒",
+  "theme": "fruits-legumes"
+ },
+ {
+  "fr": "piment",
+  "art": "le",
+  "g": "m",
+  "en": "hot pepper",
+  "emoji": "🌶️",
+  "theme": "fruits-legumes",
+  "alt": [
+   "piment fort"
+  ]
+ },
+ {
+  "fr": "biberon",
+  "art": "le",
+  "g": "m",
+  "en": "baby bottle",
+  "emoji": "🍼",
+  "theme": "maison",
+  "alt": [
+   "bouteille",
+   "bouteille de lait"
+  ]
+ },
+ {
+  "fr": "enveloppe",
+  "art": "l'",
+  "g": "f",
+  "en": "envelope",
+  "emoji": "✉️",
+  "theme": "maison",
+  "alt": [
+   "lettre"
+  ]
+ },
+ {
+  "fr": "panier",
+  "art": "le",
+  "g": "m",
+  "en": "basket",
+  "emoji": "🧺",
+  "theme": "maison",
+  "alt": [
+   "panier à linge"
+  ]
+ },
+ {
+  "fr": "seau",
+  "art": "le",
+  "g": "m",
+  "en": "bucket",
+  "emoji": "🪣",
+  "theme": "maison",
+  "alt": [
+   "chaudière"
+  ]
+ },
+ {
+  "fr": "échelle",
+  "art": "l'",
+  "g": "f",
+  "en": "ladder",
+  "emoji": "🪜",
+  "theme": "maison"
+ },
+ {
+  "fr": "aimant",
+  "art": "l'",
+  "g": "m",
+  "en": "magnet",
+  "emoji": "🧲",
+  "theme": "maison"
+ },
+ {
+  "fr": "cadenas",
+  "art": "le",
+  "g": "m",
+  "en": "padlock",
+  "emoji": "🔒",
+  "theme": "maison"
+ },
+ {
+  "fr": "papier de toilette",
+  "art": "le",
+  "g": "m",
+  "en": "toilet paper",
+  "emoji": "🧻",
+  "theme": "maison",
+  "alt": [
+   "papier toilette",
+   "papier hygiénique",
+   "rouleau de papier"
+  ]
+ },
+ {
+  "fr": "plante",
+  "art": "la",
+  "g": "f",
+  "en": "plant",
+  "emoji": "🪴",
+  "theme": "maison",
+  "alt": [
+   "pot de fleurs"
+  ]
+ },
+ {
+  "fr": "pile",
+  "art": "la",
+  "g": "f",
+  "en": "battery",
+  "emoji": "🔋",
+  "theme": "maison",
+  "alt": [
+   "batterie"
+  ]
+ },
+ {
+  "fr": "ballon de basket",
+  "art": "le",
+  "g": "m",
+  "en": "basketball",
+  "emoji": "🏀",
+  "theme": "jouets-sports",
+  "alt": [
+   "ballon de basketball",
+   "basketball",
+   "basket"
+  ]
+ },
+ {
+  "fr": "balle de baseball",
+  "art": "la",
+  "g": "f",
+  "en": "baseball",
+  "emoji": "⚾",
+  "theme": "jouets-sports",
+  "alt": [
+   "baseball",
+   "balle"
+  ]
+ },
+ {
+  "fr": "balle de tennis",
+  "art": "la",
+  "g": "f",
+  "en": "tennis ball",
+  "emoji": "🎾",
+  "theme": "jouets-sports",
+  "alt": [
+   "tennis",
+   "balle"
+  ]
+ },
+ {
+  "fr": "quille",
+  "art": "la",
+  "g": "f",
+  "en": "bowling pin",
+  "emoji": "🎳",
+  "theme": "jouets-sports",
+  "alt": [
+   "quilles",
+   "jouer aux quilles",
+   "bowling"
+  ]
+ },
+ {
+  "fr": "manette",
+  "art": "la",
+  "g": "f",
+  "en": "game controller",
+  "emoji": "🎮",
+  "theme": "jouets-sports",
+  "alt": [
+   "manette de jeu",
+   "jeu vidéo",
+   "jeux vidéo"
+  ]
+ },
+ {
+  "fr": "piñata",
+  "art": "la",
+  "g": "f",
+  "en": "piñata",
+  "emoji": "🪅",
+  "theme": "jouets-sports",
+  "alt": [
+   "pinata"
+  ]
+ },
+ {
+  "fr": "baguette magique",
+  "art": "la",
+  "g": "f",
+  "en": "magic wand",
+  "emoji": "🪄",
+  "theme": "jouets-sports",
+  "alt": [
+   "baguette"
+  ]
+ },
+ {
+  "fr": "patin à roulettes",
+  "art": "le",
+  "g": "m",
+  "en": "roller skate",
+  "emoji": "🛼",
+  "theme": "jouets-sports",
+  "alt": [
+   "patins à roulettes"
+  ]
+ },
+ {
+  "fr": "piano",
+  "art": "le",
+  "g": "m",
+  "en": "piano",
+  "emoji": "🎹",
+  "theme": "jouets-sports",
+  "alt": [
+   "clavier"
+  ]
+ },
+ {
+  "fr": "violon",
+  "art": "le",
+  "g": "m",
+  "en": "violin",
+  "emoji": "🎻",
+  "theme": "jouets-sports"
+ },
+ {
+  "fr": "short",
+  "art": "le",
+  "g": "m",
+  "en": "shorts",
+  "emoji": "🩳",
+  "theme": "vetements",
+  "alt": [
+   "shorts",
+   "culottes courtes",
+   "bermuda"
+  ]
+ },
+ {
+  "fr": "bikini",
+  "art": "le",
+  "g": "m",
+  "en": "bikini",
+  "emoji": "👙",
+  "theme": "vetements",
+  "alt": [
+   "maillot",
+   "maillot de bain"
+  ]
+ },
+ {
+  "fr": "sacoche",
+  "art": "la",
+  "g": "f",
+  "en": "purse",
+  "emoji": "👜",
+  "theme": "vetements",
+  "alt": [
+   "sac à main",
+   "sac"
+  ]
+ },
+ {
+  "fr": "gougoune",
+  "art": "la",
+  "g": "f",
+  "en": "flip-flop",
+  "emoji": "🩴",
+  "theme": "vetements",
+  "alt": [
+   "gougounes",
+   "tong",
+   "tongs",
+   "sandale"
+  ]
+ },
+ {
+  "fr": "kimono",
+  "art": "le",
+  "g": "m",
+  "en": "karate uniform",
+  "emoji": "🥋",
+  "theme": "vetements",
+  "alt": [
+   "habit de karaté",
+   "karaté"
+  ]
+ },
+ {
+  "fr": "chapeau de paille",
+  "art": "le",
+  "g": "m",
+  "en": "straw hat",
+  "emoji": "👒",
+  "theme": "vetements",
+  "alt": [
+   "chapeau"
+  ]
+ },
+ {
+  "fr": "crâne",
+  "art": "le",
+  "g": "m",
+  "en": "skull",
+  "emoji": "💀",
+  "theme": "corps",
+  "alt": [
+   "tête de mort",
+   "squelette"
+  ]
+ },
+ {
+  "fr": "barbe",
+  "art": "la",
+  "g": "f",
+  "en": "beard",
+  "emoji": "🧔",
+  "theme": "corps",
+  "alt": [
+   "barbu"
+  ]
+ },
+ {
+  "fr": "pansement",
+  "art": "le",
+  "g": "m",
+  "en": "bandage",
+  "emoji": "🩹",
+  "theme": "corps",
+  "alt": [
+   "plaster",
+   "diachylon",
+   "bandage"
+  ]
+ },
+ {
+  "fr": "poumon",
+  "art": "le",
+  "g": "m",
+  "en": "lung",
+  "emoji": "🫁",
+  "theme": "corps",
+  "alt": [
+   "poumons"
+  ]
+ },
+ {
+  "fr": "empreinte",
+  "art": "l'",
+  "g": "f",
+  "en": "footprint",
+  "emoji": "👣",
+  "theme": "corps",
+  "alt": [
+   "empreintes",
+   "traces de pas",
+   "pas"
+  ]
+ },
+ {
+  "fr": "vent",
+  "art": "le",
+  "g": "m",
+  "en": "wind",
+  "emoji": "🌬️",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "tulipe",
+  "art": "la",
+  "g": "f",
+  "en": "tulip",
+  "emoji": "🌷",
+  "theme": "nature-meteo",
+  "alt": [
+   "fleur"
+  ]
+ },
+ {
+  "fr": "palmier",
+  "art": "le",
+  "g": "m",
+  "en": "palm tree",
+  "emoji": "🌴",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "Terre",
+  "art": "la",
+  "g": "f",
+  "en": "Earth",
+  "emoji": "🌍",
+  "theme": "nature-meteo",
+  "mass": true,
+  "alt": [
+   "planète Terre",
+   "monde"
+  ]
+ },
+ {
+  "fr": "planète",
+  "art": "la",
+  "g": "f",
+  "en": "planet",
+  "emoji": "🪐",
+  "theme": "nature-meteo",
+  "alt": [
+   "Saturne"
+  ]
+ },
+ {
+  "fr": "étoile filante",
+  "art": "l'",
+  "g": "f",
+  "en": "shooting star",
+  "emoji": "🌠",
+  "theme": "nature-meteo"
+ },
+ {
+  "fr": "orage",
+  "art": "l'",
+  "g": "m",
+  "en": "thunderstorm",
+  "emoji": "⛈️",
+  "theme": "nature-meteo",
+  "alt": [
+   "tempête",
+   "tonnerre"
+  ]
+ },
+ {
+  "fr": "île",
+  "art": "l'",
+  "g": "f",
+  "en": "island",
+  "emoji": "🏝️",
+  "theme": "nature-meteo",
+  "alt": [
+   "île déserte"
+  ]
+ },
+ {
+  "fr": "métro",
+  "art": "le",
+  "g": "m",
+  "en": "subway",
+  "emoji": "🚇",
+  "theme": "transports"
+ },
+ {
+  "fr": "paquebot",
+  "art": "le",
+  "g": "m",
+  "en": "cruise ship",
+  "emoji": "🚢",
+  "theme": "transports",
+  "alt": [
+   "navire",
+   "bateau de croisière",
+   "bateau"
+  ]
+ },
+ {
+  "fr": "soucoupe volante",
+  "art": "la",
+  "g": "f",
+  "en": "flying saucer",
+  "emoji": "🛸",
+  "theme": "transports",
+  "alt": [
+   "ovni",
+   "vaisseau spatial"
+  ]
+ },
+ {
+  "fr": "camionnette",
+  "art": "la",
+  "g": "f",
+  "en": "pickup truck",
+  "emoji": "🛻",
+  "theme": "transports",
+  "alt": [
+   "pick-up",
+   "pickup"
+  ]
+ },
+ {
+  "fr": "parachute",
+  "art": "le",
+  "g": "m",
+  "en": "parachute",
+  "emoji": "🪂",
+  "theme": "transports"
+ },
+ {
+  "fr": "tramway",
+  "art": "le",
+  "g": "m",
+  "en": "streetcar",
+  "emoji": "🚋",
+  "theme": "transports",
+  "alt": [
+   "tram"
+  ]
+ }
 ]
