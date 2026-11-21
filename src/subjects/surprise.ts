@@ -1,25 +1,15 @@
 import type { SubjectPack } from '../engine/types';
 import { pick } from '../engine/rng';
-import { mathPack } from './math';
-import { vocabPack } from './vocab';
-import { animalsPack } from './animals';
 import { patternsPack } from './patterns';
-import { clockPack } from './clock';
-import { countingPack } from './counting';
 import { moneyPack } from './money';
 import { spellingPack } from './spelling';
-import { fractionsPack } from './fractions';
-import { comparePack } from './compare';
-import { calendarPack } from './calendar';
-import { skipcountPack } from './skipcount';
+import { printsPack } from './prints';
+import { mathAllPack, timePack } from './mix';
 
-// "A bit of everything" — each question is pulled from a random real subject, so
-// kids meet the tiles they'd normally skip. Imports the packs directly (not the
-// index) to avoid a circular import.
-const POOL: SubjectPack[] = [
-  mathPack, vocabPack, animalsPack, patternsPack, clockPack, countingPack,
-  moneyPack, spellingPack, fractionsPack, comparePack, calendarPack, skipcountPack,
-];
+// "A bit of everything" — each question is pulled from a random subject on the home
+// screen, so kids meet the tiles they'd normally skip. Imports the packs directly (not
+// the index) to avoid a circular import.
+const POOL: SubjectPack[] = [mathAllPack, timePack, moneyPack, patternsPack, spellingPack, printsPack];
 
 export const surprisePack: SubjectPack = {
   meta: {

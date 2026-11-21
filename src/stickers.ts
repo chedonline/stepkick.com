@@ -152,28 +152,31 @@ export const SET_COUNT = STICKER_SETS.length;
 // Sticker gating: each subject / mode fills ONE set. Play those to earn that set.
 // Index = position in STICKER_SETS (Farm, Ocean, Space, Treats, Bugs, Magic,
 // Dinos, Go!, Weather).
+// 2026-11-21 clean-up: every page is still fed by a game on the home screen. Stars a page
+// already earned stay; Farm and Ocean (whose games left) are now filled by Groups and Money.
 export const GROUP_OF: Record<string, number> = {
-  animals: 0, compare: 0,
-  counting: 1, skipcount: 1,
-  math: 2, fractions: 2,
-  vocab: 3, spelling: 3,
+  groups: 0,
+  money: 1,
+  math: 2, fractions: 2, skipcount: 2,
+  spelling: 3, vocab: 3,
   patterns: 4, prints: 4,
-  calendar: 5, clock: 5, money: 5,
+  clock: 5, calendar: 5,
   circuits: 6, maze: 6,
-  sort: 7, tapall: 7, order: 7,
+  tapall: 7, sort: 7, order: 7,
   memory: 8, mensa: 8, surprise: 8,
+  animals: 0, compare: 0, counting: 1,
 };
 
 /** Pretty source names per set (aligned to STICKER_SETS order) — for book labels. */
 export const GROUP_SOURCES: string[][] = [
-  ['Animals', 'Compare'],
-  ['Counting', 'Skip Count'],
-  ['Math', 'Fractions'],
-  ['Words', 'Spelling'],
+  ['Groups'],
+  ['Money'],
+  ['Math'],
+  ['Spelling'],
   ['Patterns', 'Prints'],
-  ['Calendar', 'Clock', 'Money'],
+  ['Time'],
   ['Circuits', 'Maze'],
-  ['Sort', 'Find', 'Order'],
+  ['Find'],
   ['Memory', 'Shapes', 'Surprise'],
 ];
 

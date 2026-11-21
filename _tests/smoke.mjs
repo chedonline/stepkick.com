@@ -5,7 +5,8 @@ import { createServer } from 'vite';
 import puppeteer from '../../whattheflag.net/node_modules/puppeteer-core/lib/puppeteer/puppeteer-core.js';
 
 const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const SUBJECTS = ['Math', 'Words', 'Animals', 'Patterns', 'Clock', 'Counting', 'Money', 'Spelling', 'Fractions', 'Compare', 'Calendar', 'Skip Count', 'Surprise', 'Prints'];
+// 2026-11-21 clean-up: Math (with fractions + skip count), Time (clock + calendar), Money, Patterns, Spelling, Prints, Surprise
+const SUBJECTS = ['Math', 'Time', 'Money', 'Patterns', 'Spelling', 'Prints', 'Surprise'];
 
 const server = await createServer({ root: process.cwd(), server: { port: 5199 } });
 await server.listen();
@@ -35,13 +36,13 @@ await new Promise((r) => setTimeout(r, 400));
 
 // home
 const tiles = await page.$$('.subject-tile');
-if (tiles.length !== 14) throw new Error(`expected 14 subject tiles, got ${tiles.length}`);
-// BONUS badges on the multiplier subjects (Math 1.2×, Skip Count 1.3×, Surprise 1.2×)
+if (tiles.length !== SUBJECTS.length) throw new Error(`expected ${SUBJECTS.length} subject tiles, got ${tiles.length}`);
+// BONUS badges on the multiplier subjects (Math 1.2×, Surprise 1.2×)
 const badge = await page.evaluate(() => {
   const all = document.querySelectorAll('.tile-badge');
   return { count: all.length, text: all[0]?.textContent || '' };
 });
-if (badge.count !== 3) throw new Error(`home: expected 3 tile badges, got ${badge.count}`);
+if (badge.count !== 2) throw new Error(`home: expected 2 tile badges, got ${badge.count}`);
 if (!badge.text.includes('BONUS')) throw new Error(`home: badge text wrong: "${badge.text}"`);
 console.log(`  ✓ home badges: ${badge.count} × "${badge.text}"`);
 await shot('home');
@@ -67,24 +68,19 @@ for (let s = 0; s < SUBJECTS.length; s++) {
   const timeVal = (x) => { const [hh, mm] = x.split(':').map(Number); return hh * 60 + mm; };
   const cents = (x) => (x.includes('$') ? Math.round(parseFloat(x.replace('$', '')) * 100) : parseInt(x, 10));
   let ordered;
-  if (s === 0 || s === 8) ordered = [...q.choices].sort((a, b) => val(a) - val(b)); // math / fractions: by value
-  else if (s === 5) ordered = [...q.choices].sort((a, b) => Number(a) - Number(b)); // counting: numeric
-  else if (s === 4) ordered = [...q.choices].sort((a, b) => timeVal(a) - timeVal(b)); // clock: time
-  else if (s === 6) ordered = [...q.choices].sort((a, b) => cents(a) - cents(b)); // money: cent value
-  else if (s === 3) ordered = q.choices; // patterns: canonical shape order (not asserted)
-  else if (s === 9 || s === 12) ordered = q.choices; // compare clusters / surprise random subject (not asserted)
-  else if (s === 11) ordered = [...q.choices].sort((a, b) => Number(a) - Number(b)); // skip count: numeric
-  else ordered = [...q.choices].sort((a, b) => a.localeCompare(b)); // words/animals/spelling/calendar: alpha
+  if (s === 0) ordered = [...q.choices].sort((a, b) => val(a) - val(b)); // math (+ fractions, skip count): by value
+  else if (s === 2) ordered = [...q.choices].sort((a, b) => cents(a) - cents(b)); // money: cent value
+  else if (s === 1 || s === 3 || s === 6) ordered = q.choices; // time (clock or calendar) / patterns / surprise: not asserted
+  else ordered = [...q.choices].sort((a, b) => a.localeCompare(b)); // spelling / prints: alpha
+  void timeVal;
   if (JSON.stringify(ordered) !== JSON.stringify(q.choices))
     throw new Error(`${SUBJECTS[s]}: choices not in order → ${JSON.stringify(q.choices)}`);
   console.log(`  order ok: ${JSON.stringify(q.choices)}`);
-  if (s === 4) await shot('game-clock');
-  if (s === 5) await shot('game-counting');
-  if (s === 6) await shot('game-money');
-  if (s === 7) await shot('game-spelling');
-  if (s === 8) await shot('game-fractions');
   if (s === 0) await shot('game-math');
+  if (s === 1) await shot('game-time');
+  if (s === 2) await shot('game-money');
   if (s === 3) await shot('game-patterns');
+  if (s === 4) await shot('game-spelling');
 
   // play all 10 questions (click first live choice each time), validating each
   for (let i = 0; i < 10; i++) {
@@ -98,8 +94,6 @@ for (let s = 0; s < SUBJECTS.length; s++) {
     if (new Set(check.cs).size !== 4) throw new Error(`${SUBJECTS[s]} q${i}: dup choices ${JSON.stringify(check.cs)}`);
     if (check.bad) throw new Error(`${SUBJECTS[s]} q${i}: bad choice ${JSON.stringify(check.cs)} (prompt "${check.prompt}")`);
     if (s === 0) console.log(`    math q${i}: "${check.prompt}" → ${JSON.stringify(check.cs)}`);
-    if (s === 2 && i >= 6) console.log(`    animals q${i}: "${check.prompt}"`);
-    if (s === 2 && check.prompt.startsWith('Which')) await shot('game-animals-classify');
     const btn = await page.$('.game .choice:not([disabled])');
     await btn.click();
     await new Promise((r) => setTimeout(r, i === 9 ? 1800 : 1300));
@@ -220,9 +214,8 @@ console.log('▶ Play modes');
 await page.click('.memory .icon-btn'); // back home from memory
 await page.waitForSelector('.subject-grid', { timeout: 3000 });
 const MODES = [
-  { launch: '.sort-launch', screen: '.sortgame', sel: '.sort-bin', min: 2 },
+  { launch: '.groups-launch', screen: '.groupsgame', sel: '.grp-tile', min: 6 },
   { launch: '.tap-launch', screen: '.tapgame', sel: '.tap-cell', min: 8 },
-  { launch: '.order-launch', screen: '.ordergame', sel: '.order-tile', min: 4 },
   { launch: '.maze-launch', screen: '.mazegame', sel: '.maze-cell', min: 20 },
   { launch: '.mensa-launch', screen: '.mensagame', sel: '.mensa-choice', min: 4 },
 ];

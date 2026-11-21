@@ -9,6 +9,7 @@ export interface HomeModes {
   book: () => void;
   circuits: () => void;
   memory: () => void;
+  groups: () => void;
   sort: () => void;
   tapall: () => void;
   order: () => void;
@@ -24,9 +25,10 @@ const LAUNCHERS: { key?: keyof HomeModes; href?: string; cls: string; icon: stri
   { href: './riddles/', cls: 'circ-launch voice-launch riddles-launch', icon: '🤷', title: 'Riddles', sub: 'Hear a joke, shout the answer!', badge: '🔊 NEW' },
   { key: 'circuits', cls: 'circ-launch circuits-launch', icon: '🔌', title: 'Circuits', sub: 'Tap switches, light the bulb!' },
   { key: 'memory', cls: 'circ-launch mem-launch', icon: '🃏', title: 'Memory Match', sub: 'Find the matching pairs!', badge: 'NEW' },
-  { key: 'sort', cls: 'circ-launch sort-launch', icon: '🗂️', title: 'Sort', sub: 'Put each thing in its bin!', badge: 'NEW' },
-  { key: 'tapall', cls: 'circ-launch tap-launch', icon: '🎯', title: 'Find', sub: 'Tap all the matching ones!', badge: 'NEW' },
-  { key: 'order', cls: 'circ-launch order-launch', icon: '🔢', title: 'Put in Order', sub: 'Smallest to biggest!', badge: 'NEW' },
+  // Sort and Put in Order left the home screen in the 2026-11-21 clean-up (Find covers Sort;
+  // ordering small numbers was too easy at 8). Their screens still exist in ui/.
+  { key: 'groups', cls: 'circ-launch groups-launch', icon: '🧩', title: 'Groups', sub: 'Find the sums that are equal!', badge: 'NEW' },
+  { key: 'tapall', cls: 'circ-launch tap-launch', icon: '🎯', title: 'Find', sub: 'Tap all the matching ones!' },
   { key: 'maze', cls: 'circ-launch maze-launch', icon: '🧭', title: 'Maze', sub: 'Find your way to the star!', badge: 'NEW' },
   { key: 'mensa', cls: 'circ-launch mensa-launch', icon: '🧩', title: 'Shape Builder', sub: 'Which two make the shape?', badge: 'NEW' },
 ];

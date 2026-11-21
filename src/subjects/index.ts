@@ -13,31 +13,30 @@ import { calendarPack } from './calendar';
 import { skipcountPack } from './skipcount';
 import { surprisePack } from './surprise';
 import { printsPack } from './prints';
+import { mathAllPack, timePack } from './mix';
 
-/** Registry — the home screen and router iterate this. Order = tile order. */
+/**
+ * Registry — the home screen and router iterate this. Order = tile order.
+ * Clean-up 2026-11-21: Fractions + Skip Count fold into Math, Calendar into Clock (now
+ * "Time"); Words, Animals, Counting and Compare are off the home screen (too easy at 8;
+ * French words live in Mots at /french). Their packs stay for SUBJECT_BY_ID and the mixes.
+ */
 export const SUBJECTS: SubjectPack[] = [
-  mathPack,
-  vocabPack,
-  animalsPack,
-  patternsPack,
-  clockPack,
-  countingPack,
+  mathAllPack,
+  timePack,
   moneyPack,
+  patternsPack,
   spellingPack,
-  fractionsPack,
-  comparePack,
-  calendarPack,
-  skipcountPack,
-  surprisePack,
   printsPack,
+  surprisePack,
 ];
 
 export const SUBJECT_BY_ID: Record<SubjectId, SubjectPack> = {
-  math: mathPack,
+  math: mathAllPack,
   vocab: vocabPack,
   animals: animalsPack,
   patterns: patternsPack,
-  clock: clockPack,
+  clock: timePack,
   counting: countingPack,
   money: moneyPack,
   spelling: spellingPack,
@@ -48,3 +47,6 @@ export const SUBJECT_BY_ID: Record<SubjectId, SubjectPack> = {
   surprise: surprisePack,
   prints: printsPack,
 };
+
+// keep the originals referenced (they're the building blocks of the mixes above)
+void mathPack; void clockPack;
