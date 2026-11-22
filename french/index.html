@@ -333,6 +333,8 @@ body.playing nav{opacity:.35}
       <select class="sel" id="sAuto"><option value="on">Oui</option><option value="off">Non</option></select></div>
     <div class="step"><div><b>Son neuf après le micro</b><small>Fresh audio after listening. iPhone sounds crackly after the mic? Try Oui.</small></div>
       <select class="sel" id="sFresh"><option value="off">Non</option><option value="on">Oui</option></select></div>
+    <div class="step"><div><b>Micro toujours ouvert</b><small>Keep the mic open all game (iPhone test). Voice fades, crackles or chimes after the mic? Try Oui. The mic dot stays on while she plays.</small></div>
+      <select class="sel" id="sHold"><option value="off">Non</option><option value="on">Oui</option></select></div>
     <div class="step"><div><b>1. Haut-parleur</b><small>Speaker test: plays one line in Jeanne's voice.</small></div>
       <button class="btn" id="tSpeak">🔊 Jouer</button><div class="res" id="tSpeakRes"></div></div>
     <div class="step"><div><b>2. Micro</b><small>Microphone test: tap, then say « grenouille ».</small></div>
@@ -923,7 +925,7 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 };
-const DEFAULT_SETTINGS = { n: 10, fresh: 3, auto: true, next: 2, think: 7, help: "first", voice: "normal", mode: "melange", themes: {}, freshAudio: false };
+const DEFAULT_SETTINGS = { n: 10, fresh: 3, auto: true, next: 2, think: 7, help: "first", voice: "normal", mode: "melange", themes: {}, freshAudio: false, holdMic: false };
 let settings = Object.assign({}, DEFAULT_SETTINGS, store.get("mots_settings", {}));
 const saveSettings = () => store.set("mots_settings", settings);
 // progress per word: { box 0-5, next = game number it's due, right, tries }
@@ -935,7 +937,7 @@ const boxOf = w => (prog[w.fr] || {}).box || 0;
 const INTERVAL = [0, 1, 2, 4, 7, 12]; // games until a word comes back, by box (5 = learned)
 const themeOn = k => settings.themes[k] !== false;
 
-const VERSION = "2026-11-21j"; // bump on every change (the page checks for a newer one on load)
+const VERSION = "2026-11-22a"; // bump on every change (the page checks for a newer one on load)
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -961,6 +963,7 @@ function dlog(msg) {
 
 /* ---------------- voice out (Web Audio + built-in recordings) ---------------- */
 let ctx = null, currentSrc = null, currentClip = null, micLive = false, ttsUsed = false;
+const MUTED = /[?&]debug\b/.test(location.search) && /[?&]mute\b/.test(location.search); // tests: play everything silently
 function makeCtx() {
   const c = new (window.AudioContext || window.webkitAudioContext)();
   // iOS may pause the audio mid-line: wake it, then replay that line from the top with a soft fade-in.
@@ -981,8 +984,8 @@ function unlockAudio() { // call inside a tap
   } catch (e) {}
 }
 // "Fresh audio after listening": a new player once the mic has closed; keeps the old one if the phone refuses.
-async function freshCtx() {
-  if (!settings.freshAudio || !ctx) return;
+async function freshCtx(force) {
+  if ((!settings.freshAudio && !force) || !ctx) return;
   let c = null;
   try {
     c = makeCtx();
@@ -1019,8 +1022,8 @@ function playWeb(buf, label) {
       const clip = { hit: false };
       const start = fadeIn => {
         const s = ctx.createBufferSource(), g = ctx.createGain(), t = performance.now();
-        s.buffer = ab; s.connect(g); g.connect(ctx.destination); g.gain.value = lvl;
-        if (fadeIn) { const n = ctx.currentTime; g.gain.setValueAtTime(0.0001, n); g.gain.exponentialRampToValueAtTime(lvl, n + 0.3); }
+        s.buffer = ab; s.connect(g); g.connect(ctx.destination); g.gain.value = MUTED ? 0 : lvl;
+        if (fadeIn && !MUTED) { const n = ctx.currentTime; g.gain.setValueAtTime(0.0001, n); g.gain.exponentialRampToValueAtTime(lvl, n + 0.3); }
         s.onended = () => {
           if (s.replaced || finished) return;
           const took = (performance.now() - t) / 1000;
@@ -1076,10 +1079,35 @@ if (fakeSay) {
 }
 let micBlocked = false, micWorked = false, cancelListen = null;
 let heardAlts = []; // the recognizer's other guesses during the current listen
+/* "Micro toujours ouvert" (⚙️, iPhone test): every time the mic opens, the iPhone flips its
+   audio from playing to call-style record-and-play and back, and that flip is what makes Jeanne
+   start loud then fade, crackle, or chime. This opens the mic once when the game starts and keeps
+   it open until the game ends or the app is hidden, so the phone stays in one mode and never
+   flips between questions. The recognizer still does the listening. */
+let heldMic = null, holdRefused = false;
+const micGame = () => ["melange", "disle"].includes(settings.mode); // only the games that listen
+async function holdMic() {
+  if (!settings.holdMic || heldMic || holdRefused || !micGame() || micBlocked || !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) return;
+  try {
+    // no echo cancelling / noise / volume processing: on iPhone that's what turns on the "phone call" voice processing
+    const s = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+    if (heldMic || !settings.holdMic) { s.getTracks().forEach(t => t.stop()); return; }
+    heldMic = s;
+    const tr = s.getAudioTracks()[0];
+    dlog("mic held open for the game" + (tr && tr.label ? " (" + tr.label + ")" : ""));
+    if (tr) tr.onended = () => { if (heldMic === s) { heldMic = null; dlog("the phone closed the held mic"); } };
+    await freshCtx(true); // the phone has just switched modes: a new player made in that mode
+  } catch (e) { heldMic = null; dlog("couldn't keep the mic open: " + e.message); if (e.name === "NotAllowedError") holdRefused = true; }
+}
+function releaseMic(why) {
+  if (!heldMic) return;
+  heldMic.getTracks().forEach(t => t.stop()); heldMic = null; dlog("held mic closed (" + why + ")");
+}
 const MIC_SETTLE = 850; // ms after the mic closes before talking (the iPhone's closing chime)
 const REVEAL_PAUSE = 800; // then a beat before "Bravo !", same as Riddles' pause before the punchline
 function listen(seconds, { earlyStop, silenceMs } = {}) {
   heardAlts = [];
+  if (settings.holdMic && !heldMic) holdMic(); // back from a pause: open it again
   return new Promise(resolve => {
     let text = "", done = false, rec = null, lastChange = Date.now(), restarts = 0, micEnded = null;
     const end = Date.now() + seconds * 1000;
@@ -1466,6 +1494,7 @@ function startGame() {
   nextQ();
 }
 async function endGame() {
+  releaseMic("game over");
   const id = ++runId, alive = () => id === runId;
   document.body.classList.remove("playing"); current = null;
   const firsts = game.filter(q => !q.retry), right = firsts.filter(q => q.res).length;
@@ -1487,6 +1516,7 @@ function pauseGame(why) {
   if (why) dlog(why);
 }
 function goMenu() {
+  releaseMic("menu");
   cancelRun(); game = null; current = null; paused = false; document.body.classList.remove("playing");
   clearStage(); renderDots(); renderStart(); $("endOv").classList.add("hidden"); $("startOv").classList.remove("hidden");
   ["hearBtn", "dunnoBtn", "nextBtn", "stopBtn"].forEach(b => $(b).disabled = true); $("nextBtn").textContent = "Suivant ▶";
@@ -1623,15 +1653,15 @@ function askMic() {
     } catch (e) { done("couldn't start: " + e.message); }
   });
 }
-$("startBtn").onclick = async () => { unlockAudio(); requestWake(); await askMic(); startGame(); };
-$("againBtn").onclick = () => { unlockAudio(); startGame(); };
+$("startBtn").onclick = async () => { unlockAudio(); requestWake(); await askMic(); await holdMic(); startGame(); };
+$("againBtn").onclick = async () => { unlockAudio(); await holdMic(); startGame(); };
 $("endMenu").onclick = goMenu;
 
 let wake = null;
 async function requestWake() { try { if ("wakeLock" in navigator) wake = await navigator.wakeLock.request("screen"); } catch (e) {} }
 // Only play while it's on screen: switching apps, locking the phone or hiding the tab pauses it.
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") { if (game && !paused) pauseGame("page hidden: pausing"); else stopAudio(); }
+  if (document.visibilityState === "hidden") { if (game && !paused) pauseGame("page hidden: pausing"); else stopAudio(); releaseMic("page hidden"); }
   else if (game && !paused) requestWake();
 });
 
@@ -1712,7 +1742,7 @@ $("bkRestore").onclick = () => { const c = prompt("Colle ton code Mots (Paste yo
 /* ---------------- settings + sound test ---------------- */
 function openSet() {
   if (game && !paused) pauseGame("opened settings");
-  $("sN").value = String(settings.n); $("sNew").value = String(settings.fresh); $("sAuto").value = settings.auto ? "on" : "off"; $("sThink").value = String(settings.think); $("sHelp").value = settings.help; $("sVoice").value = settings.voice; $("sFresh").value = settings.freshAudio ? "on" : "off";
+  $("sN").value = String(settings.n); $("sNew").value = String(settings.fresh); $("sAuto").value = settings.auto ? "on" : "off"; $("sThink").value = String(settings.think); $("sHelp").value = settings.help; $("sVoice").value = settings.voice; $("sFresh").value = settings.freshAudio ? "on" : "off"; $("sHold").value = settings.holdMic ? "on" : "off";
   ["tSpeakRes", "tListenRes"].forEach(id => { $(id).textContent = ""; $(id).className = "res"; });
   $("verLine").textContent = `Version ${VERSION} · voix (voice) : ${BUILTIN.voice || "?"} · ${Object.keys(BUILTIN.lines).length} phrases enregistrées (recorded lines) · ${ALL.length} mots (words)`;
   $("set").classList.remove("hidden"); $("log").textContent = LOG.slice(-40).join("\n"); unlockAudio();
@@ -1726,6 +1756,10 @@ $("sThink").onchange = e => { settings.think = +e.target.value; saveSettings(); 
 $("sHelp").onchange = e => { settings.help = e.target.value; saveSettings(); };
 $("sVoice").onchange = e => { settings.voice = e.target.value; saveSettings(); stopAudio(); unlockAudio(); speak(LINES.TEST[0]); }; // play a line so she hears the new speed
 $("sAuto").onchange = e => { settings.auto = e.target.value === "on"; saveSettings(); };
+$("sHold").onchange = e => {
+  settings.holdMic = e.target.value === "on"; saveSettings(); dlog("--- keep the mic open: " + e.target.value + " ---");
+  unlockAudio(); if (!settings.holdMic) releaseMic("turned off"); else if (game) holdMic();
+};
 $("sFresh").onchange = e => { settings.freshAudio = e.target.value === "on"; saveSettings(); dlog("--- fresh audio after listening: " + e.target.value + " ---"); unlockAudio(); };
 const res = (id, msg, cls) => { $(id).innerHTML = msg; $(id).className = "res" + (cls ? " " + cls : ""); };
 $("tSpeak").onclick = async () => {
